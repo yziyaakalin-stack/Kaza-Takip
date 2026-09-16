@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaza takibi</title>
+<style>
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#1a2230; --muted:#5d6878; --line:#d5dbe3;
+  --accent:#1f6f78; --accent-ink:#ffffff; --soft:#e3e8ee; --warn:#a2402c;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f141b; --surface:#171e27; --ink:#e6ebf1; --muted:#93a0b0; --line:#28323e;
+    --accent:#5bb8c0; --accent-ink:#06282b; --soft:#1f2833; --warn:#e3876f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --surface:#171e27; --ink:#e6ebf1; --muted:#93a0b0; --line:#28323e;
+  --accent:#5bb8c0; --accent-ink:#06282b; --soft:#1f2833; --warn:#e3876f;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size:16px; line-height:1.45;
+}
+.wrap{max-width:560px; margin:0 auto; padding:20px 16px 48px}
+.num{font-variant-numeric:tabular-nums}
+button{font:inherit; color:inherit; cursor:pointer}
+button:focus-visible, input:focus-visible, summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+/* Head */
+.head{display:flex; justify-content:space-between; align-items:baseline; gap:12px}
+h1{font-size:1.05rem; font-weight:600; margin:0; color:var(--muted)}
+.status{font-size:.8rem; color:var(--muted)}
+.total{margin:10px 0 2px; font-size:clamp(2.6rem, 12vw, 3.6rem); font-weight:800; letter-spacing:-.03em; line-height:1}
+.total small{font-size:1rem; font-weight:500; letter-spacing:0; color:var(--muted); margin-left:6px}
+.sub{color:var(--muted); font-size:.92rem; margin:6px 0 0}
+.bigbar{height:8px; border-radius:4px; background:var(--soft); overflow:hidden; margin:14px 0 4px}
+.bigbar i{display:block; height:100%; background:var(--accent); width:0; transition:width .3s}
+.hint{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:.88rem; color:var(--muted); margin-top:14px}
+
+.dayBtn{
+  width:100%; margin:18px 0 6px; padding:15px 16px; border:0; border-radius:12px;
+  background:var(--accent); color:var(--accent-ink); font-weight:700; font-size:1.02rem;
+}
+.dayBtn:active{transform:scale(.99)}
+.dayNote{font-size:.82rem; color:var(--muted); text-align:center; margin:0 0 18px}
+
+/* Vakit rows */
+.list{background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+.row{display:grid; grid-template-columns:44px 1fr auto; gap:12px; align-items:center; padding:12px 12px 12px 12px; border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.sky{width:44px; height:44px; border-radius:10px; position:relative; overflow:hidden}
+.sky::after{content:""; position:absolute; left:0; right:0; bottom:0; height:30%; background:rgba(10,14,24,.28)}
+.sky b{position:absolute; border-radius:50%}
+.name{font-weight:600}
+.count{font-size:.86rem; color:var(--muted)}
+.count strong{color:var(--ink); font-size:1.05rem; font-weight:700}
+.bar{height:5px; border-radius:3px; background:var(--soft); overflow:hidden; margin-top:6px}
+.bar i{display:block; height:100%; width:0; transition:width .3s}
+.btns{display:flex; gap:6px}
+.minus{width:40px; height:44px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--muted); font-size:1.2rem}
+.plus{height:44px; padding:0 14px; border-radius:10px; border:1px solid var(--accent); background:transparent; color:var(--accent); font-weight:700; white-space:nowrap}
+.plus:disabled, .minus:disabled{opacity:.35; cursor:default}
+.row.flash .plus{background:var(--accent); color:var(--accent-ink)}
+.row.doneRow .name::after{content:" tamamlandı"; font-weight:500; font-size:.8rem; color:var(--accent)}
+
+/* sky palettes */
+.s-sabah{background:linear-gradient(180deg,#34427a 0%,#9b7fb0 55%,#f0b3a0 100%)}
+.s-ogle{background:linear-gradient(180deg,#3d9ee0 0%,#8fcdf3 60%,#dff2ff 100%)}
+.s-ikindi{background:linear-gradient(180deg,#e9b458 0%,#f0c982 50%,#e7925a 100%)}
+.s-aksam{background:linear-gradient(180deg,#5b3576 0%,#c2506a 55%,#f08a4f 100%)}
+.s-yatsi{background:linear-gradient(180deg,#0f1433 0%,#1f2a5c 70%,#2c3a70 100%)}
+.s-vitir{background:linear-gradient(180deg,#070918 0%,#1a1740 70%,#2e2860 100%)}
+.fill-sabah{background:linear-gradient(90deg,#34427a,#f0b3a0)}
+.fill-ogle{background:linear-gradient(90deg,#3d9ee0,#8fcdf3)}
+.fill-ikindi{background:linear-gradient(90deg,#e9b458,#e7925a)}
+.fill-aksam{background:linear-gradient(90deg,#5b3576,#f08a4f)}
+.fill-yatsi{background:linear-gradient(90deg,#1f2a5c,#4a5ca6)}
+.fill-vitir{background:linear-gradient(90deg,#2e2860,#6b5fb8)}
+
+/* Log */
+h2{font-size:1rem; margin:28px 0 10px; font-weight:700}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px}
+.today{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap}
+.today strong{font-size:1.5rem; font-weight:800}
+.bars{display:flex; align-items:flex-end; gap:4px; height:72px; margin-top:14px}
+.bars div{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:4px}
+.bars span{display:block; width:100%; max-width:22px; border-radius:3px 3px 0 0; background:var(--accent); min-height:2px}
+.bars span.zero{background:var(--soft)}
+.bars em{font-style:normal; font-size:.62rem; color:var(--muted)}
+.eta{margin-top:12px; font-size:.9rem; color:var(--muted)}
+.eta b{color:var(--ink)}
+
+/* Settings */
+details{margin-top:28px; background:var(--surface); border:1px solid var(--line); border-radius:14px}
+summary{padding:14px; font-weight:700; cursor:pointer; list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; float:right; color:var(--muted); font-weight:500}
+details[open] summary::after{content:"−"}
+.set{padding:0 14px 16px}
+.field{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--line)}
+.field label{font-size:.92rem}
+.field .help{display:block; font-size:.78rem; color:var(--muted)}
+input[type=date], input[type=number]{
+  font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line);
+  border-radius:8px; padding:7px 9px; min-width:0;
+}
+input[type=number]{width:96px; text-align:right}
+input[type=checkbox]{width:22px; height:22px; accent-color:var(--accent)}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; margin-top:8px}
+.grid label{display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:.88rem; background:var(--bg); border-radius:8px; padding:6px 6px 6px 10px}
+.grid input{width:84px; background:var(--surface)}
+.subh{font-size:.92rem; font-weight:600; margin:16px 0 2px}
+.small{font-size:.8rem; color:var(--muted); margin:4px 0 0}
+.act{margin-top:12px; width:100%; padding:11px; border-radius:10px; border:1px solid var(--accent); background:transparent; color:var(--accent); font-weight:600}
+.danger{border-color:var(--warn); color:var(--warn)}
+.danger.armed{background:var(--warn); color:var(--surface)}
+
+.loading{padding:60px 0; text-align:center; color:var(--muted)}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+@media (max-width:360px){
+  .row{grid-template-columns:36px 1fr auto; gap:9px}
+  .sky{width:36px; height:36px}
+  .plus{padding:0 10px}
+}
+</style>
+</head>
+<body>
+<main class="wrap" id="app"><p class="loading">Yükleniyor…</p></main>
+
+<script>
+(function(){
+  "use strict";
+
+  var KEYS = [
+    {k:"sabah",  n:"Sabah"},
+    {k:"ogle",   n:"Öğle"},
+    {k:"ikindi", n:"İkindi"},
+    {k:"aksam",  n:"Akşam"},
+    {k:"yatsi",  n:"Yatsı"},
+    {k:"vitir",  n:"Vitir"}
+  ];
+  var LS_KEY = "kaza-takip-v1";
+  var app = document.getElementById("app");
+
+  var state = null;       // current data
+  var saved = true;       // true when no user changes exist yet (don't write defaults)
+  var mode = "loading";   // "db" | "local" | "loading"
+  var ref = null;
+  var dirty = false, writing = false, timer = null;
+  var statusText = "";
+
+  /* ---------- dates ---------- */
+  function pad(n){ return (n<10?"0":"") + n; }
+  function isoLocal(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+  function todayIso(){ return isoLocal(new Date()); }
+  function yesterdayIso(){ var d=new Date(); d.setDate(d.getDate()-1); return isoLocal(d); }
+  function utc(iso){ var p=iso.split("-"); return Date.UTC(+p[0], +p[1]-1, +p[2]); }
+  function daysBetween(a,b){ return Math.round((utc(b)-utc(a))/86400000); }
+  function shiftIso(iso, n){ var t=new Date(utc(iso)+n*86400000); return t.getUTCFullYear()+"-"+pad(t.getUTCMonth()+1)+"-"+pad(t.getUTCDate()); }
+
+  function fmtInt(n){ return Math.max(0, Math.round(n)).toLocaleString("tr-TR"); }
+  function fmtDuration(days){
+    if(!isFinite(days)) return "—";
+    days = Math.ceil(days);
+    if(days < 60) return days + " gün";
+    var y = Math.floor(days/365.25), m = Math.round((days - y*365.25)/30.44);
+    if(m===12){ y++; m=0; }
+    if(y===0) return m + " ay";
+    return y + " yıl" + (m ? " " + m + " ay" : "");
+  }
+  var MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+  function fmtDate(iso){ var p=iso.split("-"); return (+p[2])+" "+MONTHS[+p[1]-1]+" "+p[0]; }
+
+  /* ---------- model ---------- */
+  function activeKeys(){ return KEYS.filter(function(x){ return x.k!=="vitir" || state.setup.vitir; }); }
+  function computeDebt(setup){
+    var days = daysBetween(setup.start, setup.end) + 1;
+    if(!(days > 0)) days = 0;
+    var hayiz = Math.round((days/30.44) * (Number(setup.hayiz)||0));
+    return Math.max(0, days - hayiz);
+  }
+  function defaults(){
+    var setup = {start:"2014-01-01", end:yesterdayIso(), vitir:true, hayiz:0};
+    var d = computeDebt(setup), initial = {}, done = {};
+    KEYS.forEach(function(x){ initial[x.k]=d; done[x.k]=0; });
+    return {v:1, setup:setup, initial:initial, done:done, log:{}, target:1, created:todayIso()};
+  }
+  function normalize(s){
+    var d = defaults();
+    if(!s || typeof s!=="object") return d;
+    s = JSON.parse(JSON.stringify(s));
+    s.setup = Object.assign({}, d.setup, s.setup||{});
+    s.initial = Object.assign({}, d.initial, s.initial||{});
+    s.done = Object.assign({}, d.done, s.done||{});
+    s.log = s.log && typeof s.log==="object" ? s.log : {};
+    s.target = Number(s.target)>0 ? Number(s.target) : 1;
+    return s;
+  }
+  function remaining(k){ return Math.max(0, (Number(state.initial[k])||0) - (Number(state.done[k])||0)); }
+
+  /* ---------- persistence ---------- */
+  function pruneLog(){
+    var cutoff = shiftIso(todayIso(), -400);
+    Object.keys(state.log).forEach(function(d){ if(d < cutoff || !state.log[d]) delete state.log[d]; });
+  }
+  function change(){
+    saved = false;
+    pruneLog();
+    render();
+    if(mode==="local"){
+      try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); setStatus("Bu cihazda kayıtlı"); }
+      catch(e){ setStatus("Kaydedilemedi"); }
+      return;
+    }
+    if(mode!=="db") return;
+    dirty = true;
+    setStatus("Kaydediliyor…");
+    clearTimeout(timer);
+    timer = setTimeout(flush, 600);
+  }
+  function flush(){
+    if(writing || !dirty) return;
+    writing = true; dirty = false;
+    var body = JSON.parse(JSON.stringify(state));
+    ref.set(body).then(function(){
+      writing = false;
+      if(dirty){ flush(); } else setStatus("Kaydedildi");
+    }, function(err){
+      writing = false;
+      var code = err && err.code;
+      if(code==="unavailable"){
+        dirty = true;
+        setTimeout(flush, 800 + Math.random()*1200);
+        setStatus("Bağlantı bekleniyor…");
+      } else if(code==="quota_exceeded"){
+        setStatus("Kayıt alanı dolu");
+      } else {
+        setStatus("Kaydedilemedi, değişiklik yalnızca bu açılışta duruyor");
+      }
+    });
+  }
+  function setStatus(t){
+    statusText = t;
+    var el = document.getElementById("status");
+    if(el) el.textContent = t;
+  }
+
+  function startLocal(){
+    if(mode!=="loading") return;
+    mode = "local";
+    var raw = null;
+    try{ raw = localStorage.getItem(LS_KEY); }catch(e){}
+    if(raw){ try{ state = normalize(JSON.parse(raw)); saved = true; }catch(e){ state = defaults(); } }
+    else state = defaults();
+    statusText = raw ? "Bu cihazda kayıtlı" : "Telefonda saklanacak";
+    render();
+  }
+
+  function startDb(db){
+    try{ ref = db.doc("kaza/durum"); }catch(e){ startLocal(); return; }
+    var first = true;
+    ref.onSnapshot(function(snap){
+      if(snap.metadata && snap.metadata.hasPendingWrites) return;
+      if(dirty || writing) return;
+      if(snap.exists){
+        state = normalize(snap.data());
+        saved = true;
+      } else if(first || !state){
+        state = defaults();
+      }
+      if(first){ statusText = snap.exists ? "Kaydedildi" : "İlk işaretlemede kaydedilecek"; first = false; }
+      mode = "db";
+      render();
+    }, function(err){
+      if(mode==="loading"){ startLocal(); }
+      else setStatus("Senkronizasyon durdu, sayfayı yenile");
+    });
+  }
+
+  function boot(){
+    var c = window.claude;
+    if(!c || typeof c.use!=="function"){ startLocal(); return; }
+    var fallback = setTimeout(startLocal, 11000);
+    c.use("db").then(function(db){
+      clearTimeout(fallback);
+      if(!db){ startLocal(); return; }
+      startDb(db);
+    }, function(){ clearTimeout(fallback); startLocal(); });
+  }
+
+  /* ---------- actions ---------- */
+  function addLog(n){
+    var t = todayIso();
+    state.log[t] = Math.max(0, (Number(state.log[t])||0) + n);
+  }
+  function plus(k){
+    if(remaining(k)<=0) return;
+    state.done[k] = (Number(state.done[k])||0) + 1;
+    addLog(1);
+    flashRow(k);
+    change();
+  }
+  function minus(k){
+    if((Number(state.done[k])||0)<=0) return;
+    state.done[k] = Number(state.done[k]) - 1;
+    addLog(-1);
+    change();
+  }
+  function wholeDay(){
+    var n = 0;
+    activeKeys().forEach(function(x){
+      if(remaining(x.k)>0){ state.done[x.k] = (Number(state.done[x.k])||0)+1; n++; }
+    });
+    if(!n) return;
+    addLog(n);
+    change();
+  }
+  var flashK = null;
+  function flashRow(k){ flashK = k; setTimeout(function(){ flashK=null; var r=document.querySelector('.row[data-k="'+k+'"]'); if(r) r.classList.remove("flash"); }, 350); }
+
+  var armed = false, armTimer = null;
+  function resetProgress(btn){
+    if(!armed){
+      armed = true; btn.classList.add("armed"); btn.textContent = "Emin misin? Tekrar dokun";
+      clearTimeout(armTimer);
+      armTimer = setTimeout(function(){ armed=false; render(); }, 4000);
+      return;
+    }
+    armed = false; clearTimeout(armTimer);
+    KEYS.forEach(function(x){ state.done[x.k]=0; });
+    state.log = {};
+    change();
+  }
+
+  /* ---------- render ---------- */
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  function stats(){
+    var keys = activeKeys(), perDay = keys.length;
+    var totalInit = 0, totalRem = 0;
+    keys.forEach(function(x){ totalInit += Number(state.initial[x.k])||0; totalRem += remaining(x.k); });
+    var t = todayIso();
+    var dates = Object.keys(state.log).filter(function(d){ return state.log[d] > 0; }).sort();
+    var avg = 0;
+    if(dates.length){
+      var from = shiftIso(t, -29);
+      var startD = dates[0] > from ? dates[0] : from;
+      var span = daysBetween(startD, t) + 1;
+      var sum = 0;
+      dates.forEach(function(d){ if(d >= startD) sum += state.log[d]; });
+      avg = sum / Math.max(1, span);
+    }
+    return {keys:keys, perDay:perDay, totalInit:totalInit, totalRem:totalRem, avg:avg,
+            today:Number(state.log[t])||0, targetUnits: state.target*perDay};
+  }
+
+  function render(){
+    if(!state){ return; }
+    var s = stats();
+    var pct = s.totalInit ? (1 - s.totalRem/s.totalInit) * 100 : 0;
+    var h = "";
+
+    h += '<div class="head"><h1>Kaza takibi</h1><span class="status" id="status" aria-live="polite">'+esc(statusText)+'</span></div>';
+    h += '<p class="total num">'+fmtInt(s.totalRem)+'<small>vakit kaldı</small></p>';
+    h += '<div class="bigbar" role="progressbar" aria-valuenow="'+pct.toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+Math.min(100,pct).toFixed(2)+'%"></i></div>';
+    h += '<p class="sub num">'+fmtInt(s.totalInit - s.totalRem)+' / '+fmtInt(s.totalInit)+' kılındı, %'+pct.toLocaleString("tr-TR",{maximumFractionDigits:1})+'</p>';
+
+    if(saved && mode!=="loading" && s.totalInit === s.totalRem && !Object.keys(state.log).length){
+      h += '<p class="hint">Borç '+fmtDate(state.setup.start)+' ile '+fmtDate(state.setup.end)+' arası için hesaplandı. Tarihleri, hayız günlerini veya daha önce kıldıklarını aşağıdaki ayarlardan düzeltebilirsin.</p>';
+    }
+
+    var dayLeft = s.keys.some(function(x){ return remaining(x.k)>0; });
+    h += '<button class="dayBtn" data-act="day"'+(dayLeft?'':' disabled')+'>1 günlük kaza kıldım</button>';
+    h += '<p class="dayNote">'+s.keys.map(function(x){return x.n;}).join(", ")+' birer düşer</p>';
+
+    h += '<div class="list">';
+    s.keys.forEach(function(x){
+      var init = Number(state.initial[x.k])||0, rem = remaining(x.k), done = init - rem;
+      var p = init ? (done/init)*100 : 0;
+      var cls = "row" + (rem===0 && init>0 ? " doneRow" : "") + (flashK===x.k ? " flash" : "");
+      h += '<div class="'+cls+'" data-k="'+x.k+'">';
+      h += '<div class="sky s-'+x.k+'" aria-hidden="true">'+skyDecor(x.k)+'</div>';
+      h += '<div><div class="name">'+x.n+'</div>';
+      h += '<div class="count num"><strong>'+fmtInt(rem)+'</strong> kaldı · '+fmtInt(done)+' kılındı</div>';
+      h += '<div class="bar"><i class="fill-'+x.k+'" style="width:'+Math.min(100,p).toFixed(2)+'%"></i></div></div>';
+      h += '<div class="btns">';
+      h += '<button class="minus" data-act="minus" data-k="'+x.k+'" aria-label="'+x.n+' için bir geri al"'+(done>0?'':' disabled')+'>−</button>';
+      h += '<button class="plus" data-act="plus" data-k="'+x.k+'" aria-label="'+x.n+' kazası kıldım"'+(rem>0?'':' disabled')+'>+1</button>';
+      h += '</div></div>';
+    });
+    h += '</div>';
+
+    // log
+    h += '<h2>Günlük</h2><div class="panel">';
+    h += '<div class="today"><span>Bugün <strong class="num">'+s.today+'</strong> <span class="count">/ '+s.targetUnits+' vakit hedef</span></span>';
+    h += '<span class="count">'+(s.today>=s.targetUnits && s.targetUnits>0 ? "Hedef tamam" : fmtInt(Math.max(0,s.targetUnits-s.today))+" vakit kaldı")+'</span></div>';
+    h += '<div class="bar" style="height:6px"><i style="background:var(--accent);width:'+Math.min(100, s.targetUnits? s.today/s.targetUnits*100 : 0).toFixed(1)+'%"></i></div>';
+    var t = todayIso(), max = s.targetUnits || 1, days = [];
+    for(var i=13;i>=0;i--){ var d = shiftIso(t,-i); var v = Number(state.log[d])||0; days.push([d,v]); if(v>max) max=v; }
+    h += '<div class="bars" aria-label="Son 14 gün">';
+    days.forEach(function(p){
+      var ht = p[1] ? Math.max(4, p[1]/max*56) : 2;
+      h += '<div title="'+fmtDate(p[0])+': '+p[1]+' vakit"><span class="'+(p[1]?'':'zero')+'" style="height:'+ht.toFixed(0)+'px"></span><em>'+(+p[0].slice(8))+'</em></div>';
+    });
+    h += '</div>';
+    if(s.totalRem===0 && s.totalInit>0){
+      h += '<p class="eta"><b>Bütün kaza borcu tamamlandı.</b></p>';
+    } else {
+      var etaTarget = s.targetUnits ? s.totalRem / s.targetUnits : Infinity;
+      h += '<p class="eta">Günde '+state.target+' günlük hedefle bitiş: <b>'+fmtDuration(etaTarget)+'</b>';
+      if(s.avg>0){
+        var etaAvg = s.totalRem / s.avg;
+        h += '<br>Son 30 gün temposuyla (günde '+s.avg.toLocaleString("tr-TR",{maximumFractionDigits:1})+' vakit): <b>'+fmtDuration(etaAvg)+'</b>, yaklaşık '+fmtDate(shiftIso(t, Math.ceil(etaAvg)));
+      }
+      h += '</p>';
+    }
+    h += '</div>';
+
+    // settings
+    var st = state.setup;
+    h += '<details id="settings"'+(settingsOpen?' open':'')+'><summary>Ayarlar</summary><div class="set">';
+    h += '<div class="field"><label for="target">Günlük hedef<span class="help">Kaç günlük kaza (1 gün = '+s.perDay+' vakit)</span></label><input id="target" type="number" min="1" max="20" step="1" inputmode="numeric" value="'+state.target+'"></div>';
+    h += '<div class="field"><label for="vitir">Vitir de kaza edilsin<span class="help">Hanefî mezhebine göre vacip</span></label><input id="vitir" type="checkbox"'+(st.vitir?' checked':'')+'></div>';
+
+    h += '<p class="subh">Borç hesabı</p>';
+    h += '<div class="field"><label for="start">Buluğ tarihi</label><input id="start" type="date" value="'+esc(st.start)+'"></div>';
+    h += '<div class="field"><label for="end">Son kılınmayan gün</label><input id="end" type="date" value="'+esc(st.end)+'"></div>';
+    h += '<div class="field"><label for="hayiz">Aylık hayız günü<span class="help">Kadınlar için; bu günlerin namazı kaza edilmez</span></label><input id="hayiz" type="number" min="0" max="15" step="0.5" inputmode="decimal" value="'+(Number(st.hayiz)||0)+'"></div>';
+    var calc = computeDebt(st);
+    h += '<button class="act" data-act="recalc">Borcu yeniden hesapla ('+fmtInt(calc)+' vakit/her namaz)</button>';
+    h += '<p class="small">Yalnızca başlangıç borcunu değiştirir, kıldıkların silinmez.</p>';
+
+    h += '<p class="subh">Başlangıç borcu</p><p class="small">Daha önce kıldıkların varsa buradan düşebilirsin.</p><div class="grid">';
+    s.keys.forEach(function(x){
+      h += '<label>'+x.n+'<input type="number" min="0" step="1" inputmode="numeric" data-init="'+x.k+'" value="'+(Number(state.initial[x.k])||0)+'"></label>';
+    });
+    h += '</div>';
+    h += '<button class="act danger'+(armed?' armed':'')+'" data-act="reset">'+(armed?'Emin misin? Tekrar dokun':'Kılınanları sıfırla')+'</button>';
+    h += '<p class="small">'+(mode==="db" ? "Veriler bu sayfaya kaydedilir; telefon ve bilgisayardan aynı listeyi görürsün." : "Veriler bu telefonda saklanır. Uygulamayı silersen kayıtlar da silinir.")+'</p>';
+    h += '</div></details>';
+
+    var y = window.scrollY;
+    var focusId = document.activeElement && document.activeElement.id;
+    app.innerHTML = h;
+    if(focusId){ var f = document.getElementById(focusId); if(f && f.tagName==="INPUT" && f.type!=="checkbox") { /* keep keyboard */ } }
+    window.scrollTo(0, y);
+  }
+
+  function skyDecor(k){
+    switch(k){
+      case "sabah": return '<b style="width:14px;height:14px;left:15px;bottom:6px;background:#ffd8a8"></b>';
+      case "ogle": return '<b style="width:14px;height:14px;left:15px;top:6px;background:#fff6c9;box-shadow:0 0 8px #fff3b0"></b>';
+      case "ikindi": return '<b style="width:13px;height:13px;left:22px;top:14px;background:#fff0c4"></b>';
+      case "aksam": return '<b style="width:18px;height:18px;left:13px;bottom:4px;background:#ffbf73"></b>';
+      case "yatsi": return '<b style="width:10px;height:10px;left:24px;top:7px;background:#e7e9f5;box-shadow:-3px 1px 0 0 #1f2a5c inset"></b><b style="width:2px;height:2px;left:9px;top:11px;background:#fff"></b>';
+      case "vitir": return '<b style="width:2px;height:2px;left:8px;top:8px;background:#fff"></b><b style="width:2px;height:2px;left:30px;top:14px;background:#fff"></b><b style="width:3px;height:3px;left:18px;top:22px;background:#e6e1ff"></b><b style="width:2px;height:2px;left:34px;top:5px;background:#fff"></b>';
+    }
+    return "";
+  }
+
+  var settingsOpen = false;
+
+  /* ---------- events ---------- */
+  app.addEventListener("click", function(e){
+    var b = e.target.closest("[data-act]");
+    if(!b || b.disabled || !state) return;
+    var a = b.getAttribute("data-act"), k = b.getAttribute("data-k");
+    if(a==="plus") plus(k);
+    else if(a==="minus") minus(k);
+    else if(a==="day") wholeDay();
+    else if(a==="reset") resetProgress(b);
+    else if(a==="recalc"){
+      var d = computeDebt(state.setup);
+      KEYS.forEach(function(x){ state.initial[x.k] = d; });
+      change();
+    }
+  });
+  app.addEventListener("toggle", function(e){
+    if(e.target && e.target.id==="settings") settingsOpen = e.target.open;
+  }, true);
+  app.addEventListener("change", function(e){
+    var t = e.target; if(!state) return;
+    if(t.id==="target"){ var v = Math.round(Number(t.value)); if(v>=1 && v<=20){ state.target = v; change(); } else render(); }
+    else if(t.id==="vitir"){ state.setup.vitir = t.checked; change(); }
+    else if(t.id==="start" || t.id==="end"){ if(t.value){ state.setup[t.id] = t.value; change(); } }
+    else if(t.id==="hayiz"){ var hz = Number(t.value); if(hz>=0 && hz<=15){ state.setup.hayiz = hz; change(); } else render(); }
+    else if(t.hasAttribute("data-init")){
+      var key = t.getAttribute("data-init"), n = Math.round(Number(t.value));
+      if(n>=0 && isFinite(n)){ state.initial[key] = n; if(state.done[key] > n) state.done[key] = n; change(); } else render();
+    }
+  });
+
+  boot();
+})();
+</script>
+</body>
+</html>
