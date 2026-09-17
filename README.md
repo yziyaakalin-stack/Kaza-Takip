@@ -1,17 +1,25 @@
 # Kaza Takibi (Android)
 
-Kaza namazı takip uygulaması. İnternet izni istemez, kayıtlar telefonda saklanır.
+Kaza namazı ve oruç takip uygulaması. İnternet izni istemez, kayıtlar telefonda saklanır.
 
-## APK almak (GitHub Actions, bilgisayara kurulum gerekmez)
-1. GitHub'da yeni, private bir repo aç.
-2. Bu klasördeki her şeyi (gizli `.github` klasörü dahil) repoya yükle.
-3. Repo'da Actions sekmesine gir, "APK oluştur" işinin bitmesini bekle (3-5 dk).
-4. Biten işe tıkla, Artifacts kısmından `KazaTakibi-apk` dosyasını indir, zip'i aç.
-5. `app-debug.apk` dosyasını telefona at ve kur ("Bilinmeyen uygulamaları yükle" izni gerekir).
+## Özellikler (1.1)
+- Vakit vakit kaza sayaçları, "1 günlük kaza kıldım" butonu, oruç kazası sayacı
+- Kerahat uyarısı: seçilen şehrin namaz vakitleri telefonda hesaplanır (Diyanet yöntemi)
+- Toplu kaza oturumu: rekât rekât sayaç, biten namaz otomatik düşer, ekran açık kalır
+- İstatistik: seri, haftalık/aylık toplamlar, son 14 gün, son 12 ay, aşamalar
+- Günlük hatırlatma: hedef tamamlandıysa bildirim gelmez
+- Yedekleme: dosyaya kaydet, paylaş, dosyadan ya da metinden geri yükle
+- Rehber: kılınış, niyet, kerahat vakitleri, sıra, kolaylıklar, oruç kazası
 
-## Android Studio ile
-Klasörü Android Studio'da aç, Gradle eşitlemesinden sonra Build > Build APK(s).
+## Yeni sürüm almak
+Her push'ta GitHub Actions APK'yı derler ve sürüm olarak yayınlar. En son sürüm:
+https://github.com/yziyaakalin-stack/Kaza-Takip/releases/latest/download/KazaTakibi.apk
+
+1.1 ve sonrası sabit anahtarla (`app/kaza-imza.p12`) imzalanır; güncellemeler
+eskisinin üzerine kurulur ve kayıtlar korunur. 1.0 farklı bir anahtarla imzalandığı için
+1.0'dan 1.1'e geçerken eski uygulamayı bir kez silmek gerekir.
 
 ## Arayüzü güncellemek
-Arayüz `app/src/main/assets/index.html` dosyasıdır. Değiştir, tekrar push et, yeni APK oluşur.
-Güncelleme kurulumunda kayıtlar korunur; uygulamayı silersen silinir.
+Arayüz `app/src/main/assets/index.html` dosyasıdır. Android'e özel işlevler
+(hatırlatma, dosya kaydetme/açma, ekranı açık tutma) `MainActivity.java` içindeki
+`KazaNative` köprüsünden gelir.

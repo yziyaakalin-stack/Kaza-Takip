@@ -10,19 +10,36 @@ android {
         applicationId 'com.ziya.kazatakip'
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName '1.0'
+        versionCode 2
+        versionName '1.1'
+    }
+
+    // Sabit imza: her derleme aynı anahtarla imzalanır, böylece
+    // yeni sürüm eski sürümün üzerine kurulur ve kayıtlar korunur.
+    signingConfigs {
+        sabit {
+            storeFile file('kaza-imza.p12')
+            storeType 'pkcs12'
+            storePassword 'kazatakip'
+            keyAlias 'kaza'
+            keyPassword 'kazatakip'
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.sabit
+        }
         release {
             minifyEnabled false
+            signingConfig signingConfigs.sabit
         }
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+        encoding 'UTF-8'
     }
 }
 
