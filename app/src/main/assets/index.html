@@ -235,6 +235,35 @@ textarea{width:100%; min-height:90px; font-size:.8rem; margin-top:8px}
 .importBox{border:2px solid var(--accent); border-radius:14px; padding:14px; margin-bottom:12px; background:var(--surface)}
 .importBox p{margin:4px 0; font-size:.92rem}
 
+/* Kurulum */
+.ob{padding-top:8px}
+.obTop{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.obDots{display:flex; gap:6px}
+.obDots i{width:22px; height:5px; border-radius:3px; background:var(--soft)}
+.obDots i.on{background:var(--accent)}
+.obStep{font-size:.82rem; color:var(--muted)}
+.ob h2{font-size:1.5rem; line-height:1.2; margin:22px 0 6px; letter-spacing:-.01em}
+.ob .lead{color:var(--muted); margin:0 0 18px; font-size:.95rem}
+.pick{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.pick button{border:2px solid var(--line); background:var(--surface); border-radius:14px; padding:22px 10px; font-size:1.1rem; font-weight:700}
+.pick button[aria-pressed="true"]{border-color:var(--accent); color:var(--accent); background:var(--ok-soft)}
+.obField{margin-top:14px}
+.obField label{display:block; font-weight:600; font-size:.95rem}
+.obField .help{display:block; font-size:.82rem; color:var(--muted); font-weight:400; margin:2px 0 6px}
+.obField input[type=date], .obField select{width:100%; padding:10px 12px}
+.obField input[type=number]{width:100%; text-align:left; padding:10px 12px}
+.calc{margin-top:18px; padding:14px; border-radius:12px; background:var(--surface); border:1px solid var(--line)}
+.calc b{font-size:1.6rem; font-weight:800; display:block; line-height:1.1}
+.calc span{color:var(--muted); font-size:.86rem}
+.obErr{color:var(--warn); font-size:.88rem; margin:12px 0 0; min-height:1.2em}
+.obNav{display:flex; gap:10px; margin-top:22px}
+.obNav button{flex:1; padding:14px; border-radius:12px; font-weight:700; border:1px solid var(--line); background:transparent; color:var(--muted)}
+.obNav button.next{flex:2; border:0; background:var(--accent); color:var(--accent-ink)}
+.sumList{list-style:none; margin:0; padding:0}
+.sumList li{display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-top:1px solid var(--line); font-size:.93rem}
+.sumList li:first-child{border-top:0}
+.sumList li span:last-child{font-weight:600; text-align:right}
+
 /* Nav */
 nav.tabs{position:fixed; left:0; right:0; bottom:0; background:var(--surface); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); z-index:5}
 nav.tabs div{max-width:560px; margin:0 auto; display:grid; grid-template-columns:repeat(5,1fr)}
@@ -400,17 +429,20 @@ var PT = (function(){
   /* ---------- model ---------- */
   function activeKeys(){ return KEYS.filter(function(x){ return x.k!=="vitir" || state.setup.vitir; }); }
   function computeDebt(setup){
+    if(!setup.start || !setup.end) return 0;
     var days = daysBetween(setup.start, setup.end) + 1;
-    if(!(days > 0)) days = 0;
+    if(!(days > 0)) return 0;
+    if(setup.gender !== "kadin") return days;
     var hayiz = Math.round((days/30.44) * (Number(setup.hayiz)||0));
-    return Math.max(0, days - hayiz);
+    var lohusa = Math.round(Number(setup.lohusa)||0);
+    return Math.max(0, days - hayiz - lohusa);
   }
   function defaults(){
-    var setup = {start:"2014-01-01", end:yesterdayIso(), vitir:true, hayiz:0};
+    var setup = {gender:"", start:"", end:yesterdayIso(), vitir:true, hayiz:0, lohusa:0};
     var d = computeDebt(setup), initial = {}, done = {};
     KEYS.forEach(function(x){ initial[x.k]=d; done[x.k]=0; });
     return {v:2, setup:setup, initial:initial, done:done, log:{}, target:1, created:todayIso(),
-            oruc:{initial:0, done:0}, olog:{}, city:"istanbul", lastBackup:"",
+            oruc:{initial:0, done:0}, olog:{}, city:"istanbul", lastBackup:"", setupDone:false,
             zikir:{active:"tesbihat", counts:{}, targets:{}, custom:[], log:{}, vibrate:true, volume:true}};
   }
   function num(v){ v = Number(v); return isFinite(v) && v>=0 ? Math.round(v) : 0; }
@@ -430,6 +462,8 @@ var PT = (function(){
     s.oruc.initial = num(s.oruc.initial); s.oruc.done = Math.min(num(s.oruc.done), s.oruc.initial);
     if(!cityById(s.city)) s.city = "istanbul";
     s.lastBackup = typeof s.lastBackup==="string" ? s.lastBackup : "";
+    if(s.setup.gender!=="erkek" && s.setup.gender!=="kadin") s.setup.gender = "";
+    s.setupDone = s.setupDone===true && !!s.setup.gender && !!s.setup.start;
     var z = Object.assign({}, d.zikir, s.zikir||{});
     z.counts = z.counts && typeof z.counts==="object" ? z.counts : {};
     z.targets = z.targets && typeof z.targets==="object" ? z.targets : {};
@@ -465,8 +499,9 @@ var PT = (function(){
     try{ var sr = localStorage.getItem(LS_SESS); if(sr){ var so = JSON.parse(sr); if(so && so.queue && !so.finished){ delete so.countRekat; delete so.rekat; sess = so; } } }catch(e){}
     loadReminder();
     syncNative();
-    render();
     if(sess) zTab = "kaza";
+    if(!state.setupDone) openSetup();
+    render();
   }
 
   function syncNative(){
@@ -660,7 +695,12 @@ var PT = (function(){
     var o = JSON.parse(String(text).trim());
     var d = (o && o.app==="kaza-takibi" && o.data) ? o.data : ((o && o.initial && o.done) ? o : null);
     if(!d) throw new Error("x");
-    return {data:normalize(d), exported:o.exported||""};
+    var nd = normalize(d);
+    if(!nd.setupDone && d.setup && d.setup.start){
+      if(!nd.setup.gender) nd.setup.gender = Number(nd.setup.hayiz) > 0 ? "kadin" : "erkek";
+      nd.setupDone = true;
+    }
+    return {data:nd, exported:o.exported||""};
   }
   function tryImport(text){
     try{ pendingImport = parseBackup(text); importError = ""; }
@@ -715,6 +755,151 @@ var PT = (function(){
     saveSess(); render();
   }
 
+  /* ---------- kurulum ---------- */
+  var ob = null;
+  var OB_STEPS = 5;
+  function openSetup(){
+    var st = state.setup;
+    ob = {step:0, err:"", again: state.setupDone,
+      gender: st.gender, start: st.start, end: st.end || yesterdayIso(),
+      hayiz: Number(st.hayiz)||0, lohusa: Number(st.lohusa)||0, vitir: st.vitir!==false,
+      target: state.target, city: state.city, oruc: state.oruc.initial, done: {}};
+    KEYS.forEach(function(x){ ob.done[x.k] = Number(state.done[x.k])||0; });
+    view = "kurulum";
+  }
+  function obSetup(){ return {gender:ob.gender, start:ob.start, end:ob.end, hayiz:ob.hayiz, lohusa:ob.lohusa, vitir:ob.vitir}; }
+  function obKeys(){ return KEYS.filter(function(x){ return x.k!=="vitir" || ob.vitir; }); }
+  function obValidate(){
+    if(ob.step===0 && !ob.gender) return "Devam etmek için birini seç.";
+    if(ob.step===1){
+      if(!ob.start) return "Başlangıç tarihini gir.";
+      if(!ob.end) return "Son kılınmayan günü gir.";
+      if(ob.start > ob.end) return "Başlangıç tarihi, son kılınmayan günden sonra olamaz.";
+      if(ob.end > todayIso()) return "Son kılınmayan gün bugünden ileri olamaz.";
+      if(ob.gender==="kadin" && !(ob.hayiz>=0 && ob.hayiz<=15)) return "Aylık hayız günü 0 ile 15 arasında olmalı.";
+    }
+    if(ob.step===3){
+      var d = computeDebt(obSetup()), bad = null;
+      obKeys().forEach(function(x){ if(ob.done[x.k] > d && !bad) bad = x.n; });
+      if(bad) return bad+" için kıldığın sayı toplam borçtan ("+fmtInt(d)+") fazla olamaz.";
+    }
+    return "";
+  }
+  function obNext(){
+    ob.err = obValidate();
+    if(ob.err){ render(); return; }
+    if(ob.step < OB_STEPS-1){ ob.step++; render(); window.scrollTo(0,0); return; }
+    obFinish();
+  }
+  function obBack(){ if(ob.step>0){ ob.step--; ob.err=""; render(); window.scrollTo(0,0); } }
+  function obFinish(){
+    state.setup = Object.assign({}, state.setup, obSetup());
+    if(state.setup.gender!=="kadin"){ state.setup.hayiz = 0; state.setup.lohusa = 0; }
+    var d = computeDebt(state.setup);
+    KEYS.forEach(function(x){
+      state.initial[x.k] = d;
+      state.done[x.k] = Math.min(d, Math.max(0, Math.round(Number(ob.done[x.k])||0)));
+    });
+    state.target = ob.target; state.city = ob.city;
+    state.oruc.initial = Math.max(0, Math.round(Number(ob.oruc)||0));
+    if(state.oruc.done > state.oruc.initial) state.oruc.done = state.oruc.initial;
+    var again = ob.again;
+    state.setupDone = true; ob = null;
+    view = "takip"; saved = false; persist(); render(); window.scrollTo(0,0);
+    toast(again ? "Ayarlar güncellendi" : "Hazırsın. Allah kolaylık versin.");
+  }
+  function viewSetup(){
+    var h = '<div class="ob"><div class="obTop"><div class="obDots">';
+    for(var i=0;i<OB_STEPS;i++) h += '<i class="'+(i<=ob.step?"on":"")+'"></i>';
+    h += '</div><span class="obStep">'+(ob.step+1)+' / '+OB_STEPS+'</span></div>';
+    var d = computeDebt(obSetup());
+
+    if(ob.step===0){
+      h += '<h2>'+(ob.again ? "Kurulumu güncelle" : "Kaza takibine hoş geldin")+'</h2>';
+      h += '<p class="lead">Borcunu doğru hesaplamak için birkaç bilgi soracağım. Hepsi yalnızca bu telefonda kalır.</p>';
+      h += '<p class="obField" style="margin-bottom:8px"><label>Cinsiyetin</label><span class="help">Kadınlarda hayız ve lohusalık günlerinin namazı kaza edilmediği için hesap buna göre değişir.</span></p>';
+      h += '<div class="pick" role="group" aria-label="Cinsiyet"><button data-act="obg" data-v="erkek" aria-pressed="'+(ob.gender==="erkek")+'">Erkek</button><button data-act="obg" data-v="kadin" aria-pressed="'+(ob.gender==="kadin")+'">Kadın</button></div>';
+    }
+    else if(ob.step===1){
+      h += '<h2>Hangi tarihler arası?</h2>';
+      h += '<p class="lead">Kılınmayan namazların başladığı ve bittiği günleri gir.</p>';
+      h += '<div class="obField"><label for="obStart">Başlangıç tarihi</label><span class="help">Namazla yükümlü olduğun ya da namazı bıraktığın tarih. Tam günü bilmiyorsan o ayın ilk gününü yazabilirsin.</span><input id="obStart" type="date" max="'+todayIso()+'" value="'+esc(ob.start)+'"></div>';
+      h += '<div class="obField"><label for="obEnd">Son kılınmayan gün</label><span class="help">Namazlarını düzenli kılmaya başlamadan önceki son gün. Hâlâ kılmıyorsan dünü seç.</span><input id="obEnd" type="date" max="'+todayIso()+'" value="'+esc(ob.end)+'"></div>';
+      if(ob.gender==="kadin"){
+        h += '<div class="obField"><label for="obHayiz">Aylık ortalama hayız günü</label><span class="help">Bu günlerin namazı kaza edilmez. Örneğin 6.</span><input id="obHayiz" type="number" min="0" max="15" step="0.5" inputmode="decimal" value="'+ob.hayiz+'"></div>';
+        h += '<div class="obField"><label for="obLohusa">Toplam lohusalık günü</label><span class="help">Bu tarihler arasında doğum yaptıysan lohusalık günlerinin toplamı. Yoksa 0 bırak.</span><input id="obLohusa" type="number" min="0" step="1" inputmode="numeric" value="'+ob.lohusa+'"></div>';
+      }
+      h += '<div class="calc" id="obCalc">'+obCalcHtml(d)+'</div>';
+    }
+    else if(ob.step===2){
+      h += '<h2>Tercihlerin</h2>';
+      h += '<p class="lead">Bunları sonra Ayarlar\'dan değiştirebilirsin.</p>';
+      h += '<div class="field" style="border-top:0"><label for="obVitir">Vitir namazını da kaza et<span class="help">Hanefî mezhebine göre vaciptir, kaza edilir</span></label><input id="obVitir" type="checkbox"'+(ob.vitir?' checked':'')+'></div>';
+      var per = obKeys().length;
+      h += '<div class="field"><label>Günlük hedef<span class="help">Günde kaç günlük kaza kılmak istiyorsun (1 gün = '+per+' vakit)</span></label>'+stepper("obTarget", ob.target, 1, 10)+'</div>';
+      h += '<div class="obField"><label for="obCity">Şehir</label><span class="help">Kerahat ve namaz vakitleri buna göre hesaplanır.</span><select id="obCity">';
+      CITIES.forEach(function(c){ h += '<option value="'+c[0]+'"'+(c[0]===ob.city?' selected':'')+'>'+c[1]+'</option>'; });
+      h += '</select></div>';
+      var totalDays = d * per;
+      h += '<p class="small" style="margin-top:14px">Bu hedefle toplam '+fmtInt(totalDays)+' vakit yaklaşık <b>'+fmtDuration(d/ob.target)+'</b> sürer.</p>';
+    }
+    else if(ob.step===3){
+      h += '<h2>Daha önce kıldıkların</h2>';
+      h += '<p class="lead">Bu borçtan kaza ettiğin namazlar varsa sayılarını yaz, yoksa boş geç. Her vakit için borç: '+fmtInt(d)+'.</p>';
+      h += '<div class="grid">';
+      obKeys().forEach(function(x){ h += '<label>'+x.n+'<input type="number" min="0" step="1" inputmode="numeric" data-obdone="'+x.k+'" value="'+(ob.done[x.k]||0)+'"></label>'; });
+      h += '</div>';
+      h += '<div class="obField" style="margin-top:22px"><label for="obOruc">Oruç kazası borcu (gün)</label><span class="help">Tutulamayan Ramazan günlerinin sayısı. Takip etmek istemiyorsan 0 bırak.</span><input id="obOruc" type="number" min="0" step="1" inputmode="numeric" value="'+ob.oruc+'"></div>';
+    }
+    else {
+      var per2 = obKeys().length, doneSum = 0;
+      obKeys().forEach(function(x){ doneSum += Math.min(d, Number(ob.done[x.k])||0); });
+      var remTotal = d*per2 - doneSum, c = cityById(ob.city);
+      h += '<h2>Her şey hazır</h2><p class="lead">Kontrol et, sonra başla.</p>';
+      h += '<div class="panel"><ul class="sumList">';
+      h += '<li><span>Cinsiyet</span><span>'+(ob.gender==="kadin"?"Kadın":"Erkek")+'</span></li>';
+      h += '<li><span>Tarihler</span><span>'+fmtDate(ob.start)+' – '+fmtDate(ob.end)+'</span></li>';
+      if(ob.gender==="kadin") h += '<li><span>Düşülen günler</span><span>ayda '+ob.hayiz+' gün hayız'+(ob.lohusa?', '+fmtInt(ob.lohusa)+' gün lohusalık':'')+'</span></li>';
+      h += '<li><span>Her vakit için borç</span><span class="num">'+fmtInt(d)+'</span></li>';
+      h += '<li><span>Vakitler</span><span>'+obKeys().map(function(x){return x.n;}).join(", ")+'</span></li>';
+      if(doneSum) h += '<li><span>Önceden kılınan</span><span class="num">'+fmtInt(doneSum)+' vakit</span></li>';
+      h += '<li><span>Kalan toplam</span><span class="num">'+fmtInt(remTotal)+' vakit</span></li>';
+      h += '<li><span>Günlük hedef</span><span>'+ob.target+' günlük ('+(ob.target*per2)+' vakit)</span></li>';
+      h += '<li><span>Tahmini bitiş</span><span>'+fmtDuration(remTotal/(ob.target*per2))+'</span></li>';
+      h += '<li><span>Şehir</span><span>'+c[1]+'</span></li>';
+      if(ob.oruc) h += '<li><span>Oruç kazası</span><span class="num">'+fmtInt(ob.oruc)+' gün</span></li>';
+      h += '</ul></div>';
+      if(ob.again) h += '<p class="small">Toplam borç bu bilgilere göre yeniden hesaplanır; kıldıkların ve geçmiş kayıtların korunur.</p>';
+    }
+    h += '<p class="obErr" role="alert">'+esc(ob.err||"")+'</p>';
+    h += '<div class="obNav">';
+    if(ob.step>0) h += '<button data-act="obback">Geri</button>';
+    else if(ob.again) h += '<button data-act="obcancel">Vazgeç</button>';
+    h += '<button class="next" data-act="obnext">'+(ob.step===OB_STEPS-1 ? (ob.again?"Kaydet":"Başla") : (ob.step===3 ? "Devam et" : "İleri"))+'</button></div>';
+    h += '</div>';
+    return h;
+  }
+  function obCalcHtml(d){
+    if(!ob.start) return '<span>Başlangıç tarihini girince borç burada görünecek.</span>';
+    return '<b class="num">'+fmtInt(d)+'</b><span>her vakit için kaza namazı ('+fmtInt(d*obKeys().length)+' vakit toplam)</span>';
+  }
+  function obInput(t){
+    if(!ob) return false;
+    var v = t.value;
+    if(t.id==="obStart"){ ob.start = v; }
+    else if(t.id==="obEnd"){ ob.end = v; }
+    else if(t.id==="obHayiz"){ ob.hayiz = Math.max(0, Math.min(15, Number(v)||0)); }
+    else if(t.id==="obLohusa"){ ob.lohusa = Math.max(0, Math.round(Number(v)||0)); }
+    else if(t.id==="obVitir"){ ob.vitir = t.checked; render(); return true; }
+    else if(t.id==="obCity"){ ob.city = v; }
+    else if(t.id==="obOruc"){ ob.oruc = Math.max(0, Math.round(Number(v)||0)); }
+    else if(t.hasAttribute("data-obdone")){ ob.done[t.getAttribute("data-obdone")] = Math.max(0, Math.round(Number(v)||0)); }
+    else return false;
+    var c = document.getElementById("obCalc"); if(c) c.innerHTML = obCalcHtml(computeDebt(obSetup()));
+    if(ob.err){ ob.err = ""; var e = app.querySelector(".obErr"); if(e) e.textContent = ""; }
+    return true;
+  }
+
   /* ---------- zikirmatik ---------- */
   var zArmed = false, zArmTimer = null;
   function zikirTap(){
@@ -764,7 +949,8 @@ var PT = (function(){
   function render(){
     if(!state) return;
     var h = "";
-    if(view==="takip") h = viewTakip();
+    if(view==="kurulum") h = viewSetup();
+    else if(view==="takip") h = viewTakip();
     else if(view==="istatistik") h = viewStats();
     else if(view==="oturum") h = viewSession();
     else if(view==="rehber") h = viewGuide();
@@ -774,6 +960,7 @@ var PT = (function(){
     app.innerHTML = h;
     Object.keys(openIds).forEach(function(id){ var d = document.getElementById(id); if(d) d.open = openIds[id]; });
     window.scrollTo(0, y);
+    tabs.style.display = view==="kurulum" ? "none" : "";
     tabs.querySelectorAll("button").forEach(function(b){
       if(b.getAttribute("data-view")===view) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
     });
@@ -803,7 +990,7 @@ var PT = (function(){
     h += '<p class="sub num">'+fmtInt(s.totalInit - s.totalRem)+' / '+fmtInt(s.totalInit)+' kılındı, %'+s.pct.toLocaleString("tr-TR",{maximumFractionDigits:1})+'</p>';
 
     if(saved && s.totalInit === s.totalRem && !Object.keys(state.log).length){
-      h += '<p class="hint">Borç '+fmtDate(state.setup.start)+' ile '+fmtDate(state.setup.end)+' arası için hesaplandı. Tarihleri, hayız günlerini veya daha önce kıldıklarını Ayarlar\'dan düzeltebilirsin.</p>';
+      h += '<p class="hint">Borç '+fmtDate(state.setup.start)+' ile '+fmtDate(state.setup.end)+' arası için hesaplandı. Tarihleri veya daha önce kıldıklarını Ayarlar › Namaz borcu bölümünden düzeltebilirsin.</p>';
     }
     var doneAny = s.totalInit - s.totalRem + state.oruc.done > 0;
     var stale = !state.lastBackup || daysBetween(state.lastBackup, todayIso()) >= 30;
@@ -1113,13 +1300,17 @@ var PT = (function(){
 
     h += '<details id="sBorc"><summary>Namaz borcu</summary><div class="set">';
     h += '<p class="subh" style="margin-top:0">Borç hesabı</p>';
-    h += '<div class="field"><label for="start">Buluğ tarihi</label><input id="start" type="date" value="'+esc(st.start)+'"></div>';
-    h += '<div class="field"><label for="end">Son kılınmayan gün</label><input id="end" type="date" value="'+esc(st.end)+'"></div>';
-    h += '<div class="field"><label for="hayiz">Aylık hayız günü<span class="help">Kadınlar için; bu günlerin namazı kaza edilmez</span></label><input id="hayiz" type="number" min="0" max="15" step="0.5" inputmode="decimal" value="'+(Number(st.hayiz)||0)+'"></div>';
+    h += '<div class="field"><label for="gender">Cinsiyet</label><select id="gender"><option value="erkek"'+(st.gender==="erkek"?' selected':'')+'>Erkek</option><option value="kadin"'+(st.gender==="kadin"?' selected':'')+'>Kadın</option></select></div>';
+    h += '<div class="field"><label for="start">Başlangıç tarihi</label><input id="start" type="date" max="'+todayIso()+'" value="'+esc(st.start)+'"></div>';
+    h += '<div class="field"><label for="end">Son kılınmayan gün</label><input id="end" type="date" max="'+todayIso()+'" value="'+esc(st.end)+'"></div>';
+    if(st.gender==="kadin"){
+      h += '<div class="field"><label for="hayiz">Aylık hayız günü<span class="help">Bu günlerin namazı kaza edilmez</span></label><input id="hayiz" type="number" min="0" max="15" step="0.5" inputmode="decimal" value="'+(Number(st.hayiz)||0)+'"></div>';
+      h += '<div class="field"><label for="lohusa">Toplam lohusalık günü</label><input id="lohusa" type="number" min="0" step="1" inputmode="numeric" value="'+(Number(st.lohusa)||0)+'"></div>';
+    }
     var calc = computeDebt(st);
     h += '<button class="act" data-act="recalc">Borcu yeniden hesapla ('+fmtInt(calc)+' vakit/her namaz)</button>';
-    h += '<p class="small">Yalnızca başlangıç borcunu değiştirir, kıldıkların silinmez.</p>';
-    h += '<p class="subh">Başlangıç borcu</p><p class="small">Daha önce kıldıkların varsa buradan düşebilirsin.</p><div class="grid">';
+    h += '<p class="small">Yalnızca toplam borcu değiştirir, kıldıkların silinmez.</p>';
+    h += '<p class="subh">Vakit başına toplam borç</p><p class="small">Hesaptan farklı bir sayı biliyorsan buradan elle düzeltebilirsin.</p><div class="grid">';
     s.keys.forEach(function(x){
       h += '<label>'+x.n+'<input type="number" min="0" step="1" inputmode="numeric" data-init="'+x.k+'" value="'+(Number(state.initial[x.k])||0)+'"></label>';
     });
@@ -1136,7 +1327,8 @@ var PT = (function(){
     h += '<p class="small">Örnek: 12 Ramazan hiç tutulmadıysa yaklaşık 12 × 30 = 360 gün.</p>';
     h += '</div></details>';
 
-    h += '<button class="act danger'+(armed?' armed':'')+'" data-act="reset" style="margin-top:18px">'+(armed?'Emin misin? Tekrar dokun':'Kılınanları sıfırla')+'</button>';
+    h += '<button class="act" data-act="setup" style="margin-top:18px">Kurulum ekranını yeniden aç</button>';
+    h += '<button class="act danger'+(armed?' armed':'')+'" data-act="reset" style="margin-top:10px">'+(armed?'Emin misin? Tekrar dokun':'Kılınanları sıfırla')+'</button>';
     h += '<p class="small">Veriler bu telefonda saklanır. Uygulamayı silmeden önce yedek al.</p>';
     return h;
   }
@@ -1188,17 +1380,23 @@ var PT = (function(){
       case "paste": pasteOpen = !pasteOpen; render(); if(pasteOpen){ var pb=document.getElementById("pasteBox"); if(pb) pb.focus(); } break;
       case "pasteGo": var box = document.getElementById("pasteBox"); if(box && box.value.trim()){ pasteOpen=false; tryImport(box.value); } break;
       case "iok":
-        if(pendingImport){ state = pendingImport.data; pendingImport = null; saved = false; persist(); render(); toast("Yedek yüklendi"); }
+        if(pendingImport){ state = pendingImport.data; pendingImport = null; saved = false; persist(); if(!state.setupDone) openSetup(); render(); toast("Yedek yüklendi"); }
         break;
       case "icancel": pendingImport = null; render(); break;
       case "smode": sessForm.mode = b.getAttribute("data-m"); render(); break;
       case "skey": sessForm.key = k; sessForm.count = Math.max(1, Math.min(sessForm.count, remaining(k) || 1)); render(); break;
       case "step":
         var id = b.getAttribute("data-id"), dd = Number(b.getAttribute("data-d"));
+        if(id==="obTarget"){ ob.target = Math.max(1, Math.min(10, ob.target+dd)); render(); break; }
         if(id==="days") sessForm.days = Math.max(1, Math.min(10, sessForm.days+dd));
         else sessForm.count = Math.max(1, Math.min(20, sessForm.count+dd));
         render(); break;
       case "sstart": startSession(); break;
+      case "obg": ob.gender = b.getAttribute("data-v"); ob.err = ""; render(); break;
+      case "obnext": obNext(); break;
+      case "obback": obBack(); break;
+      case "obcancel": ob = null; view = "ayarlar"; render(); break;
+      case "setup": openSetup(); render(); window.scrollTo(0,0); break;
       case "ztab": zTab = b.getAttribute("data-m"); zArmed = false; render(); window.scrollTo(0,0); break;
       case "ztap": zikirTap(); break;
       case "zundo": zikirUndo(); break;
@@ -1227,8 +1425,10 @@ var PT = (function(){
   app.addEventListener("keydown", function(e){
     if(e.target && e.target.id==="zNew" && e.key==="Enter"){ e.preventDefault(); var b = app.querySelector('[data-act="zadd"]'); if(b) b.click(); }
   });
+  app.addEventListener("input", function(e){ if(view==="kurulum") obInput(e.target); });
   app.addEventListener("change", function(e){
     var t = e.target; if(!state) return;
+    if(view==="kurulum"){ obInput(e.target); return; }
     if(t.id==="target"){ var v = Math.round(Number(t.value)); if(v>=1 && v<=20){ state.target = v; change(); } else render(); }
     else if(t.id==="vitir"){ state.setup.vitir = t.checked; change(); }
     else if(t.id==="city"){ state.city = t.value; change(); }
@@ -1236,6 +1436,8 @@ var PT = (function(){
     else if(t.id==="zvol"){ state.zikir.volume = t.checked; persist(); render(); }
     else if(t.id==="start" || t.id==="end"){ if(t.value){ state.setup[t.id] = t.value; change(); } }
     else if(t.id==="hayiz"){ var hz = Number(t.value); if(hz>=0 && hz<=15){ state.setup.hayiz = hz; change(); } else render(); }
+    else if(t.id==="lohusa"){ var lh = Math.round(Number(t.value)); if(lh>=0 && isFinite(lh)){ state.setup.lohusa = lh; change(); } else render(); }
+    else if(t.id==="gender"){ state.setup.gender = t.value; change(); toast("Toplam borcu güncellemek için 'Borcu yeniden hesapla'ya dokun"); }
     else if(t.id==="remOn"){ setReminder(t.checked, rem.hour, rem.minute); }
     else if(t.id==="remTime"){
       var p = String(t.value).split(":");
@@ -1271,6 +1473,11 @@ var PT = (function(){
   document.addEventListener("visibilitychange", function(){ if(!state) return; if(document.hidden){ syncZikirNative(); return; } lastVol = null; lastAwake = null; loadReminder(); syncNative(); render(); });
 
   window.kazaBack = function(){
+    if(view==="kurulum"){
+      if(ob && ob.step>0){ obBack(); return true; }
+      if(ob && ob.again){ ob = null; view = "ayarlar"; render(); return true; }
+      return false;
+    }
     if(view!=="takip"){ go("takip"); return true; }
     return false;
   };
