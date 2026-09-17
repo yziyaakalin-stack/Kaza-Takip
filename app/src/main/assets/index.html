@@ -3,7 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kaza takibi</title>
+<title>Kaza Takibi</title>
+<meta name="theme-color" content="#1F2A5C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kaza Takibi">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
 <style>
 :root{
   --bg:#eef1f4; --surface:#ffffff; --ink:#1a2230; --muted:#5d6878; --line:#d5dbe3;
@@ -276,6 +285,15 @@ nav.tabs button[aria-current="page"]::before{content:""; position:absolute; top:
 .toast.show{opacity:1; transform:translate(-50%, 0)}
 
 .loading{padding:60px 0; text-align:center; color:var(--muted)}
+/* iPhone: 16px altı yazı alanlarına dokununca sayfa yakınlaşmasın */
+@supports (-webkit-touch-callout: none){
+  input, select, textarea{font-size:16px !important}
+}
+.wrap{padding-top:calc(20px + env(safe-area-inset-top))}
+.install{display:flex; gap:10px; align-items:flex-start; background:var(--surface); border:1px solid var(--accent); border-radius:12px; padding:12px; margin-top:14px; font-size:.88rem}
+.install .t{display:block; margin-bottom:2px}
+.install button{margin-left:auto; border:0; background:none; color:var(--muted); font-size:1.2rem; line-height:1; padding:0 2px}
+.install svg{width:15px; height:15px; vertical-align:-2px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
 @media (max-width:360px){
   .row{grid-template-columns:36px 1fr auto; gap:9px}
@@ -389,6 +407,9 @@ var PT = (function(){
   var app = document.getElementById("app");
   var tabs = document.getElementById("tabs");
   var N = window.KazaNative || null;
+  var IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints > 1);
+  var STANDALONE = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  var CAN_VIBRATE = typeof navigator.vibrate === "function";
 
   var state = null, saved = true, statusText = "";
   var view = "takip";
@@ -566,6 +587,8 @@ var PT = (function(){
     change();
   }
   var flashK = null;
+  var installHidden = false;
+  try{ installHidden = localStorage.getItem("kaza-kurulum-ipucu")==="1"; }catch(e){}
   function flashRow(k){ flashK = k; setTimeout(function(){ flashK=null; var r=document.querySelector('.row[data-k="'+k+'"]'); if(r) r.classList.remove("flash"); }, 350); }
 
   var armed = false, armTimer = null;
@@ -665,6 +688,13 @@ var PT = (function(){
   function backupName(){ return "kaza-yedek-"+todayIso()+".json"; }
   function exportFile(){
     if(hasNat("saveFile")){ nat("saveFile", backupName(), backupText()); return; }
+    try{
+      var file = new File([backupText()], backupName(), {type:"application/json"});
+      if(IS_IOS && navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file], title:"Kaza takibi yedeği"}).then(function(){ window.kazaOnSaved(true); }, function(e){ if(e && e.name!=="AbortError") toast("Yedek paylaşılamadı"); });
+        return;
+      }
+    }catch(e){}
     try{
       var a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([backupText()], {type:"application/json"}));
@@ -934,10 +964,22 @@ var PT = (function(){
   }
   function zikirActive(){ return view==="oturum" && zTab==="zikir" && !document.hidden; }
   var lastAwake = null, lastVol = null;
+  var wakeLock = null;
+  function webWake(on){
+    if(!("wakeLock" in navigator)) return;
+    if(on){
+      if(wakeLock || document.hidden) return;
+      navigator.wakeLock.request("screen").then(function(l){
+        wakeLock = l;
+        l.addEventListener("release", function(){ if(wakeLock===l){ wakeLock = null; lastAwake = null; } });
+      }, function(){ lastAwake = null; });
+    } else if(wakeLock){ var l = wakeLock; wakeLock = null; l.release().catch(function(){}); }
+  }
   function syncZikirNative(){
-    if(!N || !state) return;
+    if(!state) return;
     var z = zikirActive(), sessOn = !!(sess && !sess.finished);
-    var awake = z || sessOn, vol = z && state.zikir.volume;
+    var awake = (z || sessOn) && !document.hidden, vol = z && state.zikir.volume;
+    if(!N){ if(awake!==lastAwake){ webWake(awake); lastAwake = awake; } return; }
     if(awake!==lastAwake){ nat("keepAwake", awake); lastAwake = awake; }
     if(vol!==lastVol){ nat("setVolumeCounting", vol); lastVol = vol; }
   }
@@ -998,6 +1040,9 @@ var PT = (function(){
       h += '<p class="hint">Kayıtların yalnızca bu telefonda duruyor'+(state.lastBackup ? ' ve son yedek '+fmtDate(state.lastBackup)+' tarihli' : '')+'. <button class="link" data-act="export">Şimdi yedek al</button></p>';
     }
 
+    if(!N && IS_IOS && !STANDALONE && !installHidden){
+      h += '<div class="install"><div><b class="t">Ana ekrana ekle</b>Safari\'de alttaki <svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v8h14v-8"/></svg> Paylaş düğmesine dokun, sonra <b>Ana Ekrana Ekle</b>\'yi seç. Uygulama gibi açılır ve internetsiz çalışır.</div><button data-act="hideInstall" aria-label="Kapat">×</button></div>';
+    }
     h += vakitStrip();
 
     var dayLeft = s.keys.some(function(x){ return remaining(x.k)>0; });
@@ -1149,11 +1194,11 @@ var PT = (function(){
       TARGETS.forEach(function(v){ h += '<button data-act="ztarget" data-v="'+v+'" aria-pressed="'+(cur===v)+'">'+(v? fmtInt(v) : "Hedefsiz")+'</button>'; });
       h += '</div><p class="small">Hedefe her ulaşıldığında telefon uzun titrer ve yeni tur başlar.</p>';
     }
-    h += '<div class="field" style="margin-top:10px"><label for="zvib">Her sayışta titreşim</label><input id="zvib" type="checkbox"'+(zk.vibrate?' checked':'')+'></div>';
+    if(CAN_VIBRATE) h += '<div class="field" style="margin-top:10px"><label for="zvib">Her sayışta titreşim</label><input id="zvib" type="checkbox"'+(zk.vibrate?' checked':'')+'></div>';
     if(hasNat("setVolumeCounting")) h += '<div class="field"><label for="zvol">Ses tuşlarıyla say<span class="help">Bu ekran açıkken iki ses tuşu da bir sayar; ekrana bakmadan çekebilirsin</span></label><input id="zvol" type="checkbox"'+(zk.volume?' checked':'')+'></div>';
     h += '<p class="subh">Kendi zikrini ekle</p><div class="addRow"><input id="zNew" maxlength="60" placeholder="Örn. Hasbünallah" autocomplete="off"><button data-act="zadd">Ekle</button></div>';
     if(z.custom) h += '<button class="act danger" data-act="zdel" style="margin-top:12px">"'+esc(z.n)+'" zikrini listeden kaldır</button>';
-    h += '<p class="small">Ekran bu bölüm açıkken kapanmaz.</p>';
+    if(N || "wakeLock" in navigator) h += '<p class="small">Ekran bu bölüm açıkken kapanmaz.</p>';
     h += '</div></details>';
     return h;
   }
@@ -1283,14 +1328,18 @@ var PT = (function(){
       if(rem.permission==="denied") h += '<p class="small warnTxt">Bildirim izni kapalı. Telefonun Ayarlar › Uygulamalar › Kaza Takibi › Bildirimler bölümünden açabilirsin.</p>';
       h += '<p class="small">Pil tasarrufu nedeniyle bildirim birkaç dakika gecikebilir.</p>';
     } else {
-      h += '<p class="small" style="margin-top:0">Hatırlatma yalnızca Android uygulamasında çalışır.</p>';
+      if(IS_IOS){
+        h += '<p class="small" style="margin-top:0">iPhone\'da web uygulaması zamanlı bildirim kuramıyor. Bunun yerine <b>Hatırlatıcılar</b> uygulamasında yeni bir hatırlatıcı oluştur: "Kaza namazı" yaz, tarih ve saati aç, Tekrarla\'yı <b>Her gün</b> yap.</p>';
+      } else {
+        h += '<p class="small" style="margin-top:0">Hatırlatma yalnızca Android uygulamasında çalışır.</p>';
+      }
     }
     h += '</div></details>';
 
     h += '<details id="sYedek"><summary>Yedekleme</summary><div class="set">';
     h += '<p class="small" style="margin-top:0">'+(state.lastBackup ? 'Son yedek: '+fmtDate(state.lastBackup)+'.' : 'Henüz yedek alınmadı.')+' Uygulamayı silersen ya da telefon değiştirirsen kayıtlar bu yedekle geri gelir.</p>';
     h += '<div class="two"><button class="act fill" data-act="export">Dosyaya kaydet</button><button class="act" data-act="share">Paylaş</button></div>';
-    h += '<p class="small">Paylaş, yedeği metin olarak WhatsApp, e-posta ya da Drive\'a göndermeni sağlar.</p>';
+    h += '<p class="small">'+(IS_IOS && !N ? 'Dosyaya kaydet açılan menüden <b>Dosyalar\'a Kaydet</b>\'i seç. ' : '')+'Paylaş, yedeği metin olarak WhatsApp, e-posta ya da Drive\'a göndermeni sağlar.</p>';
     h += '<div class="two"><button class="act" data-act="import">Dosyadan yükle</button><button class="act" data-act="paste">Metinden yükle</button></div>';
     if(pasteOpen){
       h += '<textarea id="pasteBox" placeholder="Yedek metnini buraya yapıştır" spellcheck="false"></textarea>';
@@ -1397,6 +1446,7 @@ var PT = (function(){
       case "obback": obBack(); break;
       case "obcancel": ob = null; view = "ayarlar"; render(); break;
       case "setup": openSetup(); render(); window.scrollTo(0,0); break;
+      case "hideInstall": installHidden = true; try{ localStorage.setItem("kaza-kurulum-ipucu","1"); }catch(e){} render(); break;
       case "ztab": zTab = b.getAttribute("data-m"); zArmed = false; render(); window.scrollTo(0,0); break;
       case "ztap": zikirTap(); break;
       case "zundo": zikirUndo(); break;
@@ -1483,6 +1533,11 @@ var PT = (function(){
   };
 
   load();
+
+  if(!N && navigator.storage && navigator.storage.persist){ try{ navigator.storage.persist().catch(function(){}); }catch(e){} }
+  if(!N && "serviceWorker" in navigator && location.protocol==="https:"){
+    window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+  }
 })();
 </script>
 </body>

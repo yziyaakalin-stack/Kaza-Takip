@@ -2,7 +2,7 @@
 
 Kaza namazı ve oruç takip uygulaması. İnternet izni istemez, kayıtlar telefonda saklanır.
 
-## Özellikler (1.2)
+## Özellikler (1.3)
 - İlk açılışta kurulum: cinsiyet, başlangıç ve bitiş tarihi, hayız/lohusalık (yalnızca kadınlarda), vitir, hedef, şehir, önceden kılınanlar, oruç borcu
 - Vakit vakit kaza sayaçları, "1 günlük kaza kıldım" butonu, oruç kazası sayacı
 - Kerahat uyarısı: seçilen şehrin namaz vakitleri telefonda hesaplanır (Diyanet yöntemi)
@@ -12,6 +12,13 @@ Kaza namazı ve oruç takip uygulaması. İnternet izni istemez, kayıtlar telef
 - Günlük hatırlatma: hedef tamamlandıysa bildirim gelmez
 - Yedekleme: dosyaya kaydet, paylaş, dosyadan ya da metinden geri yükle
 - Rehber: kılınış, niyet, kerahat vakitleri, sıra, kolaylıklar, oruç kazası
+
+## iPhone (web uygulaması)
+Aynı arayüz GitHub Pages'te yayınlanır: https://yziyaakalin-stack.github.io/Kaza-Takip/
+
+Safari'de açıp Paylaş › Ana Ekrana Ekle ile kurulur, internetsiz çalışır.
+Web sürümünde zamanlı hatırlatma ve ses tuşlarıyla sayma yoktur; iPhone titreşimi desteklemez.
+Kayıtlar Android'dekinden ayrı tutulur; yedek dosyasıyla bir cihazdan diğerine taşınabilir.
 
 ## Yeni sürüm almak
 Her push'ta GitHub Actions APK'yı derler ve sürüm olarak yayınlar. En son sürüm:
