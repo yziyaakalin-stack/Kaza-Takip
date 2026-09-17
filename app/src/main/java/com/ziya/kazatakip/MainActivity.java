@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
@@ -36,6 +37,7 @@ public class MainActivity extends Activity {
 
     private WebView webView;
     private String pendingSave;
+    private volatile boolean volumeCounting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +163,11 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void setVolumeCounting(boolean on) {
+            volumeCounting = on;
+        }
+
+        @JavascriptInterface
         public void saveFile(final String name, final String text) {
             runOnUiThread(new Runnable() {
                 @Override public void run() {
@@ -262,6 +269,25 @@ public class MainActivity extends Activity {
         }
         Reminder.schedule(this);
         reportReminder();
+    }
+
+    /** Zikirmatik açıkken ses tuşları sayaç olarak çalışır. */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent e) {
+        int k = e.getKeyCode();
+        if (volumeCounting && (k == KeyEvent.KEYCODE_VOLUME_UP || k == KeyEvent.KEYCODE_VOLUME_DOWN)) {
+            if (e.getAction() == KeyEvent.ACTION_DOWN && e.getRepeatCount() == 0) {
+                callJs("kazaZikirKey", "");
+            }
+            return true;
+        }
+        return super.dispatchKeyEvent(e);
+    }
+
+    @Override
+    protected void onPause() {
+        volumeCounting = false;
+        super.onPause();
     }
 
     @Override

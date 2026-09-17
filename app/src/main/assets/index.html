@@ -155,10 +155,28 @@ h2:first-child{margin-top:4px}
 .run .prog{color:var(--muted); font-size:.88rem}
 .run .pname{font-size:2.3rem; font-weight:800; margin:8px 0 2px; letter-spacing:-.02em}
 .run .pk{color:var(--muted); font-size:.9rem}
-.rk{display:flex; justify-content:center; gap:10px; margin:20px 0 6px}
-.rk i{width:18px; height:18px; border-radius:50%; border:2px solid var(--accent)}
-.rk i.on{background:var(--accent)}
-.rk i.cur{box-shadow:0 0 0 4px var(--soft)}
+/* Zikirmatik */
+.zlist{display:flex; gap:6px; overflow-x:auto; padding:2px 2px 6px; margin:14px -2px 0; scrollbar-width:none}
+.zlist::-webkit-scrollbar{display:none}
+.zlist button{flex:none; border:1px solid var(--line); background:var(--surface); border-radius:18px; padding:7px 13px; font-size:.9rem; white-space:nowrap}
+.zlist button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:600}
+.zname{text-align:center; margin:14px 0 0; font-size:1.25rem; font-weight:700; line-height:1.3}
+.zsub{text-align:center; color:var(--muted); font-size:.86rem; margin:2px 0 0}
+.stages{display:flex; justify-content:center; gap:8px; margin-top:8px}
+.stages span{font-size:.75rem; padding:3px 9px; border-radius:10px; background:var(--soft); color:var(--muted)}
+.stages span.on{background:var(--accent); color:var(--accent-ink)}
+.stages span.ok{color:var(--accent)}
+.zbtn{display:block; width:min(76vw, 290px); aspect-ratio:1; margin:18px auto 0; border:0; border-radius:50%; padding:14px;
+  background:conic-gradient(var(--accent) var(--p,0%), var(--soft) 0); -webkit-tap-highlight-color:transparent; touch-action:manipulation; user-select:none}
+.zbtn .in{width:100%; height:100%; border-radius:50%; background:var(--surface); display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:inset 0 0 0 1px var(--line)}
+.zbtn:active .in{background:var(--ok-soft)}
+.zbtn b{font-size:clamp(3.4rem, 18vw, 4.6rem); font-weight:800; line-height:1; letter-spacing:-.03em}
+.zbtn small{color:var(--muted); font-size:.95rem; margin-top:6px}
+.zbtn em{font-style:normal; color:var(--accent); font-size:.85rem; font-weight:700; margin-top:4px; min-height:1.2em}
+.ztoday{text-align:center; color:var(--muted); font-size:.85rem; margin:12px 0 0}
+.addRow{display:flex; gap:8px; margin-top:10px}
+.addRow input{flex:1; font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:8px 10px; min-width:0}
+.addRow button{border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); border-radius:8px; padding:0 14px; font-weight:600}
 .niyet{font-size:.92rem; background:var(--bg); border-radius:10px; padding:10px 12px; margin:14px 0 0; text-align:left}
 .tapBtn{width:100%; min-height:120px; margin-top:16px; border:0; border-radius:18px; background:var(--accent); color:var(--accent-ink); font-size:1.2rem; font-weight:800; padding:16px}
 .tapBtn:active{transform:scale(.985)}
@@ -243,7 +261,7 @@ nav.tabs button[aria-current="page"]::before{content:""; position:absolute; top:
 <nav class="tabs" id="tabs" aria-label="Bölümler"><div>
   <button data-view="takip"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h10M4 18h7"/><path d="M16 17l2.5 2.5L22 15"/></svg>Takip</button>
   <button data-view="istatistik"><svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V5M19 20v-7"/></svg>İstatistik</button>
-  <button data-view="oturum"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M9 7h6M9 17h6"/><circle cx="12" cy="12" r="1.6"/></svg>Oturum</button>
+  <button data-view="oturum"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M9 7h6M9 17h6"/><circle cx="12" cy="12" r="1.6"/></svg>Zikirmatik</button>
   <button data-view="rehber"><svg viewBox="0 0 24 24"><path d="M4 5.5C6.5 4 9.5 4 12 6c2.5-2 5.5-2 8-.5V19c-2.5-1.5-5.5-1.5-8 .5-2.5-2-5.5-2-8-.5z"/><path d="M12 6v13.5"/></svg>Rehber</button>
   <button data-view="ayarlar"><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>Ayarlar</button>
 </div></nav>
@@ -324,6 +342,18 @@ var PT = (function(){
     ["van","Van",38.5012,43.3730]
   ];
   var MILES = [10,25,50,75,90,100];
+  var ZIKIRS = [
+    {id:"tesbihat", s:"Tesbihat", n:"Namaz tesbihatı", sub:"33 Sübhânallah · 33 Elhamdülillâh · 33 Allâhu ekber", seq:true},
+    {id:"subhan", s:"Sübhânallah", n:"Sübhânallah", t:33},
+    {id:"hamd", s:"Elhamdülillâh", n:"Elhamdülillâh", t:33},
+    {id:"tekbir", s:"Allâhu ekber", n:"Allâhu ekber", t:33},
+    {id:"tehlil", s:"Kelime-i tevhid", n:"Lâ ilâhe illallâh", t:100},
+    {id:"istigfar", s:"İstiğfar", n:"Estağfirullah", t:100},
+    {id:"salavat", s:"Salavat", n:"Allâhümme salli alâ seyyidinâ Muhammed", t:100},
+    {id:"serbest", s:"Serbest", n:"Serbest sayaç", t:0}
+  ];
+  var SEQ = [["Sübhânallah",33],["Elhamdülillâh",33],["Allâhu ekber",33]];
+  var TARGETS = [33,99,100,500,1000,0];
   var LS_KEY = "kaza-takip-v1", LS_SESS = "kaza-oturum-v1";
   var KERAHAT_MIN = 45;
 
@@ -380,7 +410,8 @@ var PT = (function(){
     var d = computeDebt(setup), initial = {}, done = {};
     KEYS.forEach(function(x){ initial[x.k]=d; done[x.k]=0; });
     return {v:2, setup:setup, initial:initial, done:done, log:{}, target:1, created:todayIso(),
-            oruc:{initial:0, done:0}, olog:{}, city:"istanbul", lastBackup:""};
+            oruc:{initial:0, done:0}, olog:{}, city:"istanbul", lastBackup:"",
+            zikir:{active:"tesbihat", counts:{}, targets:{}, custom:[], log:{}, vibrate:true, volume:true}};
   }
   function num(v){ v = Number(v); return isFinite(v) && v>=0 ? Math.round(v) : 0; }
   function normalize(s){
@@ -399,16 +430,26 @@ var PT = (function(){
     s.oruc.initial = num(s.oruc.initial); s.oruc.done = Math.min(num(s.oruc.done), s.oruc.initial);
     if(!cityById(s.city)) s.city = "istanbul";
     s.lastBackup = typeof s.lastBackup==="string" ? s.lastBackup : "";
+    var z = Object.assign({}, d.zikir, s.zikir||{});
+    z.counts = z.counts && typeof z.counts==="object" ? z.counts : {};
+    z.targets = z.targets && typeof z.targets==="object" ? z.targets : {};
+    z.log = z.log && typeof z.log==="object" ? z.log : {};
+    z.custom = Array.isArray(z.custom) ? z.custom.filter(function(c){ return c && c.id && c.n; }).slice(0,30) : [];
+    z.vibrate = z.vibrate!==false; z.volume = z.volume!==false;
+    s.zikir = z;
+    if(!zikirById(z.active, s)) z.active = "tesbihat";
     return s;
   }
   function remaining(k){ return Math.max(0, (Number(state.initial[k])||0) - (Number(state.done[k])||0)); }
   function orucRem(){ return Math.max(0, state.oruc.initial - state.oruc.done); }
+  function zikirList(st){ return ZIKIRS.concat(((st||state).zikir.custom||[]).map(function(c){ return {id:c.id, s:c.n, n:c.n, t:33, custom:true}; })); }
+  function zikirById(id, st){ var l = zikirList(st); for(var i=0;i<l.length;i++) if(l[i].id===id) return l[i]; return null; }
   function cityById(id){ for(var i=0;i<CITIES.length;i++) if(CITIES[i][0]===id) return CITIES[i]; return null; }
 
   /* ---------- kayıt ---------- */
   function cleanLog(obj){ Object.keys(obj).forEach(function(d){ if(!obj[d]) delete obj[d]; }); }
   function persist(){
-    cleanLog(state.log); cleanLog(state.olog);
+    cleanLog(state.log); cleanLog(state.olog); cleanLog(state.zikir.log);
     try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); statusText = "Bu cihazda kayıtlı"; }
     catch(e){ statusText = "Kaydedilemedi"; }
     syncNative();
@@ -421,11 +462,11 @@ var PT = (function(){
     if(raw){ try{ state = normalize(JSON.parse(raw)); saved = true; }catch(e){ state = defaults(); } }
     else state = defaults();
     statusText = raw ? "Bu cihazda kayıtlı" : "Telefonda saklanacak";
-    try{ var sr = localStorage.getItem(LS_SESS); if(sr){ var so = JSON.parse(sr); if(so && so.queue && !so.finished) sess = so; } }catch(e){}
+    try{ var sr = localStorage.getItem(LS_SESS); if(sr){ var so = JSON.parse(sr); if(so && so.queue && !so.finished){ delete so.countRekat; delete so.rekat; sess = so; } } }catch(e){}
     loadReminder();
     syncNative();
     render();
-    if(sess) nat("keepAwake", true);
+    if(sess) zTab = "kaza";
   }
 
   function syncNative(){
@@ -634,7 +675,8 @@ var PT = (function(){
 
   /* ---------- oturum ---------- */
   var sess = null;
-  var sessForm = {mode:"gun", days:1, key:"sabah", count:1, rekat:true};
+  var sessForm = {mode:"gun", days:1, key:"sabah", count:1};
+  var zTab = "zikir";
   function saveSess(){ try{ if(sess && !sess.finished) localStorage.setItem(LS_SESS, JSON.stringify(sess)); else localStorage.removeItem(LS_SESS); }catch(e){} }
   function buildQueue(){
     var q = [], left = {};
@@ -649,13 +691,12 @@ var PT = (function(){
   function startSession(){
     var q = buildQueue();
     if(!q.length){ toast("Seçtiğin vakitte kalan kaza yok"); return; }
-    sess = {queue:q, marks:[], idx:0, rekat:0, countRekat:sessForm.rekat, done:0, skipped:0, finished:false, started:Date.now()};
-    saveSess(); nat("keepAwake", true); render(); window.scrollTo(0,0);
+    sess = {queue:q, marks:[], idx:0, done:0, skipped:0, finished:false, started:Date.now()};
+    saveSess(); render(); window.scrollTo(0,0);
   }
   function sessTap(){
     if(!sess || sess.finished) return;
     var k = sess.queue[sess.idx];
-    if(sess.countRekat && sess.rekat < REKAT[k]-1){ sess.rekat++; buzz(12); saveSess(); render(); return; }
     var b = snapshot();
     if(remaining(k)>0){ state.done[k]++; addLog(1); sess.done++; sess.marks[sess.idx]="ok"; persist(); saved=false; }
     else { sess.skipped++; sess.marks[sess.idx]="sk"; }
@@ -664,16 +705,58 @@ var PT = (function(){
     celebrate(b);
   }
   function sessSkip(){ if(!sess || sess.finished) return; sess.skipped++; sess.marks[sess.idx]="sk"; nextPrayer(); }
-  function sessBack(){ if(!sess || sess.finished || sess.rekat===0) return; sess.rekat--; saveSess(); render(); }
   function nextPrayer(){
-    sess.idx++; sess.rekat = 0;
+    sess.idx++;
     if(sess.idx >= sess.queue.length) finishSession(); else { saveSess(); render(); }
   }
   function finishSession(){
     if(!sess) return;
     sess.finished = true; sess.ended = Date.now();
-    saveSess(); nat("keepAwake", false); render();
+    saveSess(); render();
   }
+
+  /* ---------- zikirmatik ---------- */
+  var zArmed = false, zArmTimer = null;
+  function zikirTap(){
+    var zk = state.zikir, z = zikirById(zk.active); if(!z) return;
+    var n = zCount(z.id) + 1, t = todayIso();
+    zk.counts[z.id] = n; zk.log[t] = (Number(zk.log[t])||0) + 1;
+    persist();
+    if(z.seq){
+      var r = n % 99;
+      if(r===0){ buzz([60,60,60,60,200]); toast("Tesbihat tamam. Kabul olsun."); }
+      else if(r===33 || r===66){ buzz(250); toast(SEQ[r/33][0]+" başlıyor"); }
+      else if(zk.vibrate) buzz(12);
+    } else {
+      var T = zTarget(z);
+      if(T>0 && n%T===0){ buzz([200,80,200]); toast(fmtInt(T)+" tamam, "+(n/T)+". tur"); }
+      else if(zk.vibrate) buzz(12);
+    }
+    render();
+  }
+  function zikirUndo(){
+    var zk = state.zikir, z = zikirById(zk.active), t = todayIso();
+    if(!z || zCount(z.id)<=0) return;
+    zk.counts[z.id] = zCount(z.id) - 1;
+    zk.log[t] = Math.max(0, (Number(zk.log[t])||0) - 1);
+    persist(); render();
+  }
+  function zikirReset(){
+    if(!zArmed){ zArmed = true; clearTimeout(zArmTimer); zArmTimer = setTimeout(function(){ zArmed=false; render(); }, 4000); render(); return; }
+    zArmed = false; clearTimeout(zArmTimer);
+    delete state.zikir.counts[state.zikir.active];
+    persist(); render(); toast("Sayaç sıfırlandı");
+  }
+  function zikirActive(){ return view==="oturum" && zTab==="zikir" && !document.hidden; }
+  var lastAwake = null, lastVol = null;
+  function syncZikirNative(){
+    if(!N || !state) return;
+    var z = zikirActive(), sessOn = !!(sess && !sess.finished);
+    var awake = z || sessOn, vol = z && state.zikir.volume;
+    if(awake!==lastAwake){ nat("keepAwake", awake); lastAwake = awake; }
+    if(vol!==lastVol){ nat("setVolumeCounting", vol); lastVol = vol; }
+  }
+  window.kazaZikirKey = function(){ if(zikirActive()) zikirTap(); };
 
   /* ---------- çizim ---------- */
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -694,6 +777,7 @@ var PT = (function(){
     tabs.querySelectorAll("button").forEach(function(b){
       if(b.getAttribute("data-view")===view) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
     });
+    syncZikirNative();
   }
 
   function rowHtml(key, label, init, done, skyCls, fillCls, act){
@@ -838,6 +922,56 @@ var PT = (function(){
   }
 
   function viewSession(){
+    var head = '<div class="seg" role="group" aria-label="Bölüm" style="margin-bottom:14px"><button data-act="ztab" data-m="zikir" aria-pressed="'+(zTab==="zikir")+'">Zikirmatik</button><button data-act="ztab" data-m="kaza" aria-pressed="'+(zTab==="kaza")+'">Toplu kaza'+(sess && !sess.finished ? ' •' : '')+'</button></div>';
+    if(zTab==="zikir") return head + viewZikir();
+    return head + viewKazaSession();
+  }
+
+  function zCount(id){ return Number(state.zikir.counts[id])||0; }
+  function zTarget(z){ if(z.seq) return 99; var t = state.zikir.targets[z.id]; return (t===undefined || t===null) ? z.t : Number(t)||0; }
+  function viewZikir(){
+    var zk = state.zikir, z = zikirById(zk.active) || ZIKIRS[0], n = zCount(z.id), h = "";
+    h += '<div class="zlist" role="group" aria-label="Zikir seç">';
+    zikirList().forEach(function(x){ h += '<button data-act="zsel" data-z="'+esc(x.id)+'" aria-pressed="'+(x.id===z.id)+'">'+esc(x.s)+'</button>'; });
+    h += '</div>';
+
+    var big, of, tur = "", pct = 0, name = z.n, sub = z.sub || "";
+    if(z.seq){
+      var round = Math.floor(n/99), r = n - round*99, stage = Math.min(2, Math.floor(r/33)), inStage = r - stage*33;
+      name = SEQ[stage][0]; big = inStage; of = "/ 33";
+      pct = inStage/33*100;
+      if(round) tur = round + " tur tamam";
+      h += '<p class="zname">'+name+'</p>';
+      h += '<div class="stages">'+SEQ.map(function(x,i){ return '<span class="'+(i===stage?"on":(i<stage?"ok":""))+'">'+x[0]+'</span>'; }).join("")+'</div>';
+    } else {
+      var T = zTarget(z);
+      if(T>0){ var rd = Math.floor(n/T); big = n - rd*T; of = "/ "+fmtInt(T); pct = big/T*100; if(rd) tur = rd + ". tur tamam"; }
+      else { big = n; of = "hedefsiz"; pct = 0; }
+      h += '<p class="zname">'+esc(name)+'</p>';
+      if(sub) h += '<p class="zsub">'+esc(sub)+'</p>';
+    }
+    h += '<button class="zbtn" data-act="ztap" style="--p:'+pct.toFixed(1)+'%" aria-label="'+esc(name)+', '+big+' sayıldı. Saymak için dokun"><span class="in"><b class="num">'+fmtInt(big)+'</b><small>'+of+'</small><em>'+tur+'</em></span></button>';
+    var t = todayIso(), today = Number(zk.log[t])||0;
+    h += '<p class="ztoday num">Bu zikirde toplam '+fmtInt(n)+' · Bugün tüm zikirler '+fmtInt(today)+'</p>';
+    h += '<div class="ghostRow"><button data-act="zundo"'+(n>0?'':' disabled')+'>Geri al</button><button data-act="zreset" class="'+(zArmed?'danger armed':'')+'"'+(n>0?'':' disabled')+'>'+(zArmed?'Emin misin?':'Sıfırla')+'</button></div>';
+
+    h += '<details id="zOpt" style="margin-top:18px"><summary>Zikirmatik ayarları</summary><div class="set">';
+    if(!z.seq){
+      var cur = zTarget(z);
+      h += '<p class="subh" style="margin-top:0">Hedef</p><div class="chips">';
+      TARGETS.forEach(function(v){ h += '<button data-act="ztarget" data-v="'+v+'" aria-pressed="'+(cur===v)+'">'+(v? fmtInt(v) : "Hedefsiz")+'</button>'; });
+      h += '</div><p class="small">Hedefe her ulaşıldığında telefon uzun titrer ve yeni tur başlar.</p>';
+    }
+    h += '<div class="field" style="margin-top:10px"><label for="zvib">Her sayışta titreşim</label><input id="zvib" type="checkbox"'+(zk.vibrate?' checked':'')+'></div>';
+    if(hasNat("setVolumeCounting")) h += '<div class="field"><label for="zvol">Ses tuşlarıyla say<span class="help">Bu ekran açıkken iki ses tuşu da bir sayar; ekrana bakmadan çekebilirsin</span></label><input id="zvol" type="checkbox"'+(zk.volume?' checked':'')+'></div>';
+    h += '<p class="subh">Kendi zikrini ekle</p><div class="addRow"><input id="zNew" maxlength="60" placeholder="Örn. Hasbünallah" autocomplete="off"><button data-act="zadd">Ekle</button></div>';
+    if(z.custom) h += '<button class="act danger" data-act="zdel" style="margin-top:12px">"'+esc(z.n)+'" zikrini listeden kaldır</button>';
+    h += '<p class="small">Ekran bu bölüm açıkken kapanmaz.</p>';
+    h += '</div></details>';
+    return h;
+  }
+
+  function viewKazaSession(){
     var h = "";
     if(sess && !sess.finished){
       var k = sess.queue[sess.idx], R = REKAT[k];
@@ -846,21 +980,14 @@ var PT = (function(){
       h += '<div class="prog num">'+(sess.idx+1)+'. namaz / '+sess.queue.length+'</div>';
       h += '<div class="pname">'+NAME[k]+'</div>';
       h += '<div class="pk">'+R+' rekât · '+(k==="vitir"?"vacip":"farz")+(k==="vitir"?", 3. rekâtta kunut":"")+'</div>';
-      if(sess.countRekat){
-        h += '<div class="rk" aria-label="'+(sess.rekat+1)+'. rekât">';
-        for(var i=0;i<R;i++) h += '<i class="'+(i<sess.rekat?"on":"")+(i===sess.rekat?" cur":"")+'"></i>';
-        h += '</div>';
-      }
-      var label = !sess.countRekat ? "Namazı bitirdim" : (sess.rekat < R-1 ? (sess.rekat+1)+". rekâtı bitirdim" : "Son rekât bitti, selam verdim");
-      h += '<button class="tapBtn" data-act="stap">'+label+'</button>';
+      h += '<button class="tapBtn" data-act="stap">'+NAME[k]+' kazasını kıldım</button>';
       h += '<div class="ghostRow">';
-      if(sess.countRekat) h += '<button data-act="sback"'+(sess.rekat===0?' disabled':'')+'>Rekât geri</button>';
       h += '<button data-act="sskip">Namazı atla</button><button data-act="send">Bitir</button></div>';
       h += '<p class="niyet"><b>Niyet:</b> '+NIYET[k]+'</p>';
       h += '<div class="queue" aria-hidden="true">';
       sess.queue.forEach(function(q,j){ var c = j<sess.idx ? (sess.marks[j]||"ok") : (j===sess.idx ? "cur" : ""); h += '<i class="'+c+'" title="'+NAME[q]+'"></i>'; });
       h += '</div>';
-      h += '<p class="small">Ekran oturum boyunca açık kalır. Her namaz bitince sayaçtan otomatik düşer.</p>';
+      h += '<p class="small">Namazı kılıp bitirince dokun; sayaçtan kendiliğinden düşer. Ekran oturum boyunca açık kalır.</p>';
       h += '</div>';
       return h;
     }
@@ -873,7 +1000,7 @@ var PT = (function(){
       h += '</div>';
       return h;
     }
-    h += '<h2>Toplu kaza oturumu</h2>';
+    h += '<h2 style="margin-top:0">Toplu kaza oturumu</h2>';
     h += '<p class="small" style="margin:-4px 0 12px">Namaz namaz ilerler; biten her namaz sayaçtan kendiliğinden düşer.</p>';
     h += vakitStrip();
     h += '<div class="panel" style="margin-top:12px">';
@@ -889,7 +1016,6 @@ var PT = (function(){
       h += '</div>';
       h += '<div class="field" style="margin-top:12px"><label>Kaç tane<span class="help">'+fmtInt(remaining(sessForm.key))+' '+NAME[sessForm.key]+' kaldı</span></label>'+stepper("count", sessForm.count, 1, 20)+'</div>';
     }
-    h += '<div class="field"><label for="srekat">Rekât rekât say<span class="help">Kapalıysa her namaz için tek dokunuş</span></label><input id="srekat" type="checkbox"'+(sessForm.rekat?' checked':'')+'></div>';
     h += '<button class="act fill" data-act="sstart">Oturumu başlat</button>';
     h += '</div>';
     return h;
@@ -928,7 +1054,7 @@ var PT = (function(){
 
     h += '<details id="g4" class="prose"><summary>Sıra gerekir mi</summary><div class="set">';
     h += '<p>Borcu altı vakitten fazla olan kişi sıraya uymak zorunda değildir. İstediğin vakitten başlayabilir, bir oturuşta aynı vakitten birkaç tane kılabilirsin.</p>';
-    h += '<p>Düzenli olmak için iki yol yaygındır: her farzdan sonra aynı vaktin bir kazasını kılmak ya da bir oturuşta bir günlük kazayı (20 rekât, yaklaşık 15–20 dakika) toplu kılmak. Oturum sekmesi ikincisi için hazırlandı.</p>';
+    h += '<p>Düzenli olmak için iki yol yaygındır: her farzdan sonra aynı vaktin bir kazasını kılmak ya da bir oturuşta bir günlük kazayı (20 rekât, yaklaşık 15–20 dakika) toplu kılmak. Zikirmatik sekmesindeki Toplu kaza bölümü ikincisi için hazırlandı.</p>';
     h += '<p>Kaza borcunu başkalarına açmamak tavsiye edilir.</p></div></details>';
 
     h += '<details id="g5" class="prose"><summary>Borcu çok olanlar için kolaylık</summary><div class="set">';
@@ -1073,22 +1199,43 @@ var PT = (function(){
         else sessForm.count = Math.max(1, Math.min(20, sessForm.count+dd));
         render(); break;
       case "sstart": startSession(); break;
+      case "ztab": zTab = b.getAttribute("data-m"); zArmed = false; render(); window.scrollTo(0,0); break;
+      case "ztap": zikirTap(); break;
+      case "zundo": zikirUndo(); break;
+      case "zreset": zikirReset(); break;
+      case "zsel": state.zikir.active = b.getAttribute("data-z"); zArmed = false; persist(); render(); break;
+      case "ztarget": state.zikir.targets[state.zikir.active] = Number(b.getAttribute("data-v")); persist(); render(); break;
+      case "zadd":
+        var zi = document.getElementById("zNew"), nm = zi ? zi.value.trim().slice(0,60) : "";
+        if(!nm){ if(zi) zi.focus(); break; }
+        if(state.zikir.custom.length >= 30){ toast("En fazla 30 zikir eklenebilir"); break; }
+        var nid = "c" + Date.now().toString(36);
+        state.zikir.custom.push({id:nid, n:nm}); state.zikir.active = nid;
+        persist(); render(); toast("Zikir eklendi"); break;
+      case "zdel":
+        var cid = state.zikir.active;
+        state.zikir.custom = state.zikir.custom.filter(function(c){ return c.id!==cid; });
+        delete state.zikir.counts[cid]; delete state.zikir.targets[cid];
+        state.zikir.active = "tesbihat"; persist(); render(); toast("Zikir kaldırıldı"); break;
       case "stap": sessTap(); break;
       case "sskip": sessSkip(); break;
-      case "sback": sessBack(); break;
       case "send": finishSession(); break;
       case "snew": sess = null; saveSess(); render(); break;
     }
   });
 
+  app.addEventListener("keydown", function(e){
+    if(e.target && e.target.id==="zNew" && e.key==="Enter"){ e.preventDefault(); var b = app.querySelector('[data-act="zadd"]'); if(b) b.click(); }
+  });
   app.addEventListener("change", function(e){
     var t = e.target; if(!state) return;
     if(t.id==="target"){ var v = Math.round(Number(t.value)); if(v>=1 && v<=20){ state.target = v; change(); } else render(); }
     else if(t.id==="vitir"){ state.setup.vitir = t.checked; change(); }
     else if(t.id==="city"){ state.city = t.value; change(); }
+    else if(t.id==="zvib"){ state.zikir.vibrate = t.checked; persist(); }
+    else if(t.id==="zvol"){ state.zikir.volume = t.checked; persist(); render(); }
     else if(t.id==="start" || t.id==="end"){ if(t.value){ state.setup[t.id] = t.value; change(); } }
     else if(t.id==="hayiz"){ var hz = Number(t.value); if(hz>=0 && hz<=15){ state.setup.hayiz = hz; change(); } else render(); }
-    else if(t.id==="srekat"){ sessForm.rekat = t.checked; }
     else if(t.id==="remOn"){ setReminder(t.checked, rem.hour, rem.minute); }
     else if(t.id==="remTime"){
       var p = String(t.value).split(":");
@@ -1121,7 +1268,7 @@ var PT = (function(){
     if(todayIso()!==lastDay){ lastDay = todayIso(); syncNative(); }
     if(view==="takip" || view==="oturum" || view==="rehber") render();
   }, 30000);
-  document.addEventListener("visibilitychange", function(){ if(!document.hidden && state){ loadReminder(); syncNative(); render(); } });
+  document.addEventListener("visibilitychange", function(){ if(!state) return; if(document.hidden){ syncZikirNative(); return; } lastVol = null; lastAwake = null; loadReminder(); syncNative(); render(); });
 
   window.kazaBack = function(){
     if(view!=="takip"){ go("takip"); return true; }
