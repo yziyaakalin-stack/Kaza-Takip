@@ -142,6 +142,35 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void setVirdReminder(final boolean enabled, final int hour, final int minute,
+                                    final String title, final String text) {
+            final int h = Math.max(0, Math.min(23, hour));
+            final int m = Math.max(0, Math.min(59, minute));
+            runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    Reminder.prefs(MainActivity.this).edit()
+                            .putInt(Reminder.K_V_HOUR, h)
+                            .putInt(Reminder.K_V_MINUTE, m)
+                            .putString(Reminder.K_V_TITLE, title == null || title.isEmpty() ? "Vird vakti" : title)
+                            .putString(Reminder.K_V_TEXT, text == null || text.isEmpty() ? "Bugünkü virdini unutma." : text)
+                            .putBoolean(Reminder.K_V_ENABLED, enabled)
+                            .apply();
+                    if (enabled && needsNotifPermission()) {
+                        requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_NOTIF);
+                        return;
+                    }
+                    Reminder.scheduleSlot(MainActivity.this, Reminder.SLOT_VIRD);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void setVirdMet(String dateIso) {
+            Reminder.prefs(MainActivity.this).edit()
+                    .putString(Reminder.K_V_MET, dateIso == null ? "" : dateIso).apply();
+        }
+
+        @JavascriptInterface
         public void setTargetUnits(int units) {
             Reminder.prefs(MainActivity.this).edit().putInt(Reminder.K_UNITS, units).apply();
         }
@@ -265,7 +294,10 @@ public class MainActivity extends Activity {
         if (requestCode != REQ_NOTIF) return;
         boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
         if (!granted) {
-            Reminder.prefs(this).edit().putBoolean(Reminder.K_ENABLED, false).apply();
+            Reminder.prefs(this).edit()
+                    .putBoolean(Reminder.K_ENABLED, false)
+                    .putBoolean(Reminder.K_V_ENABLED, false)
+                    .apply();
         }
         Reminder.schedule(this);
         reportReminder();

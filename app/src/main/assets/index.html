@@ -197,6 +197,32 @@ h2:first-child{margin-top:4px}
 .queue i.sk{background:var(--line)}
 .queue i.cur{background:transparent; outline:2px solid var(--accent); outline-offset:-2px}
 
+/* Vird */
+.seg.three{grid-template-columns:1fr 1fr 1fr}
+.vcard{display:block; width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:10px}
+.vcard .vh{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
+.vcard b{font-size:1.02rem}
+.vcard .vd{color:var(--muted); font-size:.85rem; white-space:nowrap}
+.vcard .bar{margin-top:10px}
+.vgrid{display:grid; grid-template-columns:repeat(10,1fr); gap:5px; margin-top:14px}
+.vgrid i{aspect-ratio:1; border-radius:5px; background:var(--soft); display:flex; align-items:center; justify-content:center; font-size:.6rem; color:var(--muted); font-style:normal}
+.vgrid i.ok{background:var(--accent); color:var(--accent-ink)}
+.vgrid i.miss{background:var(--warn-soft); color:var(--warn)}
+.vgrid i.now{outline:2px solid var(--accent); outline-offset:-2px; color:var(--accent)}
+.step{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:12px}
+.step.done{border-color:var(--accent)}
+.step .sh{display:flex; align-items:center; gap:10px; font-weight:700}
+.step .sn{width:26px; height:26px; border-radius:50%; background:var(--soft); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:.85rem; flex:none}
+.step.done .sn{background:var(--accent); color:var(--accent-ink)}
+.arabic{direction:rtl; text-align:right; font-size:1.45rem; line-height:2.1; margin:12px 0 0; font-family:"Noto Naskh Arabic","Geeza Pro","Traditional Arabic",serif}
+.trans{font-size:.95rem; line-height:1.7; margin:12px 0 0}
+.meal{font-size:.92rem; color:var(--muted); line-height:1.6; margin:10px 0 0}
+.vdone{text-align:center; padding:18px 0 4px}
+.vdone b{display:block; font-size:2.2rem; font-weight:800; line-height:1.1}
+.vpick{display:block; width:100%; text-align:left; margin-top:10px; padding:14px; border-radius:14px; border:1px solid var(--line); background:var(--surface)}
+.vpick b{display:block; font-size:1rem}
+.vpick span{color:var(--muted); font-size:.85rem}
+
 /* Rehber */
 .prose h3{font-size:.98rem; margin:0 0 6px}
 .prose p, .prose li{font-size:.93rem}
@@ -401,6 +427,17 @@ var PT = (function(){
   ];
   var SEQ = [["Sübhânallah",33],["Elhamdülillâh",33],["Allâhu ekber",33]];
   var TARGETS = [33,99,100,500,1000,0];
+  var VIRD_DUA = {
+    ar: "سُبْحَانَ اللهِ الْعَظِيمِ وَبِحَمْدِهِ، سُبْحَانَ مَنْ يَمُنُّ وَلَا يُمَنُّ عَلَيْهِ، سُبْحَانَ مَنْ يُجِيرُ وَلَا يُجَارُ عَلَيْهِ، سُبْحَانَ مَنْ يُبْرَأُ مِنَ الْحَوْلِ وَالْقُوَّةِ إِلَيْهِ، سُبْحَانَ مَنِ التَّسْبِيحُ مِنْهُ مِنَّةٌ عَلَى مَنِ اعْتَمَدَ عَلَيْهِ، سُبْحَانَ مَنْ يُسَبِّحُ كُلُّ شَيْءٍ بِحَمْدِهِ، سُبْحَانَكَ لَا إِلٰهَ إِلَّا أَنْتَ يَا مَنْ يُسَبِّحُ لَهُ الْجَمِيعُ، تَدَارَكْنِي بِعَفْوِكَ فَإِنِّي جَزُوعٌ",
+    tr: ["Sübhânallâhi'l-azîmi ve bi-hamdih.","Sübhâne men yemünnü ve lâ yümennü aleyh.","Sübhâne men yücîru ve lâ yücâru aleyh.","Sübhâne men yübrau mine'l-havli ve'l-kuvveti ileyh.","Sübhâne meni't-tesbîhu minnetün minhü alâ meni'temede aleyh.","Sübhâne men yüsebbihu küllü şey'in bi-hamdih.","Sübhâneke lâ ilâhe illâ ente yâ men yüsebbihu lehü'l-cemî'.","Tedâreknî bi-afvike fe-innî cezû'."],
+    meal: "Yüce Allah'ı hamdiyle tesbih ederim. İyilik eden, fakat kimsenin kendisine iyilik edip minnet altına alamadığı Allah'ı tesbih ederim. Koruyup himaye eden, fakat kendisine karşı kimsenin korunamadığı Allah'ı tesbih ederim. Kulların, kendi güç ve kuvvetlerinden sıyrılıp kendisine sığındığı Allah'ı tesbih ederim. Kendisine dayanan kimseye tesbih etmeyi bir lütuf olarak veren Allah'ı tesbih ederim. Her şeyin hamdiyle tesbih ettiği Allah'ı tesbih ederim. Seni tesbih ederim, Senden başka ilah yoktur. Ey her şeyin tesbih ettiği Rabbim! Affınla imdadıma yetiş, çünkü ben çok aciz bir kulum."
+  };
+  var VIRD_PRESETS = [
+    {key:"istigfar", name:"İstiğfar virdi", days:40, window:"fecr", dua:true,
+     cname:"Estağfirullah", ctarget:100,
+     note:"Rızık için istiğfara devam etmenin faziletine Nuh sûresi 10-12. ayetler ve Ebû Dâvûd'daki \"istiğfara devam edene Allah her darlıktan bir çıkış, her sıkıntıdan bir kurtuluş verir ve ummadığı yerden rızıklandırır\" hadisi işaret eder. Yaygın paylaşılan \"40 günde şu olur\" iddialarının sahih bir kaynağı yoktur; niyetini Allah rızası olarak tut."},
+    {key:"serbest", name:"Kendi virdim", days:40, window:"serbest", dua:false, cname:"Zikir", ctarget:100, note:""}
+  ];
   var LS_KEY = "kaza-takip-v1", LS_SESS = "kaza-oturum-v1";
   var KERAHAT_MIN = 45;
 
@@ -463,7 +500,7 @@ var PT = (function(){
     var d = computeDebt(setup), initial = {}, done = {};
     KEYS.forEach(function(x){ initial[x.k]=d; done[x.k]=0; });
     return {v:2, setup:setup, initial:initial, done:done, log:{}, target:1, created:todayIso(),
-            oruc:{initial:0, done:0}, olog:{}, city:"istanbul", lastBackup:"", setupDone:false,
+            oruc:{initial:0, done:0}, olog:{}, city:"istanbul", lastBackup:"", setupDone:false, virds:[],
             zikir:{active:"tesbihat", counts:{}, targets:{}, custom:[], log:{}, vibrate:true, volume:true}};
   }
   function num(v){ v = Number(v); return isFinite(v) && v>=0 ? Math.round(v) : 0; }
@@ -492,6 +529,18 @@ var PT = (function(){
     z.custom = Array.isArray(z.custom) ? z.custom.filter(function(c){ return c && c.id && c.n; }).slice(0,30) : [];
     z.vibrate = z.vibrate!==false; z.volume = z.volume!==false;
     s.zikir = z;
+    s.virds = Array.isArray(s.virds) ? s.virds.filter(function(v){ return v && v.id && v.name; }).slice(0,10) : [];
+    s.virds.forEach(function(v){
+      v.days = Math.max(1, Math.min(365, Math.round(Number(v.days)||40)));
+      v.ctarget = Math.max(1, Math.round(Number(v.ctarget)||100));
+      v.cname = v.cname || "Zikir";
+      v.window = v.window==="fecr" ? "fecr" : "serbest";
+      v.missRule = v.missRule==="bastan" ? "bastan" : "devam";
+      v.dua = !!v.dua;
+      v.log = v.log && typeof v.log==="object" ? v.log : {};
+      v.start = v.start || todayIso();
+      v.remind = !!v.remind;
+    });
     if(!zikirById(z.active, s)) z.active = "tesbihat";
     return s;
   }
@@ -527,6 +576,7 @@ var PT = (function(){
 
   function syncNative(){
     if(!N || !state) return;
+    syncVirdNative();
     var s = stats();
     nat("setTargetUnits", s.targetUnits);
     nat("setTargetMet", s.today >= s.targetUnits && s.targetUnits > 0 ? todayIso() : "");
@@ -930,6 +980,191 @@ var PT = (function(){
     return true;
   }
 
+  /* ---------- vird ---------- */
+  var vOpen = null, vArmed = false, vForm = null, vShowText = false;
+  function virdById(id){ for(var i=0;i<state.virds.length;i++) if(state.virds[i].id===id) return state.virds[i]; return null; }
+  function vEntry(v, d){ var e = v.log[d]; return e && typeof e==="object" ? e : {read:false, count:0, done:false}; }
+  function vSetEntry(v, d, e){ v.log[d] = e; }
+  function vDoneDays(v){ var n=0; Object.keys(v.log).forEach(function(d){ if(v.log[d] && v.log[d].done) n++; }); return n; }
+  function vStreak(v){
+    var t = todayIso(), d = (v.log[t] && v.log[t].done) ? t : shiftIso(t,-1), n = 0;
+    while(v.log[d] && v.log[d].done && d >= v.start){ n++; d = shiftIso(d,-1); }
+    return n;
+  }
+  function vProgress(v){ return v.missRule==="bastan" ? vStreak(v) : vDoneDays(v); }
+  function vComplete(v){ return vProgress(v) >= v.days; }
+  function vBroken(v){
+    if(v.missRule!=="bastan" || vComplete(v)) return false;
+    var y = yesterdayIso();
+    if(y < v.start) return false;
+    if(v.log[y] && v.log[y].done) return false;
+    return vDoneDays(v) > 0 && vStreak(v)===0;
+  }
+  function vWindow(){
+    var t = dayTimes(new Date());
+    return {from:t.fajr, to:t.sunrise};
+  }
+  function vInWindow(v){
+    if(v.window!=="fecr") return {ok:true};
+    var now = new Date(), w = vWindow();
+    if(now >= w.from && now < w.to) return {ok:true, w:w, left:(w.to-now)/60000};
+    return {ok:false, w:w};
+  }
+  function vTick(v){
+    var t = todayIso(), e = vEntry(v, t);
+    if(e.done) return;
+    e.count = Math.min(v.ctarget, (Number(e.count)||0) + 1);
+    if(state.zikir.vibrate) buzz(12);
+    if(e.count >= v.ctarget && (!v.dua || e.read)) vFinishDay(v, e, t); else { vSetEntry(v, t, e); persist(); render(); }
+  }
+  function vRead(v){
+    var t = todayIso(), e = vEntry(v, t);
+    e.read = true;
+    if(e.count >= v.ctarget) vFinishDay(v, e, t); else { vSetEntry(v, t, e); persist(); render(); }
+  }
+  function vFinishDay(v, e, t){
+    e.done = true; vSetEntry(v, t, e); persist(); render();
+    buzz([80,60,80,60,220]);
+    var n = vProgress(v);
+    toast(n >= v.days ? v.name + " tamamlandı. Allah kabul etsin." : n + ". gün tamam, " + (v.days - n) + " gün kaldı");
+  }
+  function vUndo(v){
+    var t = todayIso(), e = vEntry(v, t);
+    if(e.done){ e.done = false; }
+    else if(e.count > 0){ e.count--; }
+    else if(e.read){ e.read = false; }
+    else return;
+    vSetEntry(v, t, e); persist(); render();
+  }
+  function vRestart(v){ v.start = todayIso(); v.log = {}; persist(); render(); toast("Vird baştan başladı"); }
+  function vAdd(preset){
+    var v = {id:"v"+Date.now().toString(36), name:preset.name, days:preset.days, window:preset.window,
+             dua:preset.dua, cname:preset.cname, ctarget:preset.ctarget, note:preset.note||"",
+             missRule:"devam", start:todayIso(), log:{}, remind:false};
+    if(preset.key==="serbest"){ vForm = v; return; }
+    state.virds.push(v); vOpen = v.id; vForm = null; persist(); render();
+  }
+  function virdReminderTime(v){
+    if(v.window!=="fecr") return {h:20, m:0};
+    var d = new Date(); d.setDate(d.getDate()+1);
+    var f = new Date(+dayTimes(d).fajr + 10*60000);
+    return {h:f.getHours(), m:f.getMinutes()};
+  }
+  function syncVirdNative(){
+    if(!hasNat("setVirdReminder") || !state) return;
+    var on = null;
+    state.virds.forEach(function(v){ if(!on && v.remind && !vComplete(v)) on = v; });
+    if(!on){ nat("setVirdReminder", false, 0, 0, "", ""); return; }
+    var tm = virdReminderTime(on);
+    var body = on.window==="fecr" ? "İmsak ile güneş doğuşu arasında oku." : "Bugünkü virdini unutma.";
+    nat("setVirdReminder", true, tm.h, tm.m, on.name, body);
+    var t = todayIso();
+    nat("setVirdMet", (on.log[t] && on.log[t].done) ? t : "");
+  }
+
+  function viewVird(){
+    if(vForm) return viewVirdForm();
+    if(vOpen){ var v = virdById(vOpen); if(v) return viewVirdDetail(v); vOpen = null; }
+    var h = "";
+    if(!state.virds.length){
+      h += '<h2 style="margin-top:0">Vird takibi</h2>';
+      h += '<p class="small" style="margin:-4px 0 4px">Belirli bir gün sayısı boyunca her gün okunacak zikir ve duaları takip eder. Bir vird seç:</p>';
+    } else {
+      h += '<h2 style="margin-top:0">Virdlerin</h2>';
+      state.virds.forEach(function(v){
+        var n = vProgress(v), t = todayIso(), e = vEntry(v, t), pct = Math.min(100, n/v.days*100);
+        h += '<button class="vcard" data-act="vopen" data-v="'+v.id+'"><span class="vh"><b>'+esc(v.name)+'</b><span class="vd num">'+n+' / '+v.days+' gün</span></span>';
+        h += '<span class="count">'+(vComplete(v) ? "Tamamlandı" : (e.done ? "Bugün tamam" : (e.count||e.read ? "Bugün devam ediyor" : "Bugün okunmadı")))+'</span>';
+        h += '<span class="bar" style="display:block"><i style="background:var(--accent);width:'+pct.toFixed(1)+'%"></i></span></button>';
+      });
+      h += '<h2>Yeni vird</h2>';
+    }
+    VIRD_PRESETS.forEach(function(pr){
+      h += '<button class="vpick" data-act="vadd" data-p="'+pr.key+'"><b>'+esc(pr.name)+'</b><span>'+(pr.key==="istigfar" ? "40 gün · her sabah imsak ile güneş arası · dua + 100 istiğfar" : "Gün sayısını, zikri ve adedini kendin belirle")+'</span></button>';
+    });
+    return h;
+  }
+
+  function viewVirdForm(){
+    var v = vForm, h = '<h2 style="margin-top:0">Kendi virdin</h2>';
+    h += '<div class="panel">';
+    h += '<div class="obField" style="margin-top:0"><label for="vfName">Adı</label><input id="vfName" type="text" maxlength="40" value="'+esc(v.name==="Kendi virdim"?"":v.name)+'" placeholder="Örn. Salavat virdi" autocomplete="off" style="width:100%; font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px"></div>';
+    h += '<div class="obField"><label for="vfZikir">Okunacak zikir</label><input id="vfZikir" type="text" maxlength="60" value="'+esc(v.cname==="Zikir"?"":v.cname)+'" placeholder="Örn. Allâhümme salli alâ seyyidinâ Muhammed" autocomplete="off" style="width:100%; font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px"></div>';
+    h += '<div class="field"><label for="vfCount">Günlük adet</label><input id="vfCount" type="number" min="1" max="10000" step="1" inputmode="numeric" value="'+v.ctarget+'"></div>';
+    h += '<div class="field"><label for="vfDays">Kaç gün sürecek</label><input id="vfDays" type="number" min="1" max="365" step="1" inputmode="numeric" value="'+v.days+'"></div>';
+    h += '<div class="field"><label for="vfWindow">Vakit<span class="help">Belirli bir vakitte okunacaksa seç</span></label><select id="vfWindow"><option value="serbest"'+(v.window==="serbest"?' selected':'')+'>Serbest</option><option value="fecr"'+(v.window==="fecr"?' selected':'')+'>İmsak – güneş arası</option></select></div>';
+    h += '<div class="two"><button class="act" data-act="vcancel">Vazgeç</button><button class="act fill" data-act="vcreate">Oluştur</button></div>';
+    h += '</div>';
+    return h;
+  }
+
+  function viewVirdDetail(v){
+    var t = todayIso(), e = vEntry(v, t), n = vProgress(v), win = vInWindow(v), h = "";
+    h += '<button class="link" data-act="vback" style="border:0;background:none;padding:0;color:var(--muted);font-weight:600">‹ Virdler</button>';
+    h += '<h2 style="margin:10px 0 4px">'+esc(v.name)+'</h2>';
+    h += '<p class="sub num" style="margin:0">'+n+' / '+v.days+' gün'+(v.missRule==="bastan" ? " · aralıksız" : "")+'</p>';
+    h += '<div class="bigbar"><i style="width:'+Math.min(100, n/v.days*100).toFixed(1)+'%"></i></div>';
+
+    if(vBroken(v)){
+      h += '<div class="importBox"><p><b>Seri bozuldu</b></p><p class="small">Dün bu virdi okumamışsın. Aralıksız 40 gün kuralını seçmiştin.</p>';
+      h += '<div class="two"><button class="act" data-act="vkeep">Kaldığım yerden devam</button><button class="act fill" data-act="vrestart">Baştan başla</button></div></div>';
+    }
+
+    if(vComplete(v)){
+      h += '<div class="panel vdone"><b class="num">'+v.days+' gün</b><span class="count">tamamlandı. Allah kabul etsin.</span>';
+      h += '<div class="two"><button class="act" data-act="vrestart">Yeniden başla</button><button class="act danger'+(vArmed?' armed':'')+'" data-act="vdel">'+(vArmed?'Emin misin?':'Virdi kaldır')+'</button></div></div>';
+    } else {
+      if(v.window==="fecr"){
+        if(win.ok) h += '<div class="vakit" style="width:100%"><i class="dot"></i><span><b>Vird vakti</b><br>'+hm(win.w.from)+'–'+hm(win.w.to)+' arası</span><span class="r">'+fmtMins(win.left)+' kaldı</span></div>';
+        else h += '<div class="vakit warn" style="width:100%"><i class="dot"></i><span><b>Vakit dışı</b><br>Bu vird imsak ile güneş doğuşu ('+hm(win.w.from)+'–'+hm(win.w.to)+') arası okunur</span></div>';
+      }
+      if(e.done){
+        h += '<div class="panel vdone"><b class="num">'+n+'. gün</b><span class="count">bugünkü vird tamam</span>';
+        h += '<button class="act" data-act="vundo" style="max-width:220px;margin:12px auto 0">Geri al</button></div>';
+      } else {
+        var step = 1;
+        if(v.dua){
+          h += '<div class="step'+(e.read?' done':'')+'"><div class="sh"><span class="sn">'+(e.read?"✓":"1")+'</span>Duayı oku <span style="margin-left:auto;font-weight:400;color:var(--muted);font-size:.85rem">1 kere</span></div>';
+          h += '<p class="arabic">'+VIRD_DUA.ar+'</p>';
+          h += '<p class="trans">'+VIRD_DUA.tr.join("<br>")+'</p>';
+          h += '<details id="vMeal"><summary style="padding:12px 0 0">Anlamı</summary><p class="meal">'+VIRD_DUA.meal+'</p></details>';
+          if(!e.read) h += '<button class="act fill" data-act="vread">Okudum</button>';
+          h += '</div>';
+          step = 2;
+        }
+        h += '<div class="step"><div class="sh"><span class="sn">'+step+'</span>'+esc(v.cname)+' <span style="margin-left:auto;font-weight:400;color:var(--muted);font-size:.85rem">'+fmtInt(v.ctarget)+' kere</span></div>';
+        var pct = e.count/v.ctarget*100;
+        h += '<button class="zbtn" data-act="vtap" style="--p:'+pct.toFixed(1)+'%" aria-label="'+esc(v.cname)+', '+e.count+' sayıldı"><span class="in"><b class="num">'+fmtInt(e.count)+'</b><small>/ '+fmtInt(v.ctarget)+'</small><em>'+(e.count>=v.ctarget && v.dua && !e.read ? "duayı da oku" : "")+'</em></span></button>';
+        h += '<div class="ghostRow"><button data-act="vundo"'+(e.count||e.read?'':' disabled')+'>Geri al</button></div>';
+        h += '</div>';
+      }
+    }
+
+    // takvim
+    h += '<h2>İlerleme</h2><div class="panel"><div class="vgrid">';
+    for(var i=0;i<v.days;i++){
+      var d = shiftIso(v.start, i), en = v.log[d], cls = "";
+      if(en && en.done) cls = "ok";
+      else if(d < t) cls = (v.missRule==="bastan" ? "miss" : "");
+      if(d===t) cls += " now";
+      h += '<i class="'+cls+'" title="'+fmtDate(d)+'">'+(i+1)+'</i>';
+    }
+    h += '</div><p class="small">Başlangıç: '+fmtDate(v.start)+'</p></div>';
+
+    if(v.note) h += '<div class="panel" style="margin-top:10px"><p class="small" style="margin:0">'+v.note+'</p></div>';
+
+    h += '<details id="vOpt" style="margin-top:12px"><summary>Vird ayarları</summary><div class="set">';
+    if(hasNat("setVirdReminder")){
+      var tm = virdReminderTime(v);
+      h += '<div class="field" style="border-top:0"><label for="vRemind">Hatırlat<span class="help">'+(v.window==="fecr" ? "Her sabah imsaktan 10 dakika sonra (yarın "+pad(tm.h)+":"+pad(tm.m)+")" : "Her akşam 20:00")+'</span></label><input id="vRemind" type="checkbox"'+(v.remind?' checked':'')+'></div>';
+    }
+    h += '<div class="field"><label for="vMiss">Gün kaçırılırsa<span class="help">Aralıksız kuralında bir gün boş geçerse baştan başlanır</span></label><select id="vMiss"><option value="devam"'+(v.missRule==="devam"?' selected':'')+'>Kaldığım yerden devam</option><option value="bastan"'+(v.missRule==="bastan"?' selected':'')+'>Aralıksız olsun</option></select></div>';
+    if(state.setup.gender==="kadin") h += '<p class="small">Bu bir dua ve zikirdir, Kur\'an okuma sayılmaz; hayız günlerinde de okunabilir, serin bozulmaz.</p>';
+    h += '<div class="two"><button class="act" data-act="vrestart">Baştan başlat</button><button class="act danger'+(vArmed?' armed':'')+'" data-act="vdel">'+(vArmed?'Emin misin?':'Virdi kaldır')+'</button></div>';
+    h += '</div></details>';
+    return h;
+  }
+
   /* ---------- zikirmatik ---------- */
   var zArmed = false, zArmTimer = null;
   function zikirTap(){
@@ -962,7 +1197,7 @@ var PT = (function(){
     delete state.zikir.counts[state.zikir.active];
     persist(); render(); toast("Sayaç sıfırlandı");
   }
-  function zikirActive(){ return view==="oturum" && zTab==="zikir" && !document.hidden; }
+  function zikirActive(){ return view==="oturum" && (zTab==="zikir" || (zTab==="vird" && !!vOpen)) && !document.hidden; }
   var lastAwake = null, lastVol = null;
   var wakeLock = null;
   function webWake(on){
@@ -978,12 +1213,12 @@ var PT = (function(){
   function syncZikirNative(){
     if(!state) return;
     var z = zikirActive(), sessOn = !!(sess && !sess.finished);
-    var awake = (z || sessOn) && !document.hidden, vol = z && state.zikir.volume;
+    var awake = (z || sessOn) && !document.hidden, vol = z && zTab==="zikir" && state.zikir.volume;
     if(!N){ if(awake!==lastAwake){ webWake(awake); lastAwake = awake; } return; }
     if(awake!==lastAwake){ nat("keepAwake", awake); lastAwake = awake; }
     if(vol!==lastVol){ nat("setVolumeCounting", vol); lastVol = vol; }
   }
-  window.kazaZikirKey = function(){ if(zikirActive()) zikirTap(); };
+  window.kazaZikirKey = function(){ if(view==="oturum" && zTab==="zikir") zikirTap(); };
 
   /* ---------- çizim ---------- */
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -1154,8 +1389,11 @@ var PT = (function(){
   }
 
   function viewSession(){
-    var head = '<div class="seg" role="group" aria-label="Bölüm" style="margin-bottom:14px"><button data-act="ztab" data-m="zikir" aria-pressed="'+(zTab==="zikir")+'">Zikirmatik</button><button data-act="ztab" data-m="kaza" aria-pressed="'+(zTab==="kaza")+'">Toplu kaza'+(sess && !sess.finished ? ' •' : '')+'</button></div>';
+    var vBadge = "";
+    state.virds.forEach(function(v){ if(!vBadge && !vComplete(v) && !vEntry(v, todayIso()).done) vBadge = " •"; });
+    var head = '<div class="seg three" role="group" aria-label="Bölüm" style="margin-bottom:14px"><button data-act="ztab" data-m="zikir" aria-pressed="'+(zTab==="zikir")+'">Zikirmatik</button><button data-act="ztab" data-m="vird" aria-pressed="'+(zTab==="vird")+'">Vird'+vBadge+'</button><button data-act="ztab" data-m="kaza" aria-pressed="'+(zTab==="kaza")+'">Toplu kaza'+(sess && !sess.finished ? ' •' : '')+'</button></div>';
     if(zTab==="zikir") return head + viewZikir();
+    if(zTab==="vird") return head + viewVird();
     return head + viewKazaSession();
   }
 
@@ -1447,7 +1685,31 @@ var PT = (function(){
       case "obcancel": ob = null; view = "ayarlar"; render(); break;
       case "setup": openSetup(); render(); window.scrollTo(0,0); break;
       case "hideInstall": installHidden = true; try{ localStorage.setItem("kaza-kurulum-ipucu","1"); }catch(e){} render(); break;
-      case "ztab": zTab = b.getAttribute("data-m"); zArmed = false; render(); window.scrollTo(0,0); break;
+      case "ztab": zTab = b.getAttribute("data-m"); zArmed = false; vArmed = false; render(); window.scrollTo(0,0); break;
+      case "vopen": vOpen = b.getAttribute("data-v"); vArmed = false; render(); window.scrollTo(0,0); break;
+      case "vback": vOpen = null; vArmed = false; render(); window.scrollTo(0,0); break;
+      case "vadd":
+        var pk = b.getAttribute("data-p"), pr = null;
+        VIRD_PRESETS.forEach(function(x){ if(x.key===pk) pr = x; });
+        if(pr) vAdd(pr);
+        render(); window.scrollTo(0,0); break;
+      case "vcancel": vForm = null; render(); break;
+      case "vcreate":
+        var nm = (document.getElementById("vfName")||{}).value, zk2 = (document.getElementById("vfZikir")||{}).value;
+        vForm.name = (nm||"").trim().slice(0,40) || "Vird";
+        vForm.cname = (zk2||"").trim().slice(0,60) || "Zikir";
+        state.virds.push(vForm); vOpen = vForm.id; vForm = null; persist(); render(); window.scrollTo(0,0);
+        toast("Vird oluşturuldu"); break;
+      case "vtap": var vt = virdById(vOpen); if(vt) vTick(vt); break;
+      case "vread": var vr = virdById(vOpen); if(vr) vRead(vr); break;
+      case "vundo": var vu = virdById(vOpen); if(vu) vUndo(vu); break;
+      case "vkeep": var vk = virdById(vOpen); if(vk){ vk.missRule = "devam"; persist(); render(); } break;
+      case "vrestart": var vs = virdById(vOpen); if(vs) vRestart(vs); break;
+      case "vdel":
+        if(!vArmed){ vArmed = true; render(); setTimeout(function(){ if(vArmed){ vArmed=false; render(); } }, 4000); break; }
+        vArmed = false;
+        state.virds = state.virds.filter(function(x){ return x.id!==vOpen; });
+        vOpen = null; persist(); render(); toast("Vird kaldırıldı"); break;
       case "ztap": zikirTap(); break;
       case "zundo": zikirUndo(); break;
       case "zreset": zikirReset(); break;
@@ -1483,6 +1745,11 @@ var PT = (function(){
     else if(t.id==="vitir"){ state.setup.vitir = t.checked; change(); }
     else if(t.id==="city"){ state.city = t.value; change(); }
     else if(t.id==="zvib"){ state.zikir.vibrate = t.checked; persist(); }
+    else if(t.id==="vRemind"){ var v1 = virdById(vOpen); if(v1){ v1.remind = t.checked; persist(); render(); toast(t.checked ? "Hatırlatma kuruldu" : "Hatırlatma kapatıldı"); } }
+    else if(t.id==="vMiss"){ var v2 = virdById(vOpen); if(v2){ v2.missRule = t.value; persist(); render(); } }
+    else if(t.id==="vfCount"){ if(vForm) vForm.ctarget = Math.max(1, Math.min(10000, Math.round(Number(t.value)||100))); }
+    else if(t.id==="vfDays"){ if(vForm) vForm.days = Math.max(1, Math.min(365, Math.round(Number(t.value)||40))); }
+    else if(t.id==="vfWindow"){ if(vForm){ vForm.window = t.value; } }
     else if(t.id==="zvol"){ state.zikir.volume = t.checked; persist(); render(); }
     else if(t.id==="start" || t.id==="end"){ if(t.value){ state.setup[t.id] = t.value; change(); } }
     else if(t.id==="hayiz"){ var hz = Number(t.value); if(hz>=0 && hz<=15){ state.setup.hayiz = hz; change(); } else render(); }
@@ -1528,6 +1795,7 @@ var PT = (function(){
       if(ob && ob.again){ ob = null; view = "ayarlar"; render(); return true; }
       return false;
     }
+    if(view==="oturum" && zTab==="vird" && (vOpen || vForm)){ vOpen = null; vForm = null; render(); return true; }
     if(view!=="takip"){ go("takip"); return true; }
     return false;
   };
