@@ -236,11 +236,11 @@ public class MainActivity extends Activity {
         public void openFile() {
             runOnUiThread(new Runnable() {
                 @Override public void run() {
+                    // Tür filtresi yok: bazı telefonlar yedek dosyasına başka bir tür atadığı için
+                    // filtre koyunca dosya soluk görünüp seçilemiyordu.
                     Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                     i.addCategory(Intent.CATEGORY_OPENABLE);
                     i.setType("*/*");
-                    i.putExtra(Intent.EXTRA_MIME_TYPES,
-                            new String[]{"application/json", "text/plain", "application/octet-stream"});
                     try {
                         startActivityForResult(i, REQ_OPEN);
                     } catch (ActivityNotFoundException e) {

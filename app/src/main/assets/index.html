@@ -1579,6 +1579,7 @@ var PT = (function(){
     h += '<div class="two"><button class="act fill" data-act="export">Dosyaya kaydet</button><button class="act" data-act="share">Paylaş</button></div>';
     h += '<p class="small">'+(IS_IOS && !N ? 'Dosyaya kaydet açılan menüden <b>Dosyalar\'a Kaydet</b>\'i seç. ' : '')+'Paylaş, yedeği metin olarak WhatsApp, e-posta ya da Drive\'a göndermeni sağlar.</p>';
     h += '<div class="two"><button class="act" data-act="import">Dosyadan yükle</button><button class="act" data-act="paste">Metinden yükle</button></div>';
+    h += '<p class="small">Dosyadan yükle, açılan listede yedeği seç; sonra çıkan kutuda <b>Yedeği yükle</b>\'ye dokun. Dosyayı bulamazsan sol üstteki menüden <b>İndirilenler</b>\'e bak.</p>';
     if(pasteOpen){
       h += '<textarea id="pasteBox" placeholder="Yedek metnini buraya yapıştır" spellcheck="false"></textarea>';
       h += '<button class="act fill" data-act="pasteGo">Metni kontrol et</button>';
