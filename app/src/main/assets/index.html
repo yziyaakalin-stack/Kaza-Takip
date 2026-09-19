@@ -197,6 +197,13 @@ h2:first-child{margin-top:4px}
 .queue i.sk{background:var(--line)}
 .queue i.cur{background:transparent; outline:2px solid var(--accent); outline-offset:-2px}
 
+/* Bugün kılınanlar */
+.tally{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px}
+.tally span{display:inline-flex; align-items:center; gap:6px; background:var(--bg); border-radius:18px; padding:5px 11px; font-size:.86rem}
+.tally span i{width:8px; height:8px; border-radius:50%; flex:none}
+.tally span b{font-weight:700}
+.tally .none{color:var(--muted); background:transparent; padding-left:0}
+
 /* Güncelleme şeridi */
 .upd{display:flex; gap:10px; align-items:center; background:var(--ok-soft); border:1px solid var(--accent); border-radius:12px; padding:12px; margin-top:14px; font-size:.9rem}
 .upd b{display:block}
@@ -509,7 +516,7 @@ var PT = (function(){
     var d = computeDebt(setup), initial = {}, done = {};
     KEYS.forEach(function(x){ initial[x.k]=d; done[x.k]=0; });
     return {v:2, setup:setup, initial:initial, done:done, log:{}, target:1, created:todayIso(),
-            oruc:{initial:0, done:0}, olog:{}, city:"istanbul", lastBackup:"", setupDone:false, virds:[],
+            oruc:{initial:0, done:0}, olog:{}, dlog:{}, city:"istanbul", lastBackup:"", setupDone:false, virds:[],
             update:{check:true, lastCheck:"", skip:0},
             zikir:{active:"tesbihat", counts:{}, targets:{}, custom:[], log:{}, vibrate:true, volume:true}};
   }
@@ -525,6 +532,7 @@ var PT = (function(){
     KEYS.forEach(function(x){ s.initial[x.k]=num(s.initial[x.k]); s.done[x.k]=Math.min(num(s.done[x.k]), s.initial[x.k]); });
     s.log = s.log && typeof s.log==="object" ? s.log : {};
     s.olog = s.olog && typeof s.olog==="object" ? s.olog : {};
+    s.dlog = s.dlog && typeof s.dlog==="object" ? s.dlog : {};
     s.target = Number(s.target)>0 ? Math.min(20, Math.round(Number(s.target))) : 1;
     s.oruc = Object.assign({initial:0, done:0}, s.oruc||{});
     s.oruc.initial = num(s.oruc.initial); s.oruc.done = Math.min(num(s.oruc.done), s.oruc.initial);
@@ -567,6 +575,7 @@ var PT = (function(){
   function cleanLog(obj){ Object.keys(obj).forEach(function(d){ if(!obj[d]) delete obj[d]; }); }
   function persist(){
     cleanLog(state.log); cleanLog(state.olog); cleanLog(state.zikir.log);
+    Object.keys(state.dlog).forEach(function(d){ if(!state.dlog[d] || !Object.keys(state.dlog[d]).length) delete state.dlog[d]; });
     try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); statusText = "Bu cihazda kayıtlı"; }
     catch(e){ statusText = "Kaydedilemedi"; }
     syncNative();
@@ -606,9 +615,14 @@ var PT = (function(){
   function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||15); }catch(e){} }
 
   /* ---------- işlemler ---------- */
-  function addLog(n){
+  function addLog(n, k){
     var t = todayIso();
     state.log[t] = Math.max(0, (Number(state.log[t])||0) + n);
+    if(!k) return;
+    var d = state.dlog[t] || {};
+    d[k] = Math.max(0, (Number(d[k])||0) + n);
+    if(!d[k]) delete d[k];
+    if(Object.keys(d).length) state.dlog[t] = d; else delete state.dlog[t];
   }
   function snapshot(){ var s = stats(); return {pct:s.pct, met: s.today >= s.targetUnits && s.targetUnits>0}; }
   function celebrate(before){
@@ -621,23 +635,22 @@ var PT = (function(){
     if(remaining(k)<=0) return;
     var b = snapshot();
     state.done[k] = (Number(state.done[k])||0) + 1;
-    addLog(1);
+    addLog(1, k);
     flashRow(k);
     change(); celebrate(b);
   }
   function minus(k){
     if((Number(state.done[k])||0)<=0) return;
     state.done[k] = Number(state.done[k]) - 1;
-    addLog(-1);
+    addLog(-1, k);
     change();
   }
   function wholeDay(){
     var n = 0, b = snapshot();
     activeKeys().forEach(function(x){
-      if(remaining(x.k)>0){ state.done[x.k] = (Number(state.done[x.k])||0)+1; n++; }
+      if(remaining(x.k)>0){ state.done[x.k] = (Number(state.done[x.k])||0)+1; addLog(1, x.k); n++; }
     });
     if(!n) return;
-    addLog(n);
     change(); celebrate(b);
   }
   function orucPlus(){
@@ -833,7 +846,7 @@ var PT = (function(){
     if(!sess || sess.finished) return;
     var k = sess.queue[sess.idx];
     var b = snapshot();
-    if(remaining(k)>0){ state.done[k]++; addLog(1); sess.done++; sess.marks[sess.idx]="ok"; persist(); saved=false; }
+    if(remaining(k)>0){ state.done[k]++; addLog(1, k); sess.done++; sess.marks[sess.idx]="ok"; persist(); saved=false; }
     else { sess.skipped++; sess.marks[sess.idx]="sk"; }
     buzz(35);
     nextPrayer();
@@ -1395,10 +1408,11 @@ var PT = (function(){
       h += '<button class="addOruc" data-act="go" data-v="ayarlar" data-focus="orucInit">+ Oruç kazası ekle</button>';
     }
 
-    h += '<h2>Bugün</h2><div class="panel">';
+    h += '<h2>Bugün kılınanlar</h2><div class="panel">';
     h += '<div class="today"><span>Bugün <strong class="num">'+s.today+'</strong> <span class="count">/ '+s.targetUnits+' vakit hedef</span></span>';
     h += '<span class="count">'+(s.today>=s.targetUnits && s.targetUnits>0 ? "Hedef tamam" : fmtInt(Math.max(0,s.targetUnits-s.today))+" vakit kaldı")+'</span></div>';
     h += '<div class="bar" style="height:6px"><i style="background:var(--accent);width:'+Math.min(100, s.targetUnits? s.today/s.targetUnits*100 : 0).toFixed(1)+'%"></i></div>';
+    h += todayTally(s);
     if(s.totalRem===0 && s.totalInit>0){
       h += '<p class="eta"><b>Bütün kaza borcu tamamlandı.</b></p>';
     } else {
@@ -1414,6 +1428,26 @@ var PT = (function(){
     return h;
   }
 
+  function todayTally(s){
+    var t = todayIso(), d = state.dlog[t] || {}, oru = Number(state.olog[t])||0, h = '<div class="tally">', any = false;
+    s.keys.forEach(function(x){
+      var n = Number(d[x.k])||0;
+      if(!n) return;
+      any = true;
+      h += '<span><i class="'+("fill-"+x.k)+'"></i>'+x.n+' <b class="num">'+n+'</b></span>';
+    });
+    var bilinmeyen = Math.max(0, (Number(state.log[t])||0) - Object.keys(d).reduce(function(a,k){ return a + (Number(d[k])||0); }, 0));
+    if(bilinmeyen){ any = true; h += '<span><i style="background:var(--muted)"></i>Vakit <b class="num">'+bilinmeyen+'</b></span>'; }
+    if(oru){ any = true; h += '<span><i class="fill-oruc"></i>Oruç <b class="num">'+oru+'</b></span>'; }
+    var zk = Number(state.zikir.log[t])||0;
+    if(zk){ any = true; h += '<span><i style="background:var(--accent)"></i>Zikir <b class="num">'+fmtInt(zk)+'</b></span>'; }
+    state.virds.forEach(function(v){ if(v.log[t] && v.log[t].done){ any = true; h += '<span><i style="background:var(--accent)"></i>'+esc(v.name)+' <b>✓</b></span>'; } });
+    if(!any) h += '<span class="none">Bugün henüz bir şey işlenmedi. Bir vakit kaza kılınca burada görünür.</span>';
+    h += '</div>';
+    var st = streaks(s.targetUnits);
+    if(st.cur > 1) h += '<p class="small" style="margin-top:10px">'+st.cur+' gündür hedefini tutturuyorsun.</p>';
+    return h;
+  }
   function viewStats(){
     var s = stats(), st = streaks(s.targetUnits), t = todayIso(), h = "";
     h += '<h2>Seri</h2><div class="panel">';
