@@ -30,9 +30,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp app/build/outputs/apk/debug/app-debug.apk KazaTakibi.apk
+          VC=$(grep -m1 versionCode app/build.gradle | tr -dc '0-9')
+          VN=$(grep -m1 versionName app/build.gradle | sed "s/.*'\(.*\)'.*/\1/")
+          NOTES=$(printf 'Telefondan KazaTakibi.apk dosyasına dokunup indir ve kur. Güncellemede kayıtların korunur.\n\nsurum:{"code": %s, "name": "%s", "apk": "https://github.com/yziyaakalin-stack/Kaza-Takip/releases/latest/download/KazaTakibi.apk"}' "$VC" "$VN")
           gh release create "surum-${{ github.run_number }}" KazaTakibi.apk \
-            --title "Kaza Takibi ${{ github.run_number }}" \
-            --notes "Telefondan KazaTakibi.apk dosyasına dokunup indir ve kur. Güncellemede kayıtların korunur."
+            --title "Kaza Takibi $VN" \
+            --notes "$NOTES"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -41,6 +44,7 @@ jobs:
 
   # iPhone ve tarayıcı için aynı arayüz GitHub Pages'te yayınlanır
   web-hazirla:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,6 +55,11 @@ jobs:
           cp web/manifest.webmanifest web/sw.js web/icon-*.png _site/
           # her yayında önbellek sürümü değişsin ki telefonlar yeni sürümü alsın
           sed -i "s/kaza-web-v1/kaza-web-${GITHUB_SHA::8}/" _site/sw.js
+          # uygulamanın yeni sürümü görmesi için sürüm dosyası
+          VC=$(grep -m1 versionCode app/build.gradle | tr -dc '0-9')
+          VN=$(grep -m1 versionName app/build.gradle | sed "s/.*'\(.*\)'.*/\1/")
+          printf '{"code": %s, "name": "%s", "apk": "https://github.com/yziyaakalin-stack/Kaza-Takip/releases/latest/download/KazaTakibi.apk"}\n' "$VC" "$VN" > _site/surum.json
+          cat _site/surum.json
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

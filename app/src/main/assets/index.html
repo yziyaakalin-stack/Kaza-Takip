@@ -197,6 +197,15 @@ h2:first-child{margin-top:4px}
 .queue i.sk{background:var(--line)}
 .queue i.cur{background:transparent; outline:2px solid var(--accent); outline-offset:-2px}
 
+/* Güncelleme şeridi */
+.upd{display:flex; gap:10px; align-items:center; background:var(--ok-soft); border:1px solid var(--accent); border-radius:12px; padding:12px; margin-top:14px; font-size:.9rem}
+.upd b{display:block}
+.upd .small{margin:2px 0 0}
+.upd .go{border:0; background:var(--accent); color:var(--accent-ink); border-radius:9px; padding:9px 14px; font-weight:700; white-space:nowrap}
+.upd .x{border:0; background:none; color:var(--muted); font-size:1.2rem; line-height:1; padding:0 2px}
+.updbar{height:5px; border-radius:3px; background:var(--soft); overflow:hidden; margin-top:8px}
+.updbar i{display:block; height:100%; background:var(--accent); transition:width .2s}
+
 /* Vird */
 .seg.three{grid-template-columns:1fr 1fr 1fr}
 .vcard{display:block; width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:10px}
@@ -501,6 +510,7 @@ var PT = (function(){
     KEYS.forEach(function(x){ initial[x.k]=d; done[x.k]=0; });
     return {v:2, setup:setup, initial:initial, done:done, log:{}, target:1, created:todayIso(),
             oruc:{initial:0, done:0}, olog:{}, city:"istanbul", lastBackup:"", setupDone:false, virds:[],
+            update:{check:true, lastCheck:"", skip:0},
             zikir:{active:"tesbihat", counts:{}, targets:{}, custom:[], log:{}, vibrate:true, volume:true}};
   }
   function num(v){ v = Number(v); return isFinite(v) && v>=0 ? Math.round(v) : 0; }
@@ -529,6 +539,9 @@ var PT = (function(){
     z.custom = Array.isArray(z.custom) ? z.custom.filter(function(c){ return c && c.id && c.n; }).slice(0,30) : [];
     z.vibrate = z.vibrate!==false; z.volume = z.volume!==false;
     s.zikir = z;
+    s.update = Object.assign({check:true, lastCheck:"", skip:0}, s.update||{});
+    s.update.check = s.update.check!==false;
+    s.update.skip = Math.max(0, Math.round(Number(s.update.skip)||0));
     s.virds = Array.isArray(s.virds) ? s.virds.filter(function(v){ return v && v.id && v.name; }).slice(0,10) : [];
     s.virds.forEach(function(v){
       v.days = Math.max(1, Math.min(365, Math.round(Number(v.days)||40)));
@@ -572,6 +585,8 @@ var PT = (function(){
     if(sess) zTab = "kaza";
     if(!state.setupDone) openSetup();
     render();
+    restoreUpdate();
+    setTimeout(function(){ checkUpdate(false); }, 1500);
   }
 
   function syncNative(){
@@ -980,6 +995,82 @@ var PT = (function(){
     return true;
   }
 
+  /* ---------- güncelleme ---------- */
+  var SURUM_URL = "https://yziyaakalin-stack.github.io/Kaza-Takip/surum.json";
+  var upd = null, updState = null, updBusy = false;
+  function appVer(){
+    var r = nat("appVersion");
+    try{ return typeof r==="string" ? JSON.parse(r) : {}; }catch(e){ return {}; }
+  }
+  // Önceki açılışta bulunan güncelleme, kurulana ya da atlanana kadar görünür kalır
+  function restoreUpdate(){
+    if(!hasNat("downloadUpdate")) return;
+    var f = state.update.found;
+    if(!f || !f.apk) return;
+    var cur = appVer();
+    if(Number(f.code) > Number(cur.code||0)){
+      if(Number(f.code) !== state.update.skip){ upd = f; render(); }
+    } else { delete state.update.found; persist(); }
+  }
+  function checkUpdate(manual){
+    if(!hasNat("downloadUpdate")) return;
+    if(!manual && (!state.update.check || state.update.lastCheck===todayIso())) return;
+    if(updBusy) return;
+    updBusy = true;
+    var cur = appVer();
+    fetch(SURUM_URL, {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
+      .catch(function(){ return null; })
+      .then(function(j){ return j || fetchSurumYedek(); })
+      .then(function(j){
+      updBusy = false;
+      state.update.lastCheck = todayIso(); persist();
+      if(!j || !j.code || !j.apk){ if(manual) toast("Sürüm bilgisi alınamadı"); return; }
+      if(Number(j.code) > Number(cur.code||0)){
+        state.update.found = {code:Number(j.code), name:String(j.name||""), apk:String(j.apk)}; persist();
+        if(!manual && Number(j.code) === state.update.skip) return;
+        upd = state.update.found; updState = null; render();
+        if(manual) toast("Yeni sürüm bulundu: " + (j.name||""));
+      } else {
+        if(state.update.found){ delete state.update.found; upd = null; persist(); }
+        if(manual) toast("En güncel sürümü kullanıyorsun (" + (cur.name||"") + ")");
+      }
+    }, function(){
+      updBusy = false;
+      if(manual) toast("İnternete bağlanılamadı");
+    });
+  }
+  // Pages'e ulaşılamazsa sürüm bilgisi son yayının notundan okunur
+  function fetchSurumYedek(){
+    return fetch("https://api.github.com/repos/yziyaakalin-stack/Kaza-Takip/releases/latest", {cache:"no-store"})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(rel){
+        if(!rel || !rel.body) return null;
+        var m = String(rel.body).match(/surum:(\{[^\n]*\})/);
+        if(!m) return null;
+        try{ return JSON.parse(m[1]); }catch(e){ return null; }
+      })
+      .catch(function(){ return null; });
+  }
+  window.kazaOnUpdate = function(durum, pct, mesaj){
+    updState = {durum:durum, pct:Number(pct)||0, mesaj:mesaj||""};
+    render();
+  };
+  function updStrip(){
+    if(!upd) return "";
+    var h = '<div class="upd">';
+    if(updState && updState.durum==="indiriliyor"){
+      h += '<div style="flex:1"><b>İndiriliyor… %'+updState.pct+'</b><div class="updbar"><i style="width:'+updState.pct+'%"></i></div></div>';
+    } else if(updState && updState.durum==="kuruluyor"){
+      h += '<div style="flex:1"><b>Kurulum ekranı açıldı</b><p class="small">"Yükle"ye dokunman yeterli. Kayıtların korunur.</p></div>';
+    } else if(updState && (updState.durum==="hata" || updState.durum==="izin")){
+      h += '<div style="flex:1"><b>'+esc(updState.mesaj||"Güncelleme yapılamadı")+'</b></div><button class="go" data-act="updgo">Tekrar dene</button>';
+    } else {
+      h += '<div style="flex:1"><b>Yeni sürüm hazır: '+esc(upd.name||"")+'</b><p class="small">Dokun, indirip kurulumu başlatayım.</p></div>';
+      h += '<button class="go" data-act="updgo">Güncelle</button><button class="x" data-act="updskip" aria-label="Bu sürümü atla">×</button>';
+    }
+    return h + '</div>';
+  }
+
   /* ---------- vird ---------- */
   var vOpen = null, vArmed = false, vForm = null, vShowText = false;
   function virdById(id){ for(var i=0;i<state.virds.length;i++) if(state.virds[i].id===id) return state.virds[i]; return null; }
@@ -1285,6 +1376,7 @@ var PT = (function(){
     if(!N && IS_IOS && !STANDALONE && !installHidden){
       h += '<div class="install"><div><b class="t">Ana ekrana ekle</b>Safari\'de alttaki <svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v8h14v-8"/></svg> Paylaş düğmesine dokun, sonra <b>Ana Ekrana Ekle</b>\'yi seç. Uygulama gibi açılır ve internetsiz çalışır.</div><button data-act="hideInstall" aria-label="Kapat">×</button></div>';
     }
+    h += updStrip();
     h += vakitStrip();
 
     var dayLeft = s.keys.some(function(x){ return remaining(x.k)>0; });
@@ -1581,6 +1673,14 @@ var PT = (function(){
     }
     h += '</div></details>';
 
+    if(hasNat("downloadUpdate")){
+      var cv = appVer();
+      h += '<details id="sGuncelle"><summary>Güncelleme</summary><div class="set">';
+      h += '<div class="field" style="border-top:0"><label for="updOn">Yeni sürümü kendi kontrol etsin<span class="help">Günde bir kez bakar. Kapalıyken uygulama internete hiç bağlanmaz.</span></label><input id="updOn" type="checkbox"'+(state.update.check?' checked':'')+'></div>';
+      h += '<p class="small">Kurulu sürüm: '+esc(cv.name||"?")+'</p>';
+      h += '<button class="act" data-act="updcheck">Şimdi kontrol et</button>';
+      h += '</div></details>';
+    }
     h += '<details id="sYedek"><summary>Yedekleme</summary><div class="set">';
     h += '<p class="small" style="margin-top:0">'+(state.lastBackup ? 'Son yedek: '+fmtDate(state.lastBackup)+'.' : 'Henüz yedek alınmadı.')+' Uygulamayı silersen ya da telefon değiştirirsen kayıtlar bu yedekle geri gelir.</p>';
     h += '<div class="two"><button class="act fill" data-act="export">Dosyaya kaydet</button><button class="act" data-act="share">Paylaş</button></div>';
@@ -1692,6 +1792,9 @@ var PT = (function(){
       case "obback": obBack(); break;
       case "obcancel": ob = null; view = "ayarlar"; render(); break;
       case "setup": openSetup(); render(); window.scrollTo(0,0); break;
+      case "updgo": if(upd){ updState = {durum:"indiriliyor", pct:0, mesaj:""}; render(); nat("downloadUpdate", upd.apk); } break;
+      case "updskip": if(upd){ state.update.skip = Number(upd.code)||0; upd = null; updState = null; persist(); render(); toast("Bu sürüm atlandı"); } break;
+      case "updcheck": toast("Kontrol ediliyor…"); checkUpdate(true); break;
       case "hideInstall": installHidden = true; try{ localStorage.setItem("kaza-kurulum-ipucu","1"); }catch(e){} render(); break;
       case "ztab": zTab = b.getAttribute("data-m"); zArmed = false; vArmed = false; render(); window.scrollTo(0,0); break;
       case "vopen": vOpen = b.getAttribute("data-v"); vArmed = false; render(); window.scrollTo(0,0); break;
@@ -1753,6 +1856,7 @@ var PT = (function(){
     if(t.id==="target"){ var v = Math.round(Number(t.value)); if(v>=1 && v<=20){ state.target = v; change(); } else render(); }
     else if(t.id==="vitir"){ state.setup.vitir = t.checked; change(); }
     else if(t.id==="city"){ state.city = t.value; change(); }
+    else if(t.id==="updOn"){ state.update.check = t.checked; if(t.checked){ state.update.lastCheck = ""; change(); checkUpdate(false); } else { upd = null; updState = null; change(); } }
     else if(t.id==="zvib"){ state.zikir.vibrate = t.checked; persist(); }
     else if(t.id==="vRemind"){ var v1 = virdById(vOpen); if(v1){ v1.remind = t.checked; persist(); render(); toast(t.checked ? "Hatırlatma kuruldu" : "Hatırlatma kapatıldı"); } }
     else if(t.id==="vMiss"){ var v2 = virdById(vOpen); if(v2){ v2.missRule = t.value; persist(); render(); } }
