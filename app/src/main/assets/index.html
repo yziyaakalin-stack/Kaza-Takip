@@ -1027,17 +1027,20 @@ var PT = (function(){
   }
   function checkUpdate(manual){
     if(!hasNat("downloadUpdate")) return;
-    if(!manual && (!state.update.check || state.update.lastCheck===todayIso())) return;
+    if(!manual && !state.update.check) return;
     if(updBusy) return;
     updBusy = true;
     var cur = appVer();
     fetch(SURUM_URL, {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; })
       .catch(function(){ return null; })
+      .then(function(j){ return j || fetchSurumGradle(); })
       .then(function(j){ return j || fetchSurumYedek(); })
       .then(function(j){
       updBusy = false;
-      state.update.lastCheck = todayIso(); persist();
-      if(!j || !j.code || !j.apk){ if(manual) toast("Sürüm bilgisi alınamadı"); return; }
+      state.update.lastCheck = new Date().toISOString();
+      state.update.lastResult = j ? ("sürüm " + (j.name||j.code)) : "ulaşılamadı";
+      persist();
+      if(!j || !j.code || !j.apk){ if(manual) toast("Sürüm bilgisi alınamadı, internetini kontrol et"); render(); return; }
       if(Number(j.code) > Number(cur.code||0)){
         state.update.found = {code:Number(j.code), name:String(j.name||""), apk:String(j.apk)}; persist();
         if(!manual && Number(j.code) === state.update.skip) return;
@@ -1052,7 +1055,19 @@ var PT = (function(){
       if(manual) toast("İnternete bağlanılamadı");
     });
   }
-  // Pages'e ulaşılamazsa sürüm bilgisi son yayının notundan okunur
+  // Pages'e ulaşılamazsa sürüm bilgisi doğrudan kaynak dosyadan okunur
+  function fetchSurumGradle(){
+    return fetch("https://raw.githubusercontent.com/yziyaakalin-stack/Kaza-Takip/main/app/build.gradle", {cache:"no-store"})
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(txt){
+        if(!txt) return null;
+        var c = txt.match(/versionCode\s+(\d+)/), n = txt.match(/versionName\s+'([^']+)'/);
+        if(!c) return null;
+        return {code:Number(c[1]), name:n ? n[1] : "", apk:"https://github.com/yziyaakalin-stack/Kaza-Takip/releases/latest/download/KazaTakibi.apk"};
+      })
+      .catch(function(){ return null; });
+  }
+  // Son çare: son yayının notundan
   function fetchSurumYedek(){
     return fetch("https://api.github.com/repos/yziyaakalin-stack/Kaza-Takip/releases/latest", {cache:"no-store"})
       .then(function(r){ return r.ok ? r.json() : null; })
@@ -1710,8 +1725,12 @@ var PT = (function(){
     if(hasNat("downloadUpdate")){
       var cv = appVer();
       h += '<details id="sGuncelle"><summary>Güncelleme</summary><div class="set">';
-      h += '<div class="field" style="border-top:0"><label for="updOn">Yeni sürümü kendi kontrol etsin<span class="help">Günde bir kez bakar. Kapalıyken uygulama internete hiç bağlanmaz.</span></label><input id="updOn" type="checkbox"'+(state.update.check?' checked':'')+'></div>';
+      h += '<div class="field" style="border-top:0"><label for="updOn">Yeni sürümü kendi kontrol etsin<span class="help">Uygulamayı her açtığında bakar. Kapalıyken uygulama internete hiç bağlanmaz.</span></label><input id="updOn" type="checkbox"'+(state.update.check?' checked':'')+'></div>';
       h += '<p class="small">Kurulu sürüm: '+esc(cv.name||"?")+'</p>';
+      if(state.update.lastCheck){
+        var lc = new Date(state.update.lastCheck), lcs = isNaN(lc) ? state.update.lastCheck : (fmtDate(isoLocal(lc))+" "+hm(lc));
+        h += '<p class="small">Son kontrol: '+esc(lcs)+(state.update.lastResult ? ' · '+esc(state.update.lastResult) : '')+'</p>';
+      }
       h += '<button class="act" data-act="updcheck">Şimdi kontrol et</button>';
       h += '</div></details>';
     }
@@ -1934,7 +1953,8 @@ var PT = (function(){
     if(todayIso()!==lastDay){ lastDay = todayIso(); syncNative(); }
     if(view==="takip" || view==="oturum" || view==="rehber") render();
   }, 30000);
-  document.addEventListener("visibilitychange", function(){ if(!state) return; if(document.hidden){ syncZikirNative(); return; } lastVol = null; lastAwake = null; loadReminder(); syncNative(); render(); });
+  document.addEventListener("visibilitychange", function(){ if(!state) return; if(document.hidden){ syncZikirNative(); return; }
+    if(!updBusy && state.update.check) checkUpdate(false); lastVol = null; lastAwake = null; loadReminder(); syncNative(); render(); });
 
   window.kazaBack = function(){
     if(view==="kurulum"){
