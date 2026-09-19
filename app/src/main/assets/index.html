@@ -1017,6 +1017,12 @@ var PT = (function(){
     if(state.zikir.vibrate) buzz(12);
     if(e.count >= v.ctarget && (!v.dua || e.read)) vFinishDay(v, e, t); else { vSetEntry(v, t, e); persist(); render(); }
   }
+  function vFill(v){
+    var t = todayIso(), e = vEntry(v, t);
+    if(e.done) return;
+    e.count = v.ctarget;
+    if(!v.dua || e.read) vFinishDay(v, e, t); else { vSetEntry(v, t, e); persist(); render(); }
+  }
   function vRead(v){
     var t = todayIso(), e = vEntry(v, t);
     e.read = true;
@@ -1135,7 +1141,8 @@ var PT = (function(){
         h += '<div class="step"><div class="sh"><span class="sn">'+step+'</span>'+esc(v.cname)+' <span style="margin-left:auto;font-weight:400;color:var(--muted);font-size:.85rem">'+fmtInt(v.ctarget)+' kere</span></div>';
         var pct = e.count/v.ctarget*100;
         h += '<button class="zbtn" data-act="vtap" style="--p:'+pct.toFixed(1)+'%" aria-label="'+esc(v.cname)+', '+e.count+' sayıldı"><span class="in"><b class="num">'+fmtInt(e.count)+'</b><small>/ '+fmtInt(v.ctarget)+'</small><em>'+(e.count>=v.ctarget && v.dua && !e.read ? "duayı da oku" : "")+'</em></span></button>';
-        h += '<div class="ghostRow"><button data-act="vundo"'+(e.count||e.read?'':' disabled')+'>Geri al</button></div>';
+        h += '<div class="ghostRow"><button data-act="vundo"'+(e.count||e.read?'':' disabled')+'>Geri al</button><button data-act="vfill">'+(e.count ? "Kalanını okudum" : "Saymadan okudum")+'</button></div>';
+        h += '<p class="small" style="text-align:center">Ekrana basmadan, kendi sayarak ya da tespihle çektiysen sağdaki butona dokun.</p>';
         h += '</div>';
       }
     }
@@ -1703,6 +1710,7 @@ var PT = (function(){
         toast("Vird oluşturuldu"); break;
       case "vtap": var vt = virdById(vOpen); if(vt) vTick(vt); break;
       case "vread": var vr = virdById(vOpen); if(vr) vRead(vr); break;
+      case "vfill": var vf = virdById(vOpen); if(vf) vFill(vf); break;
       case "vundo": var vu = virdById(vOpen); if(vu) vUndo(vu); break;
       case "vkeep": var vk = virdById(vOpen); if(vk){ vk.missRule = "devam"; persist(); render(); } break;
       case "vrestart": var vs = virdById(vOpen); if(vs) vRestart(vs); break;
