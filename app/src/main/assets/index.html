@@ -165,8 +165,11 @@ h2:first-child{margin-top:4px}
 .run .pname{font-size:2.3rem; font-weight:800; margin:8px 0 2px; letter-spacing:-.02em}
 .run .pk{color:var(--muted); font-size:.9rem}
 /* Zikirmatik */
-.zlist{display:flex; gap:6px; overflow-x:auto; padding:2px 2px 6px; margin:14px -2px 0; scrollbar-width:none}
-.zlist::-webkit-scrollbar{display:none}
+.zlist{display:flex; flex-wrap:wrap; gap:6px; padding:2px; margin:12px -2px 0}
+.libBtn{display:flex; align-items:center; gap:10px; width:100%; margin-top:14px; padding:13px 14px; border:1px solid var(--accent); border-radius:12px; background:var(--surface); color:var(--ink); text-align:left}
+.libBtn b{font-weight:700}
+.libBtn span.sub{display:block; font-size:.8rem; color:var(--muted); font-weight:400}
+.libBtn .go{margin-left:auto; color:var(--accent); font-weight:700; white-space:nowrap}
 .zlist button{flex:none; border:1px solid var(--line); background:var(--surface); border-radius:18px; padding:7px 13px; font-size:.9rem; white-space:nowrap}
 .zlist button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:600}
 .zname{text-align:center; margin:14px 0 0; font-size:1.25rem; font-weight:700; line-height:1.3}
@@ -432,56 +435,56 @@ var PT = (function(){
   ];
   var MILES = [10,25,50,75,90,100];
   var ZIKIRS = [
-    {id:"tesbihat", s:"Tesbihat", n:"Namaz tesbihatı", sub:"33 Sübhânallah · 33 Elhamdülillâh · 33 Allâhu ekber", seq:true, g:"Günlük tesbihat"},
+    {id:"tesbihat", s:"Tesbihat", n:"Namaz tesbihatı", sub:"33 Sübhânallah · 33 Elhamdülillâh · 33 Allâhu ekber", seq:true, g:"Günlük tesbihat", fz:"Her namazın ardından otuz üçer kere Sübhânallah, Elhamdülillâh ve Allâhu ekber diyenin hataları, deniz köpüğü kadar bile olsa bağışlanacağı bildirilmiştir. (Müslim)"},
     {id:"subhan", s:"Sübhânallah", n:"Sübhânallah", t:33, g:"Günlük tesbihat",
-     ar:"سُبْحَانَ اللّٰهِ", note:"Allah'ı her türlü eksiklikten tenzih ederim."},
+     ar:"سُبْحَانَ اللّٰهِ", note:"Allah'ı her türlü eksiklikten tenzih ederim.", fz:"Dile hafif, mizanda ağır, Rahmân’a sevimli iki kelimeden biri olarak «Sübhânallâhi ve bi-hamdihî, sübhânallâhi’l-azîm» zikri övülmüştür. (Buhârî, Müslim)"},
     {id:"hamd", s:"Elhamdülillâh", n:"Elhamdülillâh", t:33, g:"Günlük tesbihat",
-     ar:"اَلْحَمْدُ لِلّٰهِ", note:"Hamd Allah'a mahsustur."},
+     ar:"اَلْحَمْدُ لِلّٰهِ", note:"Hamd Allah'a mahsustur.", fz:"Hamd, mizanı dolduran zikir olarak anılır. (Müslim)"},
     {id:"tekbir", s:"Allâhu ekber", n:"Allâhu ekber", t:33, g:"Günlük tesbihat",
-     ar:"اَللّٰهُ أَكْبَرُ", note:"Allah en büyüktür."},
+     ar:"اَللّٰهُ أَكْبَرُ", note:"Allah en büyüktür.", fz:"Tekbir; tesbih ve tehlille birlikte kalıcı salih amellerden sayılır. (Ahmed b. Hanbel)"},
     {id:"tehlil", s:"Kelime-i tevhid", n:"Lâ ilâhe illallâh", t:100, g:"Günlük tesbihat",
-     ar:"لَا إِلٰهَ إِلَّا اللّٰهُ", note:"Allah'tan başka ilah yoktur."},
+     ar:"لَا إِلٰهَ إِلَّا اللّٰهُ", note:"Allah'tan başka ilah yoktur.", fz:"Günde yüz kere kelime-i tevhidi tamamıyla söyleyene büyük sevap verileceği, günahlarının silineceği ve o günü korunarak geçireceği bildirilmiştir. (Buhârî, Müslim)"},
     {id:"havkale", s:"Havkale", n:"Lâ havle velâ kuvvete illâ billâh", t:100, g:"Günlük tesbihat",
-     ar:"لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللّٰهِ", note:"Güç ve kuvvet ancak Allah'tandır."},
+     ar:"لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللّٰهِ", note:"Güç ve kuvvet ancak Allah'tandır.", fz:"Peygamber Efendimiz bu zikri «cennet hazinelerinden bir hazine» diye nitelemiştir. (Buhârî, Müslim)"},
 
     {id:"salavat", s:"Salavât-ı şerîfe", n:"Allâhümme salli alâ seyyidinâ Muhammedin ve alâ âlihî ve sahbihî ve sellim", t:100, g:"Salavâtlar",
-     ar:"اَللّٰهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ", note:"Kısa ve en yaygın salavat."},
+     ar:"اَللّٰهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ", note:"Kısa ve en yaygın salavat.", fz:"«Bana bir salavat getirene Allah on rahmet eder.» (Müslim) Sıkıntı zamanında salavatı çoğaltmak tavsiye edilmiştir."},
     {id:"fatih", s:"Salât-ı Fâtih", n:"Salât-ı Fâtih", t:100, g:"Salavâtlar",
      ar:"اَللّٰهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا مُحَمَّدٍ الْفَاتِحِ لِمَا أُغْلِقَ وَالْخَاتِمِ لِمَا سَبَقَ نَاصِرِ الْحَقِّ بِالْحَقِّ وَالْهَادِي إِلَى صِرَاطِكَ الْمُسْتَقِيمِ وَعَلَى آلِهِ وَأَصْحَابِهِ حَقَّ قَدْرِهِ وَمِقْدَارِهِ الْعَظِيمِ",
      tr:"Allâhümme salli ve sellim ve bârik alâ seyyidinâ Muhammedin, el-fâtihi limâ uğlika, vel-hâtimi limâ sebeka, nâsırıl-hakkı bil-hakkı, vel-hâdî ilâ sırâtıkel-müstakîm, ve alâ âlihî ve ashâbihî hakka kadrihî ve mikdârihil-azîm.",
-     note:"Şâzelî yolunda yaygın olan salavat. Genelde günde 100 kere okunur."},
+     note:"Şâzelî yolunda yaygın olan salavat. Genelde günde 100 kere okunur.", fz:"Şâzelî yolunda günde yüz kere okunması tavsiye edilen meşhur salavattır. Hakkında anlatılan üstünlükler hadis kitaplarında değil, tasavvuf kaynaklarında geçer."},
     {id:"munciye", s:"Salât-ı Münciye", n:"Salât-ı Münciye", t:41, g:"Salavâtlar",
      ar:"اَللّٰهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِ سَيِّدِنَا مُحَمَّدٍ صَلَاةً تُنْجِينَا بِهَا مِنْ جَمِيعِ الْأَهْوَالِ وَالْآفَاتِ وَتَقْضِي لَنَا بِهَا جَمِيعَ الْحَاجَاتِ وَتُطَهِّرُنَا بِهَا مِنْ جَمِيعِ السَّيِّئَاتِ وَتَرْفَعُنَا بِهَا عِنْدَكَ أَعْلَى الدَّرَجَاتِ وَتُبَلِّغُنَا بِهَا أَقْصَى الْغَايَاتِ مِنْ جَمِيعِ الْخَيْرَاتِ فِي الْحَيَاةِ وَبَعْدَ الْمَمَاتِ",
      tr:"Allâhümme salli alâ seyyidinâ Muhammedin ve alâ âli seyyidinâ Muhammed, salâten tüncînâ bihâ min cemîil-ehvâli vel-âfât, ve takdî lenâ bihâ cemîal-hâcât, ve tutahhirunâ bihâ min cemîis-seyyiât, ve terfeunâ bihâ indeke aled-derecât, ve tübelliğunâ bihâ aksal-ğâyât, min cemîil-hayrâti fil-hayâti ve ba'del-memât.",
-     note:"Sıkıntı ve dert anında okunan salavat. Genelde 41 kere okunur."},
+     note:"Sıkıntı ve dert anında okunan salavat. Genelde 41 kere okunur.", fz:"Sıkıntı, korku ve ihtiyaç anında kırk bir kere okunması yaygın bir âdettir. Metni sonraki dönem âlimlerinden nakledilir, hadis değildir."},
     {id:"tefriciye", s:"Salât-ı Tefriciye", n:"Salât-ı Tefriciye (Nâriye)", t:100, g:"Salavâtlar",
      ar:"اَللّٰهُمَّ صَلِّ صَلَاةً كَامِلَةً وَسَلِّمْ سَلَامًا تَامًّا عَلَى سَيِّدِنَا مُحَمَّدٍ الَّذِي تَنْحَلُّ بِهِ الْعُقَدُ وَتَنْفَرِجُ بِهِ الْكُرَبُ وَتُقْضَى بِهِ الْحَوَائِجُ وَتُنَالُ بِهِ الرَّغَائِبُ وَحُسْنُ الْخَوَاتِيمِ وَيُسْتَسْقَى الْغَمَامُ بِوَجْهِهِ الْكَرِيمِ وَعَلَى آلِهِ وَصَحْبِهِ فِي كُلِّ لَمْحَةٍ وَنَفَسٍ بِعَدَدِ كُلِّ مَعْلُومٍ لَكَ",
      tr:"Allâhümme salli salâten kâmileten ve sellim selâmen tâmmen alâ seyyidinâ Muhammedinillezî tenhallü bihil-ukadü ve tenfericü bihil-kürabü ve tukdâ bihil-havâicü ve tünâlü bihir-regâibü ve hüsnül-havâtimi ve yüstaskal-ğamâmü bi-vechihil-kerîm, ve alâ âlihî ve sahbihî fî külli lemhatin ve nefesin bi-adedi külli ma'lûmin lek.",
-     note:"Sıkıntıların açılması için okunan salavat."},
+     note:"Sıkıntıların açılması için okunan salavat.", fz:"Düğümlerin çözülmesi ve sıkıntıların açılması niyetiyle okunur. Bu da tasavvuf kaynaklarından nakledilen bir salavattır."},
 
     {id:"istigfar", s:"İstiğfar", n:"Estağfirullah", t:100, g:"Tevbe ve istiğfar",
-     ar:"أَسْتَغْفِرُ اللّٰهَ", note:"Allah'tan bağışlanma dilerim."},
+     ar:"أَسْتَغْفِرُ اللّٰهَ", note:"Allah'tan bağışlanma dilerim.", fz:"«Rabbinizden bağışlanma dileyin; O çok bağışlayandır. Size gökten bol yağmur indirsin, mallar ve oğullarla desteklesin.» (Nûh 10-12) Ayrıca istiğfara devam edene Allah’ın her darlıktan bir çıkış ve ummadığı yerden rızık vereceği bildirilmiştir. (Ebû Dâvûd)"},
     {id:"istigfar2", s:"İstiğfâr-ı kebîr", n:"Estağfirullâhe'l-azîm...", t:100, g:"Tevbe ve istiğfar",
      ar:"أَسْتَغْفِرُ اللّٰهَ الْعَظِيمَ الَّذِي لَا إِلٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ وَأَتُوبُ إِلَيْهِ",
      tr:"Estağfirullâhel-azîmellezî lâ ilâhe illâ hüvel-hayyul-kayyûmu ve etûbü ileyh.",
-     note:"Kendisinden başka ilah olmayan, diri ve her şeyi ayakta tutan yüce Allah'tan bağışlanma diler, O'na tevbe ederim."},
+     note:"Kendisinden başka ilah olmayan, diri ve her şeyi ayakta tutan yüce Allah'tan bağışlanma diler, O'na tevbe ederim.", fz:"Bu istiğfarı söyleyenin, savaştan kaçmış olsa bile bağışlanacağı bildirilmiştir. (Ebû Dâvûd, Tirmizî)"},
 
     {id:"yunus", s:"Tesbîh-i Yûnus", n:"Lâ ilâhe illâ ente sübhâneke innî küntü minez-zâlimîn", t:100, g:"Sıkıntı ve korunma",
      ar:"لَا إِلٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
-     note:"Enbiyâ sûresi 87. âyet. Yûnus aleyhisselâmın balığın karnındaki duası."},
+     note:"Enbiyâ sûresi 87. âyet. Yûnus aleyhisselâmın balığın karnındaki duası.", fz:"«Zünnûn’un duasıdır; onunla dua eden Müslümanın duasını Allah kabul eder.» (Tirmizî) Yûnus aleyhisselâm bu dua ile sıkıntıdan kurtulmuştur."},
     {id:"hasbunallah", s:"Hasbünallâh", n:"Hasbünallâhü ve ni'mel vekîl", t:100, g:"Sıkıntı ve korunma",
      ar:"حَسْبُنَا اللّٰهُ وَنِعْمَ الْوَكِيلُ",
-     note:"Âl-i İmrân sûresi 173. âyet: Allah bize yeter, O ne güzel vekildir."},
+     note:"Âl-i İmrân sûresi 173. âyet: Allah bize yeter, O ne güzel vekildir.", fz:"İbrâhîm aleyhisselâm ateşe atılırken, Peygamber Efendimiz ve ashabı da düşmanın toplandığı haberi geldiğinde bu sözü söylemiştir. (Buhârî; Âl-i İmrân 173)"},
     {id:"hayyukayyum", s:"Yâ Hayyu yâ Kayyûm", n:"Yâ Hayyu yâ Kayyûm bi-rahmetike estağîs", t:100, g:"Sıkıntı ve korunma",
      ar:"يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ",
-     note:"Ey diri ve her şeyi ayakta tutan, rahmetinle yardım diliyorum."},
+     note:"Ey diri ve her şeyi ayakta tutan, rahmetinle yardım diliyorum.", fz:"Peygamber Efendimiz sıkıntılı anlarında «Yâ Hayyu yâ Kayyûm, bi-rahmetike estağîs» diye dua ederdi. (Tirmizî)"},
 
     {id:"yalatif", s:"Yâ Latîf", n:"Yâ Latîf", t:129, g:"Esmâ-i şerîfe",
-     ar:"يَا لَطِيفُ", note:"Lütfu bol olan. Ebced değeri 129'dur, genelde bu sayıda okunur."},
-    {id:"yarezzak", s:"Yâ Rezzâk", n:"Yâ Rezzâk", t:100, g:"Esmâ-i şerîfe", ar:"يَا رَزَّاقُ", note:"Rızık veren."},
-    {id:"yafettah", s:"Yâ Fettâh", n:"Yâ Fettâh", t:100, g:"Esmâ-i şerîfe", ar:"يَا فَتَّاحُ", note:"Kapalı kapıları açan."},
-    {id:"yasafi", s:"Yâ Şâfî", n:"Yâ Şâfî", t:100, g:"Esmâ-i şerîfe", ar:"يَا شَافِي", note:"Şifa veren."},
-    {id:"yahafiz", s:"Yâ Hafîz", n:"Yâ Hafîz", t:100, g:"Esmâ-i şerîfe", ar:"يَا حَفِيظُ", note:"Koruyup gözeten."},
+     ar:"يَا لَطِيفُ", note:"Lütfu bol olan. Ebced değeri 129'dur, genelde bu sayıda okunur.", fz:"«En güzel isimler Allah’ındır; O’na onlarla dua edin.» (A’râf 180) Latîf ismi, kulun sezmediği yerden gelen ince lütfu ifade eder."},
+    {id:"yarezzak", s:"Yâ Rezzâk", n:"Yâ Rezzâk", t:100, g:"Esmâ-i şerîfe", ar:"يَا رَزَّاقُ", note:"Rızık veren.", fz:"Rızkı veren yalnız Allah’tır: «Şüphesiz Allah rızık verendir, güçlüdür.» (Zâriyât 58)"},
+    {id:"yafettah", s:"Yâ Fettâh", n:"Yâ Fettâh", t:100, g:"Esmâ-i şerîfe", ar:"يَا فَتَّاحُ", note:"Kapalı kapıları açan.", fz:"Fettâh, kapalı kapıları ve zorlukları açan demektir; esmâ-i hüsnâdandır. (A’râf 180)"},
+    {id:"yasafi", s:"Yâ Şâfî", n:"Yâ Şâfî", t:100, g:"Esmâ-i şerîfe", ar:"يَا شَافِي", note:"Şifa veren.", fz:"«Hastalandığımda bana şifa veren O’dur.» (Şuarâ 80) Şifayı Allah’tan istemenin bir yoludur."},
+    {id:"yahafiz", s:"Yâ Hafîz", n:"Yâ Hafîz", t:100, g:"Esmâ-i şerîfe", ar:"يَا حَفِيظُ", note:"Koruyup gözeten.", fz:"Hafîz, koruyup gözeten demektir: «Rabbim her şeyi koruyandır.» (Hûd 57)"},
 
     {id:"serbest", s:"Serbest", n:"Serbest sayaç", t:0, g:"Diğer"}
   ];
@@ -560,9 +563,10 @@ var PT = (function(){
     var setup = {gender:"", start:"", end:yesterdayIso(), vitir:true, hayiz:0, lohusa:0};
     var d = computeDebt(setup), initial = {}, done = {};
     KEYS.forEach(function(x){ initial[x.k]=d; done[x.k]=0; });
-    return {v:2, setup:setup, initial:initial, done:done, log:{}, target:1, created:todayIso(),
+    return {v:2, setup:setup, initial:initial, done:done, log:{}, target:1, targetMode:"gun", created:todayIso(),
             oruc:{initial:0, done:0}, olog:{}, dlog:{}, city:"istanbul", lastBackup:"", setupDone:false, virds:[],
             update:{check:true, lastCheck:"", skip:0},
+            vakitRemind:{on:false, offset:30, keys:{sabah:true, ogle:true, ikindi:true, aksam:true, yatsi:true}},
             zikir:{active:"tesbihat", counts:{}, targets:{}, custom:[], log:{}, vibrate:true, volume:true}};
   }
   function num(v){ v = Number(v); return isFinite(v) && v>=0 ? Math.round(v) : 0; }
@@ -578,7 +582,8 @@ var PT = (function(){
     s.log = s.log && typeof s.log==="object" ? s.log : {};
     s.olog = s.olog && typeof s.olog==="object" ? s.olog : {};
     s.dlog = s.dlog && typeof s.dlog==="object" ? s.dlog : {};
-    s.target = Number(s.target)>0 ? Math.min(20, Math.round(Number(s.target))) : 1;
+    s.targetMode = s.targetMode==="vakit" ? "vakit" : "gun";
+    s.target = Number(s.target)>0 ? Math.min(s.targetMode==="vakit" ? 200 : 20, Math.round(Number(s.target))) : 1;
     s.oruc = Object.assign({initial:0, done:0}, s.oruc||{});
     s.oruc.initial = num(s.oruc.initial); s.oruc.done = Math.min(num(s.oruc.done), s.oruc.initial);
     if(!cityById(s.city)) s.city = "istanbul";
@@ -593,6 +598,10 @@ var PT = (function(){
     z.custom = Array.isArray(z.custom) ? z.custom.filter(function(c){ return c && c.id && c.n; }).slice(0,30) : [];
     z.vibrate = z.vibrate!==false; z.volume = z.volume!==false;
     s.zikir = z;
+    var vr0 = Object.assign({on:false, offset:30, keys:{}}, s.vakitRemind||{});
+    vr0.offset = [10,15,30,45,60].indexOf(Math.round(Number(vr0.offset))) >= 0 ? Math.round(Number(vr0.offset)) : 30;
+    var vk0 = {}; ["sabah","ogle","ikindi","aksam","yatsi"].forEach(function(k){ vk0[k] = (vr0.keys||{})[k] !== false; });
+    vr0.keys = vk0; vr0.on = !!vr0.on; s.vakitRemind = vr0;
     s.update = Object.assign({check:true, lastCheck:"", skip:0}, s.update||{});
     s.update.check = s.update.check!==false;
     s.update.skip = Math.max(0, Math.round(Number(s.update.skip)||0));
@@ -637,16 +646,33 @@ var PT = (function(){
     try{ var sr = localStorage.getItem(LS_SESS); if(sr){ var so = JSON.parse(sr); if(so && so.queue && !so.finished){ delete so.countRekat; delete so.rekat; sess = so; } } }catch(e){}
     loadReminder();
     syncNative();
-    if(sess) zTab = "kaza";
+    if(sess) view = "kazaoturum";
     if(!state.setupDone) openSetup();
     render();
     restoreUpdate();
     setTimeout(function(){ checkUpdate(false); }, 1500);
   }
 
+  var VAKIT_ZAMAN = {sabah:"fajr", ogle:"dhuhr", ikindi:"asr", aksam:"sunset", yatsi:"isha"};
+  function vakitBildirimListesi(){
+    var t = dayTimes(new Date()), vr = state.vakitRemind, out = [];
+    KEYS.forEach(function(x){
+      if(!VAKIT_ZAMAN[x.k] || !vr.keys[x.k]) return;
+      var d = new Date(+t[VAKIT_ZAMAN[x.k]] + vr.offset*60000);
+      out.push({h:d.getHours(), m:d.getMinutes(), t:x.n+" vakti girdi",
+                x:"Bugünkü kazandan bir "+x.n.toLocaleLowerCase("tr")+" namazı kılmaya ne dersin?"});
+    });
+    return out;
+  }
+  function syncVakitNative(){
+    if(!hasNat("setVakitReminders") || !state) return;
+    var vr = state.vakitRemind;
+    nat("setVakitReminders", !!vr.on, JSON.stringify(vr.on ? vakitBildirimListesi() : []));
+  }
   function syncNative(){
     if(!N || !state) return;
     syncVirdNative();
+    syncVakitNative();
     var s = stats();
     nat("setTargetUnits", s.targetUnits);
     nat("setTargetMet", s.today >= s.targetUnits && s.targetUnits > 0 ? todayIso() : "");
@@ -749,7 +775,7 @@ var PT = (function(){
     }
     var pct = totalInit ? (1 - totalRem/totalInit) * 100 : 0;
     return {keys:keys, perDay:perDay, totalInit:totalInit, totalRem:totalRem, avg:avg, pct:pct,
-            today:Number(state.log[t])||0, targetUnits: state.target*perDay};
+            today:Number(state.log[t])||0, targetUnits: state.targetMode==="vakit" ? state.target : state.target*perDay};
   }
   function metOn(d, units){ return units>0 && (Number(state.log[d])||0) >= units; }
   function streaks(units){
@@ -917,7 +943,7 @@ var PT = (function(){
     ob = {step:0, err:"", again: state.setupDone,
       gender: st.gender, start: st.start, end: st.end || yesterdayIso(),
       hayiz: Number(st.hayiz)||0, lohusa: Number(st.lohusa)||0, vitir: st.vitir!==false,
-      target: state.target, city: state.city, oruc: state.oruc.initial, done: {}};
+      target: state.target, targetMode: state.targetMode, city: state.city, oruc: state.oruc.initial, done: {}};
     KEYS.forEach(function(x){ ob.done[x.k] = Number(state.done[x.k])||0; });
     view = "kurulum";
   }
@@ -954,7 +980,7 @@ var PT = (function(){
       state.initial[x.k] = d;
       state.done[x.k] = Math.min(d, Math.max(0, Math.round(Number(ob.done[x.k])||0)));
     });
-    state.target = ob.target; state.city = ob.city;
+    state.target = ob.target; state.targetMode = ob.targetMode; state.city = ob.city;
     state.oruc.initial = Math.max(0, Math.round(Number(ob.oruc)||0));
     if(state.oruc.done > state.oruc.initial) state.oruc.done = state.oruc.initial;
     var again = ob.again;
@@ -990,12 +1016,14 @@ var PT = (function(){
       h += '<p class="lead">Bunları sonra Ayarlar\'dan değiştirebilirsin.</p>';
       h += '<div class="field" style="border-top:0"><label for="obVitir">Vitir namazını da kaza et<span class="help">Hanefî mezhebine göre vaciptir, kaza edilir</span></label><input id="obVitir" type="checkbox"'+(ob.vitir?' checked':'')+'></div>';
       var per = obKeys().length;
-      h += '<div class="field"><label>Günlük hedef<span class="help">Günde kaç günlük kaza kılmak istiyorsun (1 gün = '+per+' vakit)</span></label>'+stepper("obTarget", ob.target, 1, 10)+'</div>';
+      h += '<div class="field" style="flex-direction:column; align-items:stretch; gap:8px"><label>Günlük hedef<span class="help">Her gün ne kadar kaza kılmayı hedefliyorsun</span></label>';
+      h += '<div class="seg"><button data-act="obtmode" data-m="gun" aria-pressed="'+(ob.targetMode==="gun")+'">Günlük kaza</button><button data-act="obtmode" data-m="vakit" aria-pressed="'+(ob.targetMode==="vakit")+'">Vakit sayısı</button></div>';
+      h += '<div style="display:flex; align-items:center; justify-content:space-between; gap:10px">'+stepper("obTarget", ob.target, 1, ob.targetMode==="vakit" ? 50 : 10)+'<span class="count">'+(ob.targetMode==="vakit" ? "vakit / gün" : "günlük ("+(ob.target*per)+" vakit)")+'</span></div></div>';
       h += '<div class="obField"><label for="obCity">Şehir</label><span class="help">Kerahat ve namaz vakitleri buna göre hesaplanır.</span><select id="obCity">';
       CITIES.forEach(function(c){ h += '<option value="'+c[0]+'"'+(c[0]===ob.city?' selected':'')+'>'+c[1]+'</option>'; });
       h += '</select></div>';
-      var totalDays = d * per;
-      h += '<p class="small" style="margin-top:14px">Bu hedefle toplam '+fmtInt(totalDays)+' vakit yaklaşık <b>'+fmtDuration(d/ob.target)+'</b> sürer.</p>';
+      var totalDays = d * per, obUnits = ob.targetMode==="vakit" ? ob.target : ob.target*per;
+      h += '<p class="small" style="margin-top:14px">Bu hedefle toplam '+fmtInt(totalDays)+' vakit yaklaşık <b>'+fmtDuration(totalDays/obUnits)+'</b> sürer.</p>';
     }
     else if(ob.step===3){
       h += '<h2>Daha önce kıldıkların</h2>';
@@ -1018,8 +1046,9 @@ var PT = (function(){
       h += '<li><span>Vakitler</span><span>'+obKeys().map(function(x){return x.n;}).join(", ")+'</span></li>';
       if(doneSum) h += '<li><span>Önceden kılınan</span><span class="num">'+fmtInt(doneSum)+' vakit</span></li>';
       h += '<li><span>Kalan toplam</span><span class="num">'+fmtInt(remTotal)+' vakit</span></li>';
-      h += '<li><span>Günlük hedef</span><span>'+ob.target+' günlük ('+(ob.target*per2)+' vakit)</span></li>';
-      h += '<li><span>Tahmini bitiş</span><span>'+fmtDuration(remTotal/(ob.target*per2))+'</span></li>';
+      var sumUnits = ob.targetMode==="vakit" ? ob.target : ob.target*per2;
+      h += '<li><span>Günlük hedef</span><span>'+(ob.targetMode==="vakit" ? sumUnits+' vakit' : ob.target+' günlük ('+sumUnits+' vakit)')+'</span></li>';
+      h += '<li><span>Tahmini bitiş</span><span>'+fmtDuration(remTotal/sumUnits)+'</span></li>';
       h += '<li><span>Şehir</span><span>'+c[1]+'</span></li>';
       if(ob.oruc) h += '<li><span>Oruç kazası</span><span class="num">'+fmtInt(ob.oruc)+' gün</span></li>';
       h += '</ul></div>';
@@ -1370,6 +1399,7 @@ var PT = (function(){
     persist(); render(); toast("Sayaç sıfırlandı");
   }
   function zikirActive(){ return view==="oturum" && (zTab==="zikir" || (zTab==="vird" && !!vOpen)) && !document.hidden; }
+  function kazaSessActive(){ return !!(sess && !sess.finished); }
   var lastAwake = null, lastVol = null;
   var wakeLock = null;
   function webWake(on){
@@ -1390,7 +1420,7 @@ var PT = (function(){
     if(awake!==lastAwake){ nat("keepAwake", awake); lastAwake = awake; }
     if(vol!==lastVol){ nat("setVolumeCounting", vol); lastVol = vol; }
   }
-  window.kazaZikirKey = function(){ if(view==="oturum" && zTab==="zikir") zikirTap(); };
+  window.kazaZikirKey = function(){ if(view==="oturum" && zTab==="zikir" && !zLib) zikirTap(); };
 
   /* ---------- çizim ---------- */
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -1399,6 +1429,7 @@ var PT = (function(){
     if(!state) return;
     var h = "";
     if(view==="kurulum") h = viewSetup();
+    else if(view==="kazaoturum") h = '<button class="link" data-act="go" data-v="takip" style="border:0;background:none;padding:0;color:var(--muted);font-weight:600">‹ Takip</button>' + viewKazaSession();
     else if(view==="takip") h = viewTakip();
     else if(view==="istatistik") h = viewStats();
     else if(view==="oturum") h = viewSession();
@@ -1410,8 +1441,9 @@ var PT = (function(){
     Object.keys(openIds).forEach(function(id){ var d = document.getElementById(id); if(d) d.open = openIds[id]; });
     window.scrollTo(0, y);
     tabs.style.display = view==="kurulum" ? "none" : "";
+    var navView = view==="kazaoturum" ? "takip" : view;
     tabs.querySelectorAll("button").forEach(function(b){
-      if(b.getAttribute("data-view")===view) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
+      if(b.getAttribute("data-view")===navView) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
     });
     syncZikirNative();
   }
@@ -1456,6 +1488,8 @@ var PT = (function(){
     var dayLeft = s.keys.some(function(x){ return remaining(x.k)>0; });
     h += '<button class="dayBtn" data-act="day"'+(dayLeft?'':' disabled')+'>1 günlük kaza kıldım</button>';
     h += '<p class="dayNote">'+s.keys.map(function(x){return x.n;}).join(", ")+' birer düşer</p>';
+    var oturumVar = sess && !sess.finished;
+    h += '<button class="act" data-act="go" data-v="kazaoturum" style="margin:0 0 18px">'+(oturumVar ? 'Oturuma devam et · '+(sess.idx+1)+'/'+sess.queue.length : 'Toplu kaza oturumu')+'</button>';
 
     h += '<div class="list">';
     s.keys.forEach(function(x){
@@ -1478,7 +1512,7 @@ var PT = (function(){
       h += '<p class="eta"><b>Bütün kaza borcu tamamlandı.</b></p>';
     } else {
       var t = todayIso(), etaTarget = s.targetUnits ? s.totalRem / s.targetUnits : Infinity;
-      h += '<p class="eta">Günde '+state.target+' günlük hedefle bitiş: <b>'+fmtDuration(etaTarget)+'</b>';
+      h += '<p class="eta">Günde '+s.targetUnits+' vakit hedefiyle bitiş: <b>'+fmtDuration(etaTarget)+'</b>';
       if(s.avg>0){
         var etaAvg = s.totalRem / s.avg;
         h += '<br>Son 30 gün temposuyla (günde '+s.avg.toLocaleString("tr-TR",{maximumFractionDigits:1})+' vakit): <b>'+fmtDuration(etaAvg)+'</b>, yaklaşık '+fmtDate(shiftIso(t, Math.ceil(etaAvg)));
@@ -1585,10 +1619,9 @@ var PT = (function(){
   function viewSession(){
     var vBadge = "";
     state.virds.forEach(function(v){ if(!vBadge && !vComplete(v) && !vEntry(v, todayIso()).done) vBadge = " •"; });
-    var head = '<div class="seg three" role="group" aria-label="Bölüm" style="margin-bottom:14px"><button data-act="ztab" data-m="zikir" aria-pressed="'+(zTab==="zikir")+'">Zikirmatik</button><button data-act="ztab" data-m="vird" aria-pressed="'+(zTab==="vird")+'">Vird'+vBadge+'</button><button data-act="ztab" data-m="kaza" aria-pressed="'+(zTab==="kaza")+'">Toplu kaza'+(sess && !sess.finished ? ' •' : '')+'</button></div>';
-    if(zTab==="zikir") return head + viewZikir();
+    var head = '<div class="seg" role="group" aria-label="Bölüm" style="margin-bottom:14px"><button data-act="ztab" data-m="zikir" aria-pressed="'+(zTab==="zikir")+'">Zikirmatik</button><button data-act="ztab" data-m="vird" aria-pressed="'+(zTab==="vird")+'">Vird'+vBadge+'</button></div>';
     if(zTab==="vird") return head + viewVird();
-    return head + viewKazaSession();
+    return head + viewZikir();
   }
 
   function zCount(id){ return Number(state.zikir.counts[id])||0; }
@@ -1626,9 +1659,9 @@ var PT = (function(){
   function viewZikir(){
     if(zLib) return viewZikirLib();
     var zk = state.zikir, z = zikirById(zk.active) || ZIKIRS[0], n = zCount(z.id), h = "";
-    h += '<div class="zlist" role="group" aria-label="Zikir seç">';
+    h += '<button class="libBtn" data-act="zlib"><span><b>'+esc(z.s)+'</b><span class="sub">Kütüphane: salavâtlar, istiğfar, esmâ-i şerîfe…</span></span><span class="go">Değiştir ›</span></button>';
+    h += '<div class="zlist" role="group" aria-label="Son kullandıkların">';
     zRecent().forEach(function(id){ var x = zikirById(id); if(x) h += '<button data-act="zsel" data-z="'+esc(x.id)+'" aria-pressed="'+(x.id===z.id)+'">'+esc(x.s)+'</button>'; });
-    h += '<button data-act="zlib">Tümü ⋯</button>';
     h += '</div>';
 
     var big, of, tur = "", pct = 0, name = z.n, sub = z.sub || "";
@@ -1647,7 +1680,12 @@ var PT = (function(){
       if(sub) h += '<p class="zsub">'+esc(sub)+'</p>';
       if(z.ar) h += '<p class="arabic" style="text-align:center; font-size:1.3rem; line-height:1.9">'+z.ar+'</p>';
       if(z.tr) h += '<p class="zsub" style="line-height:1.5">'+esc(z.tr)+'</p>';
-      if(z.note) h += '<details id="zNot"><summary style="padding:8px 0 0; text-align:center; font-size:.85rem; color:var(--muted)">Anlamı ve notu</summary><p class="meal" style="text-align:center">'+esc(z.note)+'</p></details>';
+      if(z.note || z.fz){
+        h += '<details id="zNot"><summary style="padding:8px 0 0; text-align:center; font-size:.85rem; color:var(--muted)">Anlamı ve fazileti</summary>';
+        if(z.note) h += '<p class="meal" style="text-align:center">'+esc(z.note)+'</p>';
+        if(z.fz) h += '<p class="meal" style="text-align:center"><b>Fazileti:</b> '+esc(z.fz)+'</p>';
+        h += '</details>';
+      }
     }
     h += '<button class="zbtn" data-act="ztap" style="--p:'+pct.toFixed(1)+'%" aria-label="'+esc(name)+', '+big+' sayıldı. Saymak için dokun"><span class="in"><b class="num">'+fmtInt(big)+'</b><small>'+of+'</small><em>'+tur+'</em></span></button>';
     var t = todayIso(), today = Number(zk.log[t])||0;
@@ -1695,7 +1733,7 @@ var PT = (function(){
       h += '<h2>Oturum bitti</h2><div class="panel">';
       h += '<p class="total num" style="margin:4px 0">'+sess.done+'<small>namaz işlendi</small></p>';
       h += '<p class="sub">'+mins+' dakika sürdü'+(sess.skipped ? ', '+sess.skipped+' namaz atlandı' : '')+'. Kalan borç: '+fmtInt(stats().totalRem)+' vakit.</p>';
-      h += '<button class="act fill" data-act="snew">Yeni oturum</button>';
+      h += '<div class="two"><button class="act" data-act="sgeri">Takibe dön</button><button class="act fill" data-act="snew">Yeni oturum</button></div>';
       h += '</div>';
       return h;
     }
@@ -1782,16 +1820,33 @@ var PT = (function(){
     if(importError) h += '<p class="hint" style="margin:0 0 12px;color:var(--warn)">'+esc(importError)+'</p>';
 
     h += '<details id="sGenel" open><summary>Hedef ve konum</summary><div class="set">';
-    h += '<div class="field"><label for="target">Günlük hedef<span class="help">Kaç günlük kaza (1 gün = '+s.perDay+' vakit)</span></label><input id="target" type="number" min="1" max="20" step="1" inputmode="numeric" value="'+state.target+'"></div>';
+    h += '<div class="field" style="flex-direction:column; align-items:stretch; gap:8px"><label>Günlük hedef<span class="help">Her gün ne kadar kaza kılmayı hedefliyorsun</span></label>';
+    h += '<div class="seg"><button data-act="tmode" data-m="gun" aria-pressed="'+(state.targetMode==="gun")+'">Günlük kaza</button><button data-act="tmode" data-m="vakit" aria-pressed="'+(state.targetMode==="vakit")+'">Vakit sayısı</button></div>';
+    h += '<div style="display:flex; align-items:center; gap:10px"><input id="target" type="number" min="1" max="'+(state.targetMode==="vakit"?200:20)+'" step="1" inputmode="numeric" value="'+state.target+'"><span class="count">'+(state.targetMode==="vakit" ? "vakit / gün" : "günlük ("+s.targetUnits+" vakit)")+'</span></div></div>';
     h += '<div class="field"><label for="vitir">Vitir de kaza edilsin<span class="help">Hanefî mezhebine göre vacip</span></label><input id="vitir" type="checkbox"'+(st.vitir?' checked':'')+'></div>';
     h += '<div class="field"><label for="city">Şehir<span class="help">Kerahat ve namaz vakitleri için</span></label><select id="city">';
     CITIES.forEach(function(c){ h += '<option value="'+c[0]+'"'+(c[0]===state.city?' selected':'')+'>'+c[1]+'</option>'; });
     h += '</select></div></div></details>';
 
-    h += '<details id="sHat"><summary>Günlük hatırlatma</summary><div class="set">';
+    h += '<details id="sHat"><summary>Bildirimler</summary><div class="set">';
     if(hasNat("setReminder")){
       h += '<div class="field"><label for="remOn">Her gün hatırlat<span class="help">Günün hedefini tamamladıysan bildirim gelmez</span></label><input id="remOn" type="checkbox"'+(rem.enabled?' checked':'')+'></div>';
       h += '<div class="field"><label for="remTime">Saat</label><input id="remTime" type="time" value="'+pad(rem.hour)+':'+pad(rem.minute)+'"></div>';
+      h += '<div class="field" style="flex-direction:column; align-items:stretch; gap:8px"><label for="vakitOn">Namaz vakitlerinde hatırlat<span class="help">Her vakit girdikten bir süre sonra \"kaza kıldın mı\" bildirimi gelir. Günün hedefi tamamsa gelmez.</span></label>';
+      h += '<div style="display:flex; align-items:center; justify-content:space-between; gap:10px"><span class="count">Açık</span><input id="vakitOn" type="checkbox"'+(state.vakitRemind.on?' checked':'')+'></div></div>';
+      if(state.vakitRemind.on){
+        h += '<div class="field"><label for="vakitOffset">Vakitten ne kadar sonra</label><select id="vakitOffset">';
+        [10,15,30,45,60].forEach(function(v){ h += '<option value="'+v+'"'+(state.vakitRemind.offset===v?' selected':'')+'>'+v+' dakika</option>'; });
+        h += '</select></div>';
+        h += '<p class="subh">Hangi vakitlerde</p><div class="grid">';
+        KEYS.forEach(function(x){
+          if(!VAKIT_ZAMAN[x.k]) return;
+          h += '<label>'+x.n+'<input type="checkbox" data-vakit="'+x.k+'"'+(state.vakitRemind.keys[x.k]?' checked':'')+'></label>';
+        });
+        h += '</div>';
+        var lst = vakitBildirimListesi();
+        if(lst.length) h += '<p class="small">Bugünün saatleri: '+lst.map(function(o){ return pad(o.h)+":"+pad(o.m); }).join(", ")+'. Saatler her gün vakitlere göre kendiliğinden kayar.</p>';
+      }
       if(rem.permission==="denied") h += '<p class="small warnTxt">Bildirim izni kapalı. Telefonun Ayarlar › Uygulamalar › Kaza Takibi › Bildirimler bölümünden açabilirsin.</p>';
       h += '<p class="small">Pil tasarrufu nedeniyle bildirim birkaç dakika gecikebilir.</p>';
     } else {
@@ -1916,16 +1971,31 @@ var PT = (function(){
       case "skey": sessForm.key = k; sessForm.count = Math.max(1, Math.min(sessForm.count, remaining(k) || 1)); render(); break;
       case "step":
         var id = b.getAttribute("data-id"), dd = Number(b.getAttribute("data-d"));
-        if(id==="obTarget"){ ob.target = Math.max(1, Math.min(10, ob.target+dd)); render(); break; }
+        if(id==="obTarget"){ ob.target = Math.max(1, Math.min(ob.targetMode==="vakit"?50:10, ob.target+dd)); render(); break; }
         if(id==="days") sessForm.days = Math.max(1, Math.min(10, sessForm.days+dd));
         else sessForm.count = Math.max(1, Math.min(20, sessForm.count+dd));
         render(); break;
       case "sstart": startSession(); break;
       case "obg": ob.gender = b.getAttribute("data-v"); ob.err = ""; render(); break;
+      case "obtmode":
+        var om = b.getAttribute("data-m"), operc = obKeys().length;
+        if(om!==ob.targetMode){
+          ob.target = om==="vakit" ? Math.min(50, ob.target*operc) : Math.max(1, Math.round(ob.target/operc));
+          ob.targetMode = om;
+        }
+        render(); break;
       case "obnext": obNext(); break;
       case "obback": obBack(); break;
       case "obcancel": ob = null; view = "ayarlar"; render(); break;
       case "setup": openSetup(); render(); window.scrollTo(0,0); break;
+      case "tmode":
+        var nm2 = b.getAttribute("data-m");
+        if(nm2!==state.targetMode){
+          var per2 = activeKeys().length;
+          state.target = nm2==="vakit" ? Math.min(200, state.target*per2) : Math.max(1, Math.round(state.target/per2));
+          state.targetMode = nm2; change();
+        }
+        break;
       case "updgo": if(upd){ updState = {durum:"indiriliyor", pct:0, mesaj:""}; render(); nat("downloadUpdate", upd.apk); } break;
       case "updskip": if(upd){ state.update.skip = Number(upd.code)||0; upd = null; updState = null; persist(); render(); toast("Bu sürüm atlandı"); } break;
       case "updcheck": toast("Kontrol ediliyor…"); checkUpdate(true); break;
@@ -1980,6 +2050,7 @@ var PT = (function(){
       case "sskip": sessSkip(); break;
       case "send": finishSession(); break;
       case "snew": sess = null; saveSess(); render(); break;
+      case "sgeri": go("takip"); break;
     }
   });
 
@@ -1990,10 +2061,13 @@ var PT = (function(){
   app.addEventListener("change", function(e){
     var t = e.target; if(!state) return;
     if(view==="kurulum"){ obInput(e.target); return; }
-    if(t.id==="target"){ var v = Math.round(Number(t.value)); if(v>=1 && v<=20){ state.target = v; change(); } else render(); }
+    if(t.id==="target"){ var v = Math.round(Number(t.value)), mx = state.targetMode==="vakit" ? 200 : 20; if(v>=1 && v<=mx){ state.target = v; change(); } else render(); }
     else if(t.id==="vitir"){ state.setup.vitir = t.checked; change(); }
     else if(t.id==="city"){ state.city = t.value; change(); }
     else if(t.id==="updOn"){ state.update.check = t.checked; if(t.checked){ state.update.lastCheck = ""; change(); checkUpdate(false); } else { upd = null; updState = null; change(); } }
+    else if(t.id==="vakitOn"){ state.vakitRemind.on = t.checked; change(); syncVakitNative(); toast(t.checked ? "Vakit bildirimleri açıldı" : "Vakit bildirimleri kapatıldı"); }
+    else if(t.id==="vakitOffset"){ state.vakitRemind.offset = Math.round(Number(t.value))||30; change(); syncVakitNative(); }
+    else if(t.hasAttribute("data-vakit")){ state.vakitRemind.keys[t.getAttribute("data-vakit")] = t.checked; change(); syncVakitNative(); }
     else if(t.id==="zvib"){ state.zikir.vibrate = t.checked; persist(); }
     else if(t.id==="vRemind"){ var v1 = virdById(vOpen); if(v1){ v1.remind = t.checked; persist(); render(); toast(t.checked ? "Hatırlatma kuruldu" : "Hatırlatma kapatıldı"); } }
     else if(t.id==="vMiss"){ var v2 = virdById(vOpen); if(v2){ v2.missRule = t.value; persist(); render(); } }
@@ -2035,7 +2109,7 @@ var PT = (function(){
     var ae = document.activeElement, typing = ae && (ae.tagName==="INPUT" || ae.tagName==="TEXTAREA" || ae.tagName==="SELECT");
     if(typing) return;
     if(todayIso()!==lastDay){ lastDay = todayIso(); syncNative(); }
-    if(view==="takip" || view==="oturum" || view==="rehber") render();
+    if(view==="takip" || view==="oturum" || view==="rehber" || view==="kazaoturum") render();
   }, 30000);
   document.addEventListener("visibilitychange", function(){ if(!state) return; if(document.hidden){ syncZikirNative(); return; }
     if(!updBusy && state.update.check) checkUpdate(false); lastVol = null; lastAwake = null; loadReminder(); syncNative(); render(); });
@@ -2046,6 +2120,7 @@ var PT = (function(){
       if(ob && ob.again){ ob = null; view = "ayarlar"; render(); return true; }
       return false;
     }
+    if(view==="kazaoturum"){ go("takip"); return true; }
     if(view==="oturum" && zTab==="zikir" && zLib){ zLib = false; render(); return true; }
     if(view==="oturum" && zTab==="vird" && (vOpen || vForm)){ vOpen = null; vForm = null; render(); return true; }
     if(view!=="takip"){ go("takip"); return true; }

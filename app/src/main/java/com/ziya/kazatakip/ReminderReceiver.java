@@ -18,13 +18,23 @@ public class ReminderReceiver extends BroadcastReceiver {
 
         SharedPreferences p = Reminder.prefs(c);
         boolean vird = slot == Reminder.SLOT_VIRD;
-        if (!p.getBoolean(vird ? Reminder.K_V_ENABLED : Reminder.K_ENABLED, false)) return;
-        if (Reminder.today().equals(p.getString(vird ? Reminder.K_V_MET : Reminder.K_MET, ""))) return;
+        boolean vakit = slot >= Reminder.SLOT_VAKIT;
+        if (vakit) {
+            if (!p.getBoolean(Reminder.K_N_ENABLED, false)) return;
+        } else if (!p.getBoolean(vird ? Reminder.K_V_ENABLED : Reminder.K_ENABLED, false)) return;
+        // Günlük kaza hedefi tamamsa vakit bildirimi de gelmez
+        String metKey = vird ? Reminder.K_V_MET : Reminder.K_MET;
+        if (Reminder.today().equals(p.getString(metKey, ""))) return;
         if (!Reminder.canNotify(c)) return;
 
         String title;
         String text;
-        if (vird) {
+        if (vakit) {
+            org.json.JSONObject o = Reminder.vakitler(c).optJSONObject(slot - Reminder.SLOT_VAKIT);
+            if (o == null) return;
+            title = o.optString("t", "Kaza vakti");
+            text = o.optString("x", "Bir kaza namazı kılmaya ne dersin?");
+        } else if (vird) {
             title = p.getString(Reminder.K_V_TITLE, "Vird vakti");
             text = p.getString(Reminder.K_V_TEXT, "Bugünkü virdini unutma.");
         } else {

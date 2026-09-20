@@ -41,6 +41,12 @@ final class Reminder {
     static final String K_V_TITLE = "vird_title";
     static final String K_V_TEXT = "vird_text";
 
+    /** Namaz vakti bildirimleri: 10. yuvadan itibaren, en fazla 8 tane. */
+    static final int SLOT_VAKIT = 10;
+    static final int MAX_VAKIT = 8;
+    static final String K_N_ENABLED = "vakit_enabled";
+    static final String K_N_JSON = "vakit_json";
+
     private Reminder() {}
 
     static SharedPreferences prefs(Context c) {
@@ -49,7 +55,8 @@ final class Reminder {
 
     static boolean anyEnabled(Context c) {
         SharedPreferences p = prefs(c);
-        return p.getBoolean(K_ENABLED, false) || p.getBoolean(K_V_ENABLED, false);
+        return p.getBoolean(K_ENABLED, false) || p.getBoolean(K_V_ENABLED, false)
+                || p.getBoolean(K_N_ENABLED, false);
     }
 
     static void createChannel(Context c) {
@@ -83,10 +90,20 @@ final class Reminder {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    /** Her iki yuvayı da yeniden kurar. */
+    /** Bütün yuvaları yeniden kurar. */
     static void schedule(Context c) {
         scheduleSlot(c, SLOT_KAZA);
         scheduleSlot(c, SLOT_VIRD);
+        for (int i = 0; i < MAX_VAKIT; i++) scheduleSlot(c, SLOT_VAKIT + i);
+    }
+
+    /** Vakit bildirimlerinin listesi: [{"h":13,"m":35,"t":"Öğle","x":"metin"}, ...] */
+    static org.json.JSONArray vakitler(Context c) {
+        try {
+            return new org.json.JSONArray(prefs(c).getString(K_N_JSON, "[]"));
+        } catch (Exception e) {
+            return new org.json.JSONArray();
+        }
     }
 
     static void scheduleSlot(Context c, int slot) {
@@ -96,12 +113,25 @@ final class Reminder {
         am.cancel(pi);
 
         SharedPreferences p = prefs(c);
-        boolean on = p.getBoolean(slot == SLOT_VIRD ? K_V_ENABLED : K_ENABLED, false);
-        if (!on) return;
+        int hour;
+        int minute;
+        if (slot >= SLOT_VAKIT) {
+            if (!p.getBoolean(K_N_ENABLED, false)) return;
+            org.json.JSONObject o = vakitler(c).optJSONObject(slot - SLOT_VAKIT);
+            if (o == null) return;
+            hour = o.optInt("h", -1);
+            minute = o.optInt("m", 0);
+            if (hour < 0) return;
+        } else {
+            boolean on = p.getBoolean(slot == SLOT_VIRD ? K_V_ENABLED : K_ENABLED, false);
+            if (!on) return;
+            hour = p.getInt(slot == SLOT_VIRD ? K_V_HOUR : K_HOUR, slot == SLOT_VIRD ? 6 : 21);
+            minute = p.getInt(slot == SLOT_VIRD ? K_V_MINUTE : K_MINUTE, 0);
+        }
 
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, p.getInt(slot == SLOT_VIRD ? K_V_HOUR : K_HOUR, slot == SLOT_VIRD ? 6 : 21));
-        cal.set(Calendar.MINUTE, p.getInt(slot == SLOT_VIRD ? K_V_MINUTE : K_MINUTE, 0));
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, minute);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         if (cal.getTimeInMillis() <= System.currentTimeMillis() + 5000) {

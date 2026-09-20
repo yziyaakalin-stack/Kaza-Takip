@@ -253,6 +253,37 @@ public class MainActivity extends Activity {
             });
         }
 
+        /** Namaz vakitlerine bağlı bildirimler. liste: [{"h":13,"m":35,"t":"Öğle","x":"metin"}] */
+        @JavascriptInterface
+        public void setVakitReminders(final boolean enabled, final String liste) {
+            runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    String json = liste == null ? "[]" : liste;
+                    try {
+                        org.json.JSONArray a = new org.json.JSONArray(json);
+                        if (a.length() > Reminder.MAX_VAKIT) {
+                            org.json.JSONArray kisa = new org.json.JSONArray();
+                            for (int i = 0; i < Reminder.MAX_VAKIT; i++) kisa.put(a.get(i));
+                            json = kisa.toString();
+                        }
+                    } catch (Exception e) {
+                        json = "[]";
+                    }
+                    Reminder.prefs(MainActivity.this).edit()
+                            .putString(Reminder.K_N_JSON, json)
+                            .putBoolean(Reminder.K_N_ENABLED, enabled)
+                            .apply();
+                    if (enabled && needsNotifPermission()) {
+                        requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_NOTIF);
+                        return;
+                    }
+                    for (int i = 0; i < Reminder.MAX_VAKIT; i++) {
+                        Reminder.scheduleSlot(MainActivity.this, Reminder.SLOT_VAKIT + i);
+                    }
+                }
+            });
+        }
+
         @JavascriptInterface
         public void setVirdMet(String dateIso) {
             Reminder.prefs(MainActivity.this).edit()
@@ -386,6 +417,7 @@ public class MainActivity extends Activity {
             Reminder.prefs(this).edit()
                     .putBoolean(Reminder.K_ENABLED, false)
                     .putBoolean(Reminder.K_V_ENABLED, false)
+                    .putBoolean(Reminder.K_N_ENABLED, false)
                     .apply();
         }
         Reminder.schedule(this);
