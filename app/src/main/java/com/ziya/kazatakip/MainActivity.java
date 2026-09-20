@@ -54,6 +54,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Reminder.createChannel(this);
+        Zikir.createChannel(this);
 
         final WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
@@ -253,6 +254,60 @@ public class MainActivity extends Activity {
             });
         }
 
+        /** Ana ekran aracındaki sayılar. */
+        @JavascriptInterface
+        public void setWidgetData(final int kalan, final int bugun, final int hedef,
+                                  final String zikirId, final String zikirAd,
+                                  final int zikirSay, final int zikirHedef) {
+            Zikir.prefs(MainActivity.this).edit()
+                    .putInt(Zikir.K_W_KALAN, kalan)
+                    .putInt(Zikir.K_W_BUGUN, bugun)
+                    .putInt(Zikir.K_W_HEDEF, hedef)
+                    .putString(Zikir.K_ID, zikirId == null ? "" : zikirId)
+                    .putString(Zikir.K_AD, zikirAd == null || zikirAd.isEmpty() ? "Zikir" : zikirAd)
+                    .putInt(Zikir.K_SAY, zikirSay)
+                    .putInt(Zikir.K_HEDEF, zikirHedef)
+                    .apply();
+            KazaWidget.refresh(MainActivity.this);
+            Zikir.showNotification(MainActivity.this);
+        }
+
+        /** Bildirimden ve araçtan gelen dokunuşları alır ve sıfırlar: {"id":"...","n":3} */
+        @JavascriptInterface
+        public String takeZikirTicks() {
+            android.content.SharedPreferences p = Zikir.prefs(MainActivity.this);
+            int n = p.getInt(Zikir.K_TICKS, 0);
+            String id = p.getString(Zikir.K_ID, "");
+            if (n > 0) p.edit().putInt(Zikir.K_TICKS, 0).apply();
+            try {
+                JSONObject o = new JSONObject();
+                o.put("id", id);
+                o.put("n", n);
+                return o.toString();
+            } catch (Exception e) {
+                return "{}";
+            }
+        }
+
+        /** Ekran kapalıyken saymak için sabit bildirim. */
+        @JavascriptInterface
+        public void setZikirNotification(final boolean acik) {
+            runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    Zikir.prefs(MainActivity.this).edit().putBoolean(Zikir.K_BILDIRIM, acik).apply();
+                    if (!acik) {
+                        Zikir.hideNotification(MainActivity.this);
+                        return;
+                    }
+                    if (needsNotifPermission()) {
+                        requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_NOTIF);
+                        return;
+                    }
+                    Zikir.showNotification(MainActivity.this);
+                }
+            });
+        }
+
         /** Namaz vakitlerine bağlı bildirimler. liste: [{"h":13,"m":35,"t":"Öğle","x":"metin"}] */
         @JavascriptInterface
         public void setVakitReminders(final boolean enabled, final String liste) {
@@ -421,6 +476,7 @@ public class MainActivity extends Activity {
                     .apply();
         }
         Reminder.schedule(this);
+        if (granted && Zikir.prefs(this).getBoolean(Zikir.K_BILDIRIM, false)) Zikir.showNotification(this);
         reportReminder();
     }
 

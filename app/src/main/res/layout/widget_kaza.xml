@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical">
+
+    <LinearLayout
+        android:id="@+id/widget_kaza_alan"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/widget_kalan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#E6EBF1"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:text="—" />
+
+        <TextView
+            android:id="@+id/widget_alt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#93A0B0"
+            android:textSize="12sp"
+            android:text="vakit kaldı" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/widget_zikir_ad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#93A0B0"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:text="Zikir" />
+
+        <TextView
+            android:id="@+id/widget_zikir_say"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/widget_btn"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_marginTop="4dp"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="+1" />
+    </LinearLayout>
+</LinearLayout>

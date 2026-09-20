@@ -36,6 +36,21 @@
         </provider>
 
         <receiver
+            android:name=".ZikirReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".KazaWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_kaza_bilgi" />
+        </receiver>
+
+        <receiver
             android:name=".ReminderReceiver"
             android:exported="false" />
 

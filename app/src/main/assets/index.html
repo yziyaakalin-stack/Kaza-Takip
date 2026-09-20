@@ -608,7 +608,7 @@ var PT = (function(){
     z.log = z.log && typeof z.log==="object" ? z.log : {};
     z.recent = Array.isArray(z.recent) ? z.recent.slice(0,8) : [];
     z.custom = Array.isArray(z.custom) ? z.custom.filter(function(c){ return c && c.id && c.n; }).slice(0,30) : [];
-    z.vibrate = z.vibrate!==false; z.volume = z.volume!==false;
+    z.vibrate = z.vibrate!==false; z.volume = z.volume!==false; z.notif = !!z.notif;
     s.zikir = z;
     var vr0 = Object.assign({on:false, offset:30, keys:{}}, s.vakitRemind||{});
     vr0.offset = [10,15,30,45,60].indexOf(Math.round(Number(vr0.offset))) >= 0 ? Math.round(Number(vr0.offset)) : 30;
@@ -660,6 +660,8 @@ var PT = (function(){
     syncNative();
     if(sess) view = "kazaoturum";
     if(!state.setupDone) openSetup();
+    if(state.zikir.notif) nat("setZikirNotification", true);
+    zikirTicksAl();
     render();
     restoreUpdate();
     setTimeout(function(){ checkUpdate(false); }, 1500);
@@ -681,8 +683,29 @@ var PT = (function(){
     var vr = state.vakitRemind;
     nat("setVakitReminders", !!vr.on, JSON.stringify(vr.on ? vakitBildirimListesi() : []));
   }
+  function zikirTicksAl(){
+    if(!hasNat("takeZikirTicks")) return false;
+    var r = nat("takeZikirTicks"), o = null;
+    try{ o = typeof r==="string" ? JSON.parse(r) : null; }catch(e){}
+    if(!o || !(o.n > 0)) return false;
+    var z = zikirById(o.id) || zikirById(state.zikir.active);
+    if(!z) return false;
+    state.zikir.counts[z.id] = zCount(z.id) + o.n;
+    var t = todayIso();
+    state.zikir.log[t] = (Number(state.zikir.log[t])||0) + o.n;
+    persist();
+    toast(o.n + " zikir bildirimden eklendi");
+    return true;
+  }
+  function syncWidget(){
+    if(!hasNat("setWidgetData") || !state) return;
+    var s = stats(), z = zikirById(state.zikir.active);
+    nat("setWidgetData", s.totalRem, s.today, s.targetUnits,
+        z ? z.id : "", z ? z.s : "Zikir", z ? zCount(z.id) : 0, z ? (z.seq ? 99 : zTarget(z)) : 0);
+  }
   function syncNative(){
     if(!N || !state) return;
+    syncWidget();
     syncVirdNative();
     syncVakitNative();
     var s = stats();
@@ -1400,6 +1423,16 @@ var PT = (function(){
     }
     render();
   }
+  function zikirFill(){
+    var zk = state.zikir, z = zikirById(zk.active); if(!z) return;
+    var T = z.seq ? 99 : zTarget(z);
+    if(!(T > 0)) return;
+    var n = zCount(z.id), ekle = T - (n % T), t = todayIso();
+    zk.counts[z.id] = n + ekle;
+    zk.log[t] = (Number(zk.log[t])||0) + ekle;
+    buzz([200,80,200]); persist(); render();
+    toast(fmtInt(ekle)+" eklendi, tur tamam");
+  }
   function zikirUndo(){
     var zk = state.zikir, z = zikirById(zk.active), t = todayIso();
     if(!z || zCount(z.id)<=0) return;
@@ -1414,6 +1447,15 @@ var PT = (function(){
     persist(); render(); toast("Sayaç sıfırlandı");
   }
   function zikirActive(){ return view==="oturum" && (zTab==="zikir" || (zTab==="vird" && !!vOpen)) && !document.hidden; }
+  function sesTusuHedefi(){
+    if(view!=="oturum" || document.hidden) return null;
+    if(zTab==="zikir") return "zikir";
+    if(zTab==="vird" && vOpen){
+      var v = virdById(vOpen);
+      if(v && !vComplete(v) && !vEntry(v, todayIso()).done) return "vird";
+    }
+    return null;
+  }
   function kazaSessActive(){ return !!(sess && !sess.finished); }
   var lastAwake = null, lastVol = null;
   var wakeLock = null;
@@ -1430,12 +1472,16 @@ var PT = (function(){
   function syncZikirNative(){
     if(!state) return;
     var z = zikirActive(), sessOn = !!(sess && !sess.finished);
-    var awake = (z || sessOn) && !document.hidden, vol = z && zTab==="zikir" && state.zikir.volume;
+    var awake = (z || sessOn) && !document.hidden, vol = !!sesTusuHedefi() && state.zikir.volume;
     if(!N){ if(awake!==lastAwake){ webWake(awake); lastAwake = awake; } return; }
     if(awake!==lastAwake){ nat("keepAwake", awake); lastAwake = awake; }
     if(vol!==lastVol){ nat("setVolumeCounting", vol); lastVol = vol; }
   }
-  window.kazaZikirKey = function(){ if(view==="oturum" && zTab==="zikir" && !zLib) zikirTap(); };
+  window.kazaZikirKey = function(){
+    var hedef = sesTusuHedefi();
+    if(hedef==="zikir"){ if(zLib) zLib = false; zikirTap(); }
+    else if(hedef==="vird"){ var v = virdById(vOpen); if(v) vTick(v); }
+  };
 
   /* ---------- çizim ---------- */
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -1706,6 +1752,12 @@ var PT = (function(){
     var t = todayIso(), today = Number(zk.log[t])||0;
     h += '<p class="ztoday num">Bu zikirde toplam '+fmtInt(n)+' · Bugün tüm zikirler '+fmtInt(today)+'</p>';
     h += '<div class="ghostRow"><button data-act="zundo"'+(n>0?'':' disabled')+'>Geri al</button><button data-act="zreset" class="'+(zArmed?'danger armed':'')+'"'+(n>0?'':' disabled')+'>'+(zArmed?'Emin misin?':'Sıfırla')+'</button></div>';
+    var zT = z.seq ? 99 : zTarget(z);
+    if(zT > 0){
+      var kalanAdet = zT - (n % zT);
+      h += '<button class="act" data-act="zfill">'+(n % zT ? "Kalan "+fmtInt(kalanAdet)+" tanesini çektim" : "Saymadan "+fmtInt(zT)+" çektim")+'</button>';
+      h += '<p class="small" style="text-align:center">Tespihle ya da kendin sayarak çektiysen tek dokunuşla turu tamamla.</p>';
+    }
 
     h += '<details id="zOpt" style="margin-top:18px"><summary>Zikirmatik ayarları</summary><div class="set">';
     if(!z.seq){
@@ -1715,7 +1767,10 @@ var PT = (function(){
       h += '</div><p class="small">Hedefe her ulaşıldığında telefon uzun titrer ve yeni tur başlar.</p>';
     }
     if(CAN_VIBRATE) h += '<div class="field" style="margin-top:10px"><label for="zvib">Her sayışta titreşim</label><input id="zvib" type="checkbox"'+(zk.vibrate?' checked':'')+'></div>';
-    if(hasNat("setVolumeCounting")) h += '<div class="field"><label for="zvol">Ses tuşlarıyla say<span class="help">Bu ekran açıkken iki ses tuşu da bir sayar; ekrana bakmadan çekebilirsin</span></label><input id="zvol" type="checkbox"'+(zk.volume?' checked':'')+'></div>';
+    if(hasNat("setVolumeCounting")) h += '<div class="field"><label for="zvol">Ses tuşlarıyla say<span class="help">Zikirmatik ve vird ekranları açıkken iki ses tuşu da bir sayar; ekrana bakmadan çekebilirsin</span></label><input id="zvol" type="checkbox"'+(zk.volume?' checked':'')+'></div>';
+    if(hasNat("setZikirNotification")){
+      h += '<div class="field"><label for="zbil">Ekran kapalıyken bildirimden say<span class="help">Kilit ekranında sabit bir bildirim durur, "+1" düğmesiyle sayarsın. Telefonu cebe koyup çekebilirsin.</span></label><input id="zbil" type="checkbox"'+(state.zikir.notif?' checked':'')+'></div>';
+    }
     h += '<p class="subh">Kendi zikrini ekle</p><div class="addRow"><input id="zNew" maxlength="60" placeholder="Örn. Hasbünallah" autocomplete="off"><button data-act="zadd">Ekle</button></div>';
     if(z.custom) h += '<button class="act danger" data-act="zdel" style="margin-top:12px">"'+esc(z.n)+'" zikrini listeden kaldır</button>';
     if(N || "wakeLock" in navigator) h += '<p class="small">Ekran bu bölüm açıkken kapanmaz.</p>';
@@ -2043,6 +2098,7 @@ var PT = (function(){
         vOpen = null; persist(); render(); toast("Vird kaldırıldı"); break;
       case "ztap": zikirTap(); break;
       case "zundo": zikirUndo(); break;
+      case "zfill": zikirFill(); break;
       case "zreset": zikirReset(); break;
       case "zsel": zUse(b.getAttribute("data-z")); zArmed = false; persist(); render(); break;
       case "zlib": zLib = true; render(); window.scrollTo(0,0); break;
@@ -2090,6 +2146,11 @@ var PT = (function(){
     else if(t.id==="vfDays"){ if(vForm) vForm.days = Math.max(1, Math.min(365, Math.round(Number(t.value)||40))); }
     else if(t.id==="vfWindow"){ if(vForm){ vForm.window = t.value; } }
     else if(t.id==="zvol"){ state.zikir.volume = t.checked; persist(); render(); }
+    else if(t.id==="zbil"){
+      state.zikir.notif = t.checked; persist();
+      nat("setZikirNotification", t.checked);
+      render(); toast(t.checked ? "Bildirim sayacı açıldı" : "Bildirim sayacı kapatıldı");
+    }
     else if(t.id==="start" || t.id==="end"){ if(t.value){ state.setup[t.id] = t.value; change(); } }
     else if(t.id==="hayiz"){ var hz = Number(t.value); if(hz>=0 && hz<=15){ state.setup.hayiz = hz; change(); } else render(); }
     else if(t.id==="lohusa"){ var lh = Math.round(Number(t.value)); if(lh>=0 && isFinite(lh)){ state.setup.lohusa = lh; change(); } else render(); }
@@ -2127,7 +2188,8 @@ var PT = (function(){
     if(view==="takip" || view==="oturum" || view==="rehber" || view==="kazaoturum") render();
   }, 30000);
   document.addEventListener("visibilitychange", function(){ if(!state) return; if(document.hidden){ syncZikirNative(); return; }
-    if(!updBusy && state.update.check) checkUpdate(false); lastVol = null; lastAwake = null; loadReminder(); syncNative(); render(); });
+    if(!updBusy && state.update.check) checkUpdate(false);
+    if(zikirTicksAl()) render(); lastVol = null; lastAwake = null; loadReminder(); syncNative(); render(); });
 
   window.kazaBack = function(){
     if(view==="kurulum"){

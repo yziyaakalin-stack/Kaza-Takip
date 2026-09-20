@@ -2,7 +2,7 @@
 
 Kaza namazı ve oruç takip uygulaması. İnternet izni istemez, kayıtlar telefonda saklanır.
 
-## Özellikler (2.1)
+## Özellikler (2.3)
 - İlk açılışta kurulum: cinsiyet, başlangıç ve bitiş tarihi, hayız/lohusalık (yalnızca kadınlarda), vitir, hedef, şehir, önceden kılınanlar, oruç borcu
 - Bugün kılınanlar dökümü (hangi vakitten kaç tane, oruç, zikir, vird)
 - Vakit vakit kaza sayaçları, "1 günlük kaza kıldım" butonu, oruç kazası sayacı
@@ -11,6 +11,8 @@ Kaza namazı ve oruç takip uygulaması. İnternet izni istemez, kayıtlar telef
 - Vird takibi: 40 günlük istiğfar virdi (dua + 100 istiğfar, imsak–güneş arası) ve kendi virdin; gün ızgarası, aralıksız/devam kuralı, imsak sonrası hatırlatma
 - Hedef: günlük kaza ya da günde x vakit olarak ayarlanabilir
 - Namaz vakti bildirimleri: her vakitten x dakika sonra hatırlatma (hedef tamamsa gelmez)
+- Ana ekran aracı (widget): kalan kaza, bugünkü ilerleme ve tek dokunuşla zikir sayacı
+- Ekran kapalıyken zikir: kilit ekranındaki sabit bildirimden +1
 - Zikir kütüphanesi: salavâtlar, istiğfar, esmâ-i şerîfe ve sıkıntı zikirleri; Arapça metin, okunuş ve anlam
 - Zikirmatik: namaz tesbihatı (33×3), hazır zikirler, kendi zikrin, hedef ve tur, titreşim, ses tuşlarıyla sayma
 - Toplu kaza oturumu: her namaz için tek dokunuş, biten namaz otomatik düşer, ekran açık kalır
