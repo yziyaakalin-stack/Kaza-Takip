@@ -308,6 +308,33 @@ public class MainActivity extends Activity {
             });
         }
 
+        /** Zikir bildiriminin sistem ayarlarını açar (kilit ekranında gösterim vb.). */
+        @JavascriptInterface
+        public void openZikirNotificationSettings() {
+            runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    try {
+                        Intent i;
+                        if (Build.VERSION.SDK_INT >= 26) {
+                            i = new Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                                    .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getPackageName())
+                                    .putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, Zikir.CHANNEL);
+                        } else {
+                            i = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                    .setData(Uri.parse("package:" + getPackageName()));
+                        }
+                        startActivity(i);
+                    } catch (Exception e) {
+                        try {
+                            startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                    .setData(Uri.parse("package:" + getPackageName())));
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            });
+        }
+
         /** Namaz vakitlerine bağlı bildirimler. liste: [{"h":13,"m":35,"t":"Öğle","x":"metin"}] */
         @JavascriptInterface
         public void setVakitReminders(final boolean enabled, final String liste) {

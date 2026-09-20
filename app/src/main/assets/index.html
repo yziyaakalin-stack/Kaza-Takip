@@ -1770,6 +1770,10 @@ var PT = (function(){
     if(hasNat("setVolumeCounting")) h += '<div class="field"><label for="zvol">Ses tuşlarıyla say<span class="help">Zikirmatik ve vird ekranları açıkken iki ses tuşu da bir sayar; ekrana bakmadan çekebilirsin</span></label><input id="zvol" type="checkbox"'+(zk.volume?' checked':'')+'></div>';
     if(hasNat("setZikirNotification")){
       h += '<div class="field"><label for="zbil">Ekran kapalıyken bildirimden say<span class="help">Kilit ekranında sabit bir bildirim durur, "+1" düğmesiyle sayarsın. Telefonu cebe koyup çekebilirsin.</span></label><input id="zbil" type="checkbox"'+(state.zikir.notif?' checked':'')+'></div>';
+      if(state.zikir.notif){
+        h += '<p class="small">Bildirim kilit ekranında görünmüyorsa: ekranı uyandır, bildirime bir kere dokunmadan aşağı doğru çek, "+1" düğmesi orada. Samsung\'da ayrıca <b>Ayarlar › Bildirimler › Kilit ekranı bildirimleri</b> açık ve <b>Ayrıntılı</b> olmalı.</p>';
+        h += '<button class="act" data-act="zbilayar">Bildirim ayarlarını aç</button>';
+      }
     }
     h += '<p class="subh">Kendi zikrini ekle</p><div class="addRow"><input id="zNew" maxlength="60" placeholder="Örn. Hasbünallah" autocomplete="off"><button data-act="zadd">Ekle</button></div>';
     if(z.custom) h += '<button class="act danger" data-act="zdel" style="margin-top:12px">"'+esc(z.n)+'" zikrini listeden kaldır</button>';
@@ -2099,6 +2103,7 @@ var PT = (function(){
       case "ztap": zikirTap(); break;
       case "zundo": zikirUndo(); break;
       case "zfill": zikirFill(); break;
+      case "zbilayar": nat("openZikirNotificationSettings"); break;
       case "zreset": zikirReset(); break;
       case "zsel": zUse(b.getAttribute("data-z")); zArmed = false; persist(); render(); break;
       case "zlib": zLib = true; render(); window.scrollTo(0,0); break;

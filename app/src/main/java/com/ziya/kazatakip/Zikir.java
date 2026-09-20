@@ -14,7 +14,8 @@ import android.os.Build;
  * Sayılan her dokunuş prefs'te birikir, uygulama açılınca JS tarafı bunları alır.
  */
 final class Zikir {
-    static final String CHANNEL = "zikir_sayac";
+    static final String CHANNEL = "zikir_sayac_v2";
+    private static final String ESKI_CHANNEL = "zikir_sayac";
     static final String ACTION_TICK = "com.ziya.kazatakip.ZIKIR_ARTIR";
     static final String ACTION_STOP = "com.ziya.kazatakip.ZIKIR_BITIR";
 
@@ -39,12 +40,23 @@ final class Zikir {
 
     static void createChannel(Context c) {
         if (Build.VERSION.SDK_INT < 26) return;
-        NotificationChannel ch = new NotificationChannel(
-                CHANNEL, "Zikir sayacı", NotificationManager.IMPORTANCE_LOW);
-        ch.setDescription("Ekran kapalıyken zikir çekmek için sabit bildirim");
-        ch.setShowBadge(false);
         NotificationManager nm = c.getSystemService(NotificationManager.class);
-        if (nm != null) nm.createNotificationChannel(ch);
+        if (nm == null) return;
+        // Sessiz kanal bazı telefonlarda kilit ekranında gizleniyor; sesi ve titreşimi
+        // kapalı ama normal öncelikli bir kanal kullanıyoruz.
+        NotificationChannel ch = new NotificationChannel(
+                CHANNEL, "Zikir sayacı", NotificationManager.IMPORTANCE_DEFAULT);
+        ch.setDescription("Ekran kapalıyken zikir çekmek için kilit ekranında duran sayaç");
+        ch.setShowBadge(false);
+        ch.setSound(null, null);
+        ch.enableVibration(false);
+        ch.enableLights(false);
+        ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        nm.createNotificationChannel(ch);
+        try {
+            nm.deleteNotificationChannel(ESKI_CHANNEL);
+        } catch (Exception ignored) {
+        }
     }
 
     private static PendingIntent action(Context c, String act, int kod) {
@@ -84,6 +96,8 @@ final class Zikir {
                         android.graphics.drawable.Icon.createWithResource(c, R.drawable.ic_notif),
                         "Bitir", action(c, ACTION_STOP, 72)).build());
         b.setVisibility(Notification.VISIBILITY_PUBLIC);
+        b.setCategory(Notification.CATEGORY_PROGRESS);
+        if (Build.VERSION.SDK_INT < 26) b.setPriority(Notification.PRIORITY_DEFAULT);
 
         NotificationManager nm = c.getSystemService(NotificationManager.class);
         if (nm != null) nm.notify(NOTIF_ID, b.build());
