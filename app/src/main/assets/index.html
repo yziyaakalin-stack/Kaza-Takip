@@ -233,6 +233,10 @@ h2:first-child{margin-top:4px}
 .step .sh{display:flex; align-items:center; gap:10px; font-weight:700}
 .step .sn{width:26px; height:26px; border-radius:50%; background:var(--soft); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:.85rem; flex:none}
 .step.done .sn{background:var(--accent); color:var(--accent-ink)}
+.ayet > div{padding:10px 0; border-top:1px solid var(--line)}
+.ayet > div:first-child{border-top:0; padding-top:4px}
+.ayet .arabic{margin:0}
+.ayet .trans{margin:6px 0 0; color:var(--muted); font-size:.9rem}
 .arabic{direction:rtl; text-align:right; font-size:1.45rem; line-height:2.1; margin:12px 0 0; font-family:"Noto Naskh Arabic","Geeza Pro","Traditional Arabic",serif}
 .trans{font-size:.95rem; line-height:1.7; margin:12px 0 0}
 .meal{font-size:.92rem; color:var(--muted); line-height:1.6; margin:10px 0 0}
@@ -492,8 +496,16 @@ var PT = (function(){
   var SEQ = [["Sübhânallah",33],["Elhamdülillâh",33],["Allâhu ekber",33]];
   var TARGETS = [33,99,100,500,1000,0];
   var VIRD_DUA = {
-    ar: "سُبْحَانَ اللهِ الْعَظِيمِ وَبِحَمْدِهِ، سُبْحَانَ مَنْ يَمُنُّ وَلَا يُمَنُّ عَلَيْهِ، سُبْحَانَ مَنْ يُجِيرُ وَلَا يُجَارُ عَلَيْهِ، سُبْحَانَ مَنْ يُبْرَأُ مِنَ الْحَوْلِ وَالْقُوَّةِ إِلَيْهِ، سُبْحَانَ مَنِ التَّسْبِيحُ مِنْهُ مِنَّةٌ عَلَى مَنِ اعْتَمَدَ عَلَيْهِ، سُبْحَانَ مَنْ يُسَبِّحُ كُلُّ شَيْءٍ بِحَمْدِهِ، سُبْحَانَكَ لَا إِلٰهَ إِلَّا أَنْتَ يَا مَنْ يُسَبِّحُ لَهُ الْجَمِيعُ، تَدَارَكْنِي بِعَفْوِكَ فَإِنِّي جَزُوعٌ",
-    tr: ["Sübhânallâhi'l-azîmi ve bi-hamdih.","Sübhâne men yemünnü ve lâ yümennü aleyh.","Sübhâne men yücîru ve lâ yücâru aleyh.","Sübhâne men yübrau mine'l-havli ve'l-kuvveti ileyh.","Sübhâne meni't-tesbîhu minnetün minhü alâ meni'temede aleyh.","Sübhâne men yüsebbihu küllü şey'in bi-hamdih.","Sübhâneke lâ ilâhe illâ ente yâ men yüsebbihu lehü'l-cemî'.","Tedâreknî bi-afvike fe-innî cezû'."],
+    satirlar: [
+      {ar:"سُبْحَانَ اللهِ الْعَظِيمِ وَبِحَمْدِهِ،", tr:"Sübhânallâhi'l-azîmi ve bi-hamdih."},
+      {ar:"سُبْحَانَ مَنْ يَمُنُّ وَلَا يُمَنُّ عَلَيْهِ،", tr:"Sübhâne men yemünnü ve lâ yümennü aleyh."},
+      {ar:"سُبْحَانَ مَنْ يُجِيرُ وَلَا يُجَارُ عَلَيْهِ،", tr:"Sübhâne men yücîru ve lâ yücâru aleyh."},
+      {ar:"سُبْحَانَ مَنْ يُبْرَأُ مِنَ الْحَوْلِ وَالْقُوَّةِ إِلَيْهِ،", tr:"Sübhâne men yübrau mine'l-havli ve'l-kuvveti ileyh."},
+      {ar:"سُبْحَانَ مَنِ التَّسْبِيحُ مِنْهُ مِنَّةٌ عَلَى مَنِ اعْتَمَدَ عَلَيْهِ،", tr:"Sübhâne meni't-tesbîhu minnetün minhü alâ meni'temede aleyh."},
+      {ar:"سُبْحَانَ مَنْ يُسَبِّحُ كُلُّ شَيْءٍ بِحَمْدِهِ،", tr:"Sübhâne men yüsebbihu küllü şey'in bi-hamdih."},
+      {ar:"سُبْحَانَكَ لَا إِلٰهَ إِلَّا أَنْتَ يَا مَنْ يُسَبِّحُ لَهُ الْجَمِيعُ،", tr:"Sübhâneke lâ ilâhe illâ ente yâ men yüsebbihu lehü'l-cemî'."},
+      {ar:"تَدَارَكْنِي بِعَفْوِكَ فَإِنِّي جَزُوعٌ", tr:"Tedâreknî bi-afvike fe-innî cezû'."}
+    ],
     meal: "Yüce Allah'ı hamdiyle tesbih ederim. İyilik eden, fakat kimsenin kendisine iyilik edip minnet altına alamadığı Allah'ı tesbih ederim. Koruyup himaye eden, fakat kendisine karşı kimsenin korunamadığı Allah'ı tesbih ederim. Kulların, kendi güç ve kuvvetlerinden sıyrılıp kendisine sığındığı Allah'ı tesbih ederim. Kendisine dayanan kimseye tesbih etmeyi bir lütuf olarak veren Allah'ı tesbih ederim. Her şeyin hamdiyle tesbih ettiği Allah'ı tesbih ederim. Seni tesbih ederim, Senden başka ilah yoktur. Ey her şeyin tesbih ettiği Rabbim! Affınla imdadıma yetiş, çünkü ben çok aciz bir kulum."
   };
   var VIRD_PRESETS = [
@@ -1325,8 +1337,11 @@ var PT = (function(){
         var step = 1;
         if(v.dua){
           h += '<div class="step'+(e.read?' done':'')+'"><div class="sh"><span class="sn">'+(e.read?"✓":"1")+'</span>Duayı oku <span style="margin-left:auto;font-weight:400;color:var(--muted);font-size:.85rem">1 kere</span></div>';
-          h += '<p class="arabic">'+VIRD_DUA.ar+'</p>';
-          h += '<p class="trans">'+VIRD_DUA.tr.join("<br>")+'</p>';
+          h += '<div class="ayet">';
+          VIRD_DUA.satirlar.forEach(function(sat){
+            h += '<div><p class="arabic">'+sat.ar+'</p><p class="trans">'+esc(sat.tr)+'</p></div>';
+          });
+          h += '</div>';
           h += '<details id="vMeal"><summary style="padding:12px 0 0">Anlamı</summary><p class="meal">'+VIRD_DUA.meal+'</p></details>';
           if(!e.read) h += '<button class="act fill" data-act="vread">Okudum</button>';
           h += '</div>';
