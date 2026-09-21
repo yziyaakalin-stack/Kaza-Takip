@@ -200,6 +200,31 @@ h2:first-child{margin-top:4px}
 .queue i.sk{background:var(--line)}
 .queue i.cur{background:transparent; outline:2px solid var(--accent); outline-offset:-2px}
 
+/* Nafile */
+.ncard{display:block; width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:13px 14px; margin-top:8px}
+.ncard .nh{display:flex; justify-content:space-between; align-items:center; gap:10px}
+.ncard b{font-size:1rem}
+.ncard .ns{display:block; color:var(--muted); font-size:.84rem; margin-top:2px}
+.badge{font-size:.72rem; font-weight:700; border-radius:10px; padding:3px 8px; white-space:nowrap}
+.badge.now{background:var(--ok-soft); color:var(--accent)}
+.badge.ok{background:var(--accent); color:var(--accent-ink)}
+.nsec{margin-top:14px}
+.nsec h3{font-size:.92rem; margin:0 0 6px; color:var(--muted); font-weight:700}
+.nsec p, .nsec li{font-size:.94rem; line-height:1.55}
+.nsec ol{margin:0; padding-left:20px}
+.nsec li{margin:4px 0}
+.fz{background:var(--ok-soft); border-radius:12px; padding:12px 14px; font-size:.93rem; line-height:1.55}
+
+/* İmza */
+.brand{display:flex; align-items:center; gap:10px}
+.logo{width:34px; height:34px; flex:none; display:block}
+.by{display:inline-flex; align-items:center; gap:5px; font-size:.74rem; font-weight:700; color:var(--muted); border:1px solid var(--line); border-radius:14px; padding:4px 10px 4px 5px; background:var(--surface); white-space:nowrap}
+.by .c{width:16px; height:16px; border-radius:50%; border:1.5px solid currentColor; display:inline-flex; align-items:center; justify-content:center; font-size:.62rem; line-height:1}
+.about{display:flex; align-items:center; gap:14px; margin-top:22px; padding:14px; border-radius:14px; background:var(--surface); border:1px solid var(--line)}
+.about .logo{width:52px; height:52px}
+.about b{display:block}
+.about span{color:var(--muted); font-size:.84rem}
+
 /* Bugün kılınanlar */
 .tally{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px}
 .tally span{display:inline-flex; align-items:center; gap:6px; background:var(--bg); border-radius:18px; padding:5px 11px; font-size:.86rem}
@@ -437,6 +462,80 @@ var PT = (function(){
     ["sanliurfa","Şanlıurfa",37.1591,38.7969],["tekirdag","Tekirdağ",40.9781,27.5117],["trabzon","Trabzon",41.0015,39.7178],
     ["van","Van",38.5012,43.3730]
   ];
+  var NAFILE = [
+    {id:"teheccud", rk:"2–8 rekât", ad:"Teheccüd namazı", kisa:"Gece namazı", pencere:"gece",
+     vakit:"Yatsıdan sonra bir miktar uyuyup kalkarak imsaka kadar kılınır. En faziletli zamanı gecenin son üçte biridir.",
+     rekat:"En az 2, en çok 8 rekât; ikişer ikişer kılınır. Peygamber Efendimiz çoğunlukla 8 rekât kılıp vitirle 11'e tamamlardı.",
+     kilinis:["Her iki rekâtta bir selam verilir, sabah namazının sünneti gibi kılınır.","Niyet: \u201cNiyet ettim Allah rızası için teheccüd namazı kılmaya.\u201d","Kıraati uzun tutmak ve namazdan sonra dua ve istiğfarla meşgul olmak güzeldir.","Vitri teheccüde bırakan, teheccüdün sonunda vitri kılar. Uyanamamaktan korkan vitri yatsıdan sonra kılar."],
+     fazilet:"\u201cFarz namazlardan sonra en faziletli namaz gece namazıdır.\u201d (Müslim) \u201cGecenin bir kısmında sana mahsus bir nafile olarak teheccüd kıl; umulur ki Rabbin seni övülmüş bir makama ulaştırır.\u201d (İsrâ 79)"},
+
+    {id:"israk", rk:"2 rekât", ad:"İşrak namazı", kisa:"Güneş doğunca", pencere:"israk",
+     vakit:"Güneş doğup kerahat vakti çıktıktan sonra, yani güneş doğuşundan yaklaşık 45 dakika sonra kılınır.",
+     rekat:"2 rekât (4 rekât da kılınabilir).",
+     kilinis:["Sabah namazının sünneti gibi kılınır.","Niyet: \u201cNiyet ettim Allah rızası için işrak namazı kılmaya.\u201d","Sabah namazından sonra yerinden kalkmadan zikirle meşgul olup ardından kılmak sünnete daha uygundur."],
+     fazilet:"\u201cSabah namazını cemaatle kılıp güneş doğuncaya kadar oturup Allah'ı zikreden, sonra iki rekât namaz kılan kimseye tam bir hac ve umre sevabı vardır.\u201d (Tirmizî)"},
+
+    {id:"kusluk", rk:"2–12 rekât", ad:"Kuşluk namazı", kisa:"Duhâ", pencere:"kusluk",
+     vakit:"Güneş yükseldikten (doğuştan ~45 dk sonra) öğle vaktine yaklaşık 45 dakika kalana kadar kılınır. En faziletlisi günün dörtte biri geçtikten sonradır.",
+     rekat:"En az 2, en çok 12 rekât. Genelde 4 ya da 8 rekât kılınır.",
+     kilinis:["İkişer ya da dörder rekât olarak kılınabilir.","Niyet: \u201cNiyet ettim Allah rızası için kuşluk namazı kılmaya.\u201d","Öğleye yakın istiva (kerahat) vaktine girmeden bitirilmelidir."],
+     fazilet:"\u201cSizden birinizin her bir eklemi için sadaka vermesi gerekir. Her tesbih, her hamd, her tehlil bir sadakadır. Bütün bunlara kuşluk vaktinde kılınan iki rekât namaz yeter.\u201d (Müslim)"},
+
+    {id:"evvabin", rk:"6 rekât", ad:"Evvâbîn namazı", kisa:"Akşamdan sonra", pencere:"evvabin",
+     vakit:"Akşam namazının farzı ve sünneti kılındıktan sonra, yatsı vakti girmeden kılınır.",
+     rekat:"6 rekât; ikişer ikişer kılınır.",
+     kilinis:["Her iki rekâtta bir selam verilir.","Niyet: \u201cNiyet ettim Allah rızası için evvâbîn namazı kılmaya.\u201d"],
+     fazilet:"Akşamdan sonra kılınan altı rekât hakkında güzel müjdeler içeren rivayetler vardır (Tirmizî, İbn Mâce); ancak bu rivayetler zayıf kabul edilir. Sahih bir hadiste \u201cevvâbîn\u201d (Allah'a çokça yönelenler) namazı kuşluk namazı olarak da geçer. (Müslim)"},
+
+    {id:"tahiyyat", rk:"2 rekât", ad:"Tahiyyetü'l-mescid", kisa:"Camiye girince", pencere:"",
+     vakit:"Camiye girince oturmadan kılınır. Kerahat vaktinde girilmişse kılınmaz; yerine dört kere \u201cSübhânallâhi ve'l-hamdü lillâhi ve lâ ilâhe illallâhü vallâhü ekber\u201d denir.",
+     rekat:"2 rekât.",
+     kilinis:["Sabah namazının sünneti gibi kılınır.","Farz ya da sünnet bir namaza başlamak da bu selamlamanın yerine geçer."],
+     fazilet:"\u201cBiriniz mescide girdiğinde oturmadan önce iki rekât namaz kılsın.\u201d (Buhârî, Müslim)"},
+
+    {id:"abdest", rk:"2 rekât", ad:"Abdest namazı", kisa:"Şükrü'l-vudû", pencere:"",
+     vakit:"Abdest aldıktan sonra, abdestin suyu kurumadan kılınması güzeldir. Kerahat vakitlerinde kılınmaz.",
+     rekat:"2 rekât.",
+     kilinis:["Sabah namazının sünneti gibi kılınır.","Niyet: \u201cNiyet ettim Allah rızası için abdest namazı kılmaya.\u201d"],
+     fazilet:"\u201cGüzelce abdest alıp kalbi ve yüzüyle yönelerek iki rekât namaz kılana cennet vacip olur.\u201d (Müslim) Peygamber Efendimiz, cennette Hz. Bilal'in ayak seslerini işittiğini, onun da her abdestten sonra namaz kıldığını bildirmiştir. (Buhârî, Müslim)"},
+
+    {id:"hacet", rk:"2 rekât", ad:"Hacet namazı", kisa:"Bir ihtiyaç için", pencere:"",
+     vakit:"Allah'tan veya insanlardan bir ihtiyacı olan kişi, kerahat vakitleri dışında istediği zaman kılabilir.",
+     rekat:"2 rekât (bazı kaynaklarda 4 ya da 12 rekât da geçer).",
+     kilinis:["Güzelce abdest alınır, iki rekât namaz kılınır.","Selamdan sonra Allah'a hamd edilir, Peygamber Efendimize salavat getirilir.","Ardından aşağıdaki hacet duası okunur ve ihtiyaç Allah'tan istenir."],
+     dua:{baslik:"Hacet duası", tr:"Lâ ilâhe illallâhü'l-Halîmü'l-Kerîm. Sübhânallâhi Rabbi'l-arşi'l-azîm. Elhamdü lillâhi Rabbi'l-âlemîn. Es'elüke mûcibâti rahmetik, ve azâime mağfiretik, ve'l-ganîmete min külli birr, ve's-selâmete min külli ism. Lâ teda' lî zenben illâ ğafertehû, ve lâ hemmen illâ ferractehû, ve lâ hâceten hiye leke rıdan illâ kadaytehâ, yâ erhame'r-râhimîn.",
+          anlam:"Halîm ve Kerîm olan Allah'tan başka ilah yoktur. Yüce arşın Rabbi olan Allah'ı tesbih ederim. Hamd âlemlerin Rabbi Allah'adır. Senden rahmetini gerektiren şeyleri, bağışlamanı kesinleştiren şeyleri, her iyilikten pay almayı ve her günahtan esenlikte olmayı dilerim. Bağışlamadığın bir günahımı, gidermediğin bir sıkıntımı, rızana uygun olup da yerine getirmediğin bir ihtiyacımı bırakma, ey merhametlilerin en merhametlisi!"},
+     fazilet:"Bu namaz ve dua Tirmizî ve İbn Mâce'de rivayet edilmiştir. \u201cSabır ve namazla Allah'tan yardım isteyin.\u201d (Bakara 45)"},
+
+    {id:"istihare", rk:"2 rekât", ad:"İstihare namazı", kisa:"Hayırlısını istemek", pencere:"",
+     vakit:"Bir işin hayırlı olup olmadığında karar verilemediğinde, kerahat vakitleri dışında kılınır. Yatmadan önce kılınması yaygındır ama şart değildir.",
+     rekat:"2 rekât.",
+     kilinis:["İki rekât nafile namaz kılınır.","Selamdan sonra aşağıdaki istihare duası okunur; \u201cbu iş\u201d denilen yerde yapılmak istenen iş kalben düşünülür ya da adıyla söylenir.","Sonra kalbin hangi tarafa yöneldiğine bakılır. Rüya görmek şart değildir. Gerekirse birkaç gün tekrarlanabilir."],
+     dua:{baslik:"İstihare duası", tr:"Allâhümme innî estehîruke bi-ilmike, ve estakdiruke bi-kudretike, ve es'elüke min fadlike'l-azîm. Fe-inneke takdiru ve lâ akdiru, ve ta'lemu ve lâ a'lemu, ve ente allâmü'l-ğuyûb. Allâhümme in künte ta'lemu enne hâze'l-emra hayrun lî fî dînî ve maâşî ve âkıbeti emrî, fakdurhu lî ve yessirhu lî, sümme bârik lî fîh. Ve in künte ta'lemu enne hâze'l-emra şerrun lî fî dînî ve maâşî ve âkıbeti emrî, fasrifhu annî vasrifnî anhu, vakdur liye'l-hayra haysü kâne, sümme erdınî bih.",
+          anlam:"Allah'ım! İlminle senden hayır istiyorum, kudretinle güç istiyorum ve büyük lütfundan istiyorum. Sen güç yetirirsin, ben yetiremem; sen bilirsin, ben bilemem; sen gaybları hakkıyla bilensin. Allah'ım! Bu iş dinim, geçimim ve işimin sonu için hayırlıysa onu bana takdir et, kolaylaştır, sonra onu bana mübarek kıl. Eğer bu iş dinim, geçimim ve işimin sonu için şerliyse onu benden, beni de ondan uzaklaştır; hayır nerede ise onu bana takdir et, sonra beni ondan razı kıl."},
+     fazilet:"Peygamber Efendimiz ashabına bu duayı Kur'an'dan bir sure öğretir gibi öğretirdi. (Buhârî)"},
+
+    {id:"tevbe", rk:"2 rekât", ad:"Tevbe namazı", kisa:"Günahtan sonra", pencere:"",
+     vakit:"Bir günah işlendiğinde, kerahat vakitleri dışında hemen kılınması güzeldir.",
+     rekat:"2 rekât.",
+     kilinis:["Güzelce abdest alınır ve iki rekât namaz kılınır.","Ardından samimi bir şekilde istiğfar edilir, günaha tekrar dönmemeye azmedilir; kul hakkı varsa ödenir ya da helallik istenir."],
+     fazilet:"\u201cBir kul günah işler, sonra güzelce abdest alıp iki rekât namaz kılar ve Allah'tan bağışlanma dilerse Allah onu bağışlar.\u201d Sonra şu ayeti okudu: \u201cÇirkin bir iş yaptıklarında ya da kendilerine zulmettiklerinde Allah'ı hatırlayıp günahlarının bağışlanmasını isterler.\u201d (Âl-i İmrân 135; Ebû Dâvûd, Tirmizî)"},
+
+    {id:"sukur", rk:"2 rekât", ad:"Şükür namazı", kisa:"Bir nimete karşılık", pencere:"",
+     vakit:"Bir nimete kavuşulduğunda ya da bir sıkıntıdan kurtulunduğunda, kerahat vakitleri dışında kılınır.",
+     rekat:"2 rekât (daha fazla da kılınabilir).",
+     kilinis:["İki rekât nafile namaz olarak kılınır.","Niyet: \u201cNiyet ettim Allah rızası için şükür namazı kılmaya.\u201d","Namaz yerine yalnızca kıbleye dönüp tekbir alarak bir secde yapmak da mümkündür; buna şükür secdesi denir."],
+     fazilet:"\u201cEğer şükrederseniz elbette size nimetimi artırırım.\u201d (İbrâhîm 7) Peygamber Efendimiz sevindirici bir haber aldığında şükür secdesine kapanırdı. (Ebû Dâvûd, Tirmizî)"},
+
+    {id:"tesbih", rk:"4 rekât · 300 tesbih", ad:"Tesbih namazı", kisa:"Salâtü't-tesbîh", pencere:"",
+     vakit:"Kerahat vakitleri dışında her zaman kılınabilir. Tek selamla 4 rekât kılınır; gündüz ikişer rekât da kılınabilir.",
+     rekat:"4 rekât; toplam 300 tesbih.",
+     kilinis:["Tesbih: \u201cSübhânallâhi ve'l-hamdü lillâhi ve lâ ilâhe illallâhü vallâhü ekber.\u201d","Her rekâtta 75 kere okunur. Sübhâneke'den sonra (sonraki rekâtlarda Fatiha'dan önce) 15, Fatiha ve zamm-ı sureden sonra 10, rükûda tesbihten sonra 10, rükûdan doğrulunca 10, birinci secdede 10, iki secde arasında 10, ikinci secdede 10.","Sayılar namazda parmaklarla, dile getirmeden takip edilir. Namaz içinde telefona bakmak ya da dokunmak uygun değildir.","Bir yerde sayı unutulursa sonraki yerde tamamlanır."],
+     fazilet:"Peygamber Efendimiz amcası Hz. Abbas'a bu namazı öğretmiş, kılanın küçük büyük, eski yeni günahlarının bağışlanacağını bildirmiş; gücü yeterse her gün, değilse haftada, ayda, yılda, hiç olmazsa ömründe bir kere kılmasını tavsiye etmiştir. (Ebû Dâvûd, İbn Mâce)"}
+  ];
+  // Ziya monogramı: hilal içinde Z ve yıldız
+  var LOGO = '<svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1F6F78"/><stop offset="1" stop-color="#1F2A5C"/></linearGradient></defs><circle cx="24" cy="24" r="23" fill="url(#lg)"/><path d="M31.5 10.5a14 14 0 1 0 0 27 11.2 11.2 0 1 1 0-27z" fill="#F3E6C8" opacity=".18"/><path d="M15.5 16h16l-15 16h16" fill="none" stroke="#F3E6C8" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M35.2 9.6l.9 2.4 2.5.1-2 1.5.7 2.4-2.1-1.4-2.1 1.4.7-2.4-2-1.5 2.5-.1z" fill="#FFD8A8"/></svg>';
+  var BY_ZIYA = '<span class="by"><span class="c">c</span>by Ziya</span>';
   var MILES = [10,25,50,75,90,100];
   var ZIKIRS = [
     {id:"tesbihat", s:"Tesbihat", n:"Namaz tesbihatı", sub:"33 Sübhânallah · 33 Elhamdülillâh · 33 Allâhu ekber", seq:true, g:"Günlük tesbihat", fz:"Her namazın ardından otuz üçer kere Sübhânallah, Elhamdülillâh ve Allâhu ekber diyenin hataları, deniz köpüğü kadar bile olsa bağışlanacağı bildirilmiştir. (Müslim)"},
@@ -576,7 +675,7 @@ var PT = (function(){
     var d = computeDebt(setup), initial = {}, done = {};
     KEYS.forEach(function(x){ initial[x.k]=d; done[x.k]=0; });
     return {v:2, setup:setup, initial:initial, done:done, log:{}, target:1, targetMode:"gun", created:todayIso(),
-            oruc:{initial:0, done:0}, olog:{}, dlog:{}, city:"istanbul", lastBackup:"", setupDone:false, virds:[],
+            oruc:{initial:0, done:0}, olog:{}, dlog:{}, nlog:{}, city:"istanbul", lastBackup:"", setupDone:false, virds:[],
             update:{check:true, lastCheck:"", skip:0},
             vakitRemind:{on:false, offset:30, keys:{sabah:true, ogle:true, ikindi:true, aksam:true, yatsi:true}},
             zikir:{active:"tesbihat", counts:{}, targets:{}, custom:[], log:{}, vibrate:true, volume:true}};
@@ -594,6 +693,7 @@ var PT = (function(){
     s.log = s.log && typeof s.log==="object" ? s.log : {};
     s.olog = s.olog && typeof s.olog==="object" ? s.olog : {};
     s.dlog = s.dlog && typeof s.dlog==="object" ? s.dlog : {};
+    s.nlog = s.nlog && typeof s.nlog==="object" ? s.nlog : {};
     s.targetMode = s.targetMode==="vakit" ? "vakit" : "gun";
     s.target = Number(s.target)>0 ? Math.min(s.targetMode==="vakit" ? 200 : 20, Math.round(Number(s.target))) : 1;
     s.oruc = Object.assign({initial:0, done:0}, s.oruc||{});
@@ -844,9 +944,9 @@ var PT = (function(){
   function vakitStrip(){
     var k = kerahatNow();
     if(k.inside){
-      return '<button class="vakit warn" data-act="go" data-v="rehber"><i class="dot"></i><span><b>Kerahat vakti, kaza kılınmaz</b><br>'+hm(k.win.from)+'–'+hm(k.win.to)+' · '+k.win.why+'</span><span class="r">'+fmtMins(k.mins)+' kaldı</span></button>';
+      return '<button class="vakit warn" data-act="go" data-v="rehber" data-focus="vakitler"><i class="dot"></i><span><b>Kerahat vakti, kaza kılınmaz</b><br>'+hm(k.win.from)+'–'+hm(k.win.to)+' · '+k.win.why+'</span><span class="r">'+fmtMins(k.mins)+' kaldı</span></button>';
     }
-    return '<button class="vakit" data-act="go" data-v="rehber"><i class="dot"></i><span><b>Kaza kılabilirsin</b><br>Sonraki kerahat '+hm(k.win.from)+'</span><span class="r">'+fmtMins(k.mins)+' sonra</span></button>';
+    return '<button class="vakit" data-act="go" data-v="rehber" data-focus="vakitler"><i class="dot"></i><span><b>Kaza kılabilirsin</b><br>Sonraki kerahat '+hm(k.win.from)+'</span><span class="r">'+fmtMins(k.mins)+' sonra</span></button>';
   }
 
   /* ---------- hatırlatma ---------- */
@@ -1494,7 +1594,7 @@ var PT = (function(){
     else if(view==="takip") h = viewTakip();
     else if(view==="istatistik") h = viewStats();
     else if(view==="oturum") h = viewSession();
-    else if(view==="rehber") h = viewGuide();
+    else if(view==="rehber") h = viewRehber();
     else h = viewSettings();
     var y = window.scrollY;
     var openIds = {}; app.querySelectorAll("details[id]").forEach(function(d){ openIds[d.id] = d.open; });
@@ -1526,7 +1626,7 @@ var PT = (function(){
 
   function viewTakip(){
     var s = stats(), h = "";
-    h += '<div class="head"><h1>Kaza takibi</h1><span class="status" id="status" aria-live="polite">'+esc(statusText)+'</span></div>';
+    h += '<div class="head" style="align-items:center"><div class="brand">'+LOGO+'<h1>Kaza Takibi</h1></div>'+BY_ZIYA+'</div>';
     h += '<p class="total num">'+fmtInt(s.totalRem)+'<small>vakit kaldı</small></p>';
     h += '<div class="bigbar" role="progressbar" aria-valuenow="'+s.pct.toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+Math.min(100,s.pct).toFixed(2)+'%"></i></div>';
     h += '<p class="sub num">'+fmtInt(s.totalInit - s.totalRem)+' / '+fmtInt(s.totalInit)+' kılındı, %'+s.pct.toLocaleString("tr-TR",{maximumFractionDigits:1})+'</p>';
@@ -1597,6 +1697,8 @@ var PT = (function(){
     if(oru){ any = true; h += '<span><i class="fill-oruc"></i>Oruç <b class="num">'+oru+'</b></span>'; }
     var zk = Number(state.zikir.log[t])||0;
     if(zk){ any = true; h += '<span><i style="background:var(--accent)"></i>Zikir <b class="num">'+fmtInt(zk)+'</b></span>'; }
+    var nd = state.nlog[t] || {};
+    NAFILE.forEach(function(n){ var c = Number(nd[n.id])||0; if(c){ any = true; h += '<span><i style="background:#9b7fb0"></i>'+n.ad.replace(" namazı","")+(c>1 ? ' <b class="num">'+c+'</b>' : ' <b>✓</b>')+'</span>'; } });
     state.virds.forEach(function(v){ if(v.log[t] && v.log[t].done){ any = true; h += '<span><i style="background:var(--accent)"></i>'+esc(v.name)+' <b>✓</b></span>'; } });
     if(!any) h += '<span class="none">Bugün henüz bir şey işlenmedi. Bir vakit kaza kılınca burada görünür.</span>';
     h += '</div>';
@@ -1832,6 +1934,75 @@ var PT = (function(){
     return h;
   }
 
+  var rTab = "nafile", nOpen = null;
+  function nafileById(id){ for(var i=0;i<NAFILE.length;i++) if(NAFILE[i].id===id) return NAFILE[i]; return null; }
+  function nCount(id){ var d = state.nlog[todayIso()] || {}; return Number(d[id])||0; }
+  function nAdd(id, n){
+    var t = todayIso(), d = state.nlog[t] || {};
+    d[id] = Math.max(0, (Number(d[id])||0) + n);
+    if(!d[id]) delete d[id];
+    if(Object.keys(d).length) state.nlog[t] = d; else delete state.nlog[t];
+    persist(); render();
+  }
+  function nPencere(key){
+    if(!key) return null;
+    var now = new Date(), t = dayTimes(now), M = 60000, from, to, ad;
+    if(key==="gece"){
+      var yarin = new Date(now); yarin.setDate(yarin.getDate()+1);
+      var dun = new Date(now); dun.setDate(dun.getDate()-1);
+      var isha = now < t.fajr ? dayTimes(dun).isha : t.isha;
+      var fajr = now < t.fajr ? t.fajr : dayTimes(yarin).fajr;
+      var gece = fajr - isha;
+      from = new Date(+fajr - gece/3); to = fajr; ad = "gecenin son üçte biri";
+      if(now >= isha && now < from) return {simdi:false, metin:"En faziletli vakit "+hm(from)+"–"+hm(to)};
+    }
+    else if(key==="israk"){ from = new Date(+t.sunrise + 45*M); to = new Date(+t.sunrise + 90*M); }
+    else if(key==="kusluk"){ from = new Date(+t.sunrise + 45*M); to = new Date(+t.dhuhr - 45*M); }
+    else if(key==="evvabin"){ from = new Date(+t.sunset + 10*M); to = t.isha; }
+    else return null;
+    var simdi = now >= from && now < to;
+    return {simdi:simdi, metin:(simdi ? "Şu an vakti · " : "Vakti ")+hm(from)+"–"+hm(to)};
+  }
+  function viewRehber(){
+    var h = '<div class="seg" role="group" aria-label="Rehber" style="margin-bottom:6px"><button data-act="rtab" data-m="nafile" aria-pressed="'+(rTab==="nafile")+'">Nafile namazlar</button><button data-act="rtab" data-m="kaza" aria-pressed="'+(rTab==="kaza")+'">Vakitler ve kaza</button></div>';
+    if(rTab==="kaza") return h + viewGuide();
+    if(nOpen){ var n = nafileById(nOpen); if(n) return h + viewNafileDetay(n); nOpen = null; }
+    return h + viewNafileListe();
+  }
+  function viewNafileListe(){
+    var h = '<p class="small" style="margin:10px 0 2px">Gün içinde kılınan nafile namazlar, kılınışları ve faziletleri. Kıldığını işaretlersen Takip ekranındaki bugün listesinde görünür.</p>';
+    var gruplar = [["Vakte bağlı olanlar", ["teheccud","israk","kusluk","evvabin"]],
+                   ["Her zaman kılınabilenler", ["tahiyyat","abdest","tesbih"]],
+                   ["Bir sebebe bağlı olanlar", ["hacet","istihare","tevbe","sukur"]]];
+    gruplar.forEach(function(g){
+      h += '<h2 style="font-size:.92rem; color:var(--muted); margin:18px 0 2px">'+g[0]+'</h2>';
+      g[1].forEach(function(id){
+        var n = nafileById(id), c = nCount(id), pw = nPencere(n.pencere);
+        var rozet = c ? '<span class="badge ok">✓ '+(c>1 ? c+' kez' : 'kılındı')+'</span>' : (pw && pw.simdi ? '<span class="badge now">Vakti</span>' : '');
+        h += '<button class="ncard" data-act="nopen" data-n="'+n.id+'"><span class="nh"><b>'+n.ad+'</b>'+rozet+'</span><span class="ns">'+n.kisa+' · '+n.rk+(pw ? ' · '+pw.metin : '')+'</span></button>';
+      });
+    });
+    h += '<div class="panel" style="margin-top:18px"><p class="small" style="margin:0">Nafile namazlar kerahat vakitlerinde kılınmaz; sabah namazından sonra güneş doğana kadar ve ikindiden sonra akşama kadar da nafile kılınmaz. Kaza borcu olanların önce kazaya öncelik vermesi tavsiye edilir; farzlarla birlikte kılınan sünnetler ise terk edilmemelidir. Bilgiler Hanefî mezhebine göredir.</p></div>';
+    return h;
+  }
+  function viewNafileDetay(n){
+    var c = nCount(n.id), pw = nPencere(n.pencere), h = "";
+    h += '<button class="link" data-act="nback" style="border:0;background:none;padding:0;margin-top:12px;color:var(--muted);font-weight:600">‹ Nafile namazlar</button>';
+    h += '<h2 style="margin:10px 0 2px">'+n.ad+'</h2><p class="sub" style="margin:0">'+n.kisa+'</p>';
+    if(pw) h += '<div class="vakit'+(pw.simdi?'':' warn')+'" style="width:100%"><i class="dot"></i><span><b>'+(pw.simdi ? "Şu an vakti" : "Şu an vakti değil")+'</b><br>'+pw.metin.replace("Şu an vakti · ","").replace("Vakti ","")+'</span></div>';
+    h += '<div class="nsec"><h3>Ne zaman</h3><p>'+n.vakit+'</p></div>';
+    h += '<div class="nsec"><h3>Kaç rekât</h3><p>'+n.rekat+'</p></div>';
+    h += '<div class="nsec"><h3>Nasıl kılınır</h3><ol>'+n.kilinis.map(function(x){ return '<li>'+x+'</li>'; }).join("")+'</ol></div>';
+    if(n.dua){
+      h += '<div class="nsec"><h3>'+n.dua.baslik+'</h3><p style="font-style:italic">'+n.dua.tr+'</p>';
+      h += '<details id="nDua"><summary style="padding:8px 0 0; font-size:.88rem; color:var(--muted)">Anlamı</summary><p class="meal">'+n.dua.anlam+'</p></details></div>';
+    }
+    h += '<div class="nsec"><h3>Fazileti</h3><div class="fz">'+n.fazilet+'</div></div>';
+    h += '<div class="panel" style="margin-top:16px; text-align:center">';
+    h += c ? '<p style="margin:0 0 8px; font-weight:700">Bugün '+(c>1 ? c+' kez ' : '')+'kıldın. Allah kabul etsin.</p>' : '<p class="small" style="margin:0 0 8px">Kıldıktan sonra işaretle, bugünkü listende görünsün.</p>';
+    h += '<div class="two"><button class="act" data-act="nminus"'+(c?'':' disabled')+'>Geri al</button><button class="act fill" data-act="nplus">Kıldım</button></div></div>';
+    return h;
+  }
   function viewGuide(){
     var c = cityById(state.city), now = new Date(), t = dayTimes(now), w = kerahatWindows(now), h = "";
     var rows = [["İmsak",t.fajr],["Güneş",t.sunrise],["Öğle",t.dhuhr],["İkindi",t.asr],["Akşam",t.sunset],["Yatsı",t.isha]];
@@ -1987,7 +2158,9 @@ var PT = (function(){
 
     h += '<button class="act" data-act="setup" style="margin-top:18px">Kurulum ekranını yeniden aç</button>';
     h += '<button class="act danger'+(armed?' armed':'')+'" data-act="reset" style="margin-top:10px">'+(armed?'Emin misin? Tekrar dokun':'Kılınanları sıfırla')+'</button>';
-    h += '<p class="small">Veriler bu telefonda saklanır. Uygulamayı silmeden önce yedek al.</p>';
+    h += '<p class="small">Veriler bu telefonda saklanır ('+esc(statusText)+'). Uygulamayı silmeden önce yedek al.</p>';
+    var surum = appVer();
+    h += '<div class="about">'+LOGO+'<div><b>Kaza Takibi'+(surum.name ? ' '+esc(surum.name) : '')+'</b><span>© 2026 Ziya · Kendi ibadetlerimi takip etmek için yaptım.</span></div></div>';
     return h;
   }
 
@@ -2007,6 +2180,7 @@ var PT = (function(){
   /* ---------- olaylar ---------- */
   var focusAfter = null;
   function go(v, focusId){
+    if(v==="rehber" && view!=="rehber" && focusId==="vakitler"){ rTab = "kaza"; focusId = null; }
     if(v===view && !focusId){ window.scrollTo(0,0); return; }
     view = v; focusAfter = focusId || null; importError = "";
     render(); window.scrollTo(0,0);
@@ -2073,6 +2247,11 @@ var PT = (function(){
       case "updgo": if(upd){ updState = {durum:"indiriliyor", pct:0, mesaj:""}; render(); nat("downloadUpdate", upd.apk); } break;
       case "updskip": if(upd){ state.update.skip = Number(upd.code)||0; upd = null; updState = null; persist(); render(); toast("Bu sürüm atlandı"); } break;
       case "updcheck": toast("Kontrol ediliyor…"); checkUpdate(true); break;
+      case "rtab": rTab = b.getAttribute("data-m"); nOpen = null; render(); window.scrollTo(0,0); break;
+      case "nopen": nOpen = b.getAttribute("data-n"); render(); window.scrollTo(0,0); break;
+      case "nback": nOpen = null; render(); window.scrollTo(0,0); break;
+      case "nplus": if(nOpen){ nAdd(nOpen, 1); buzz([40,40,40]); toast("Allah kabul etsin"); } break;
+      case "nminus": if(nOpen) nAdd(nOpen, -1); break;
       case "hideInstall": installHidden = true; try{ localStorage.setItem("kaza-kurulum-ipucu","1"); }catch(e){} render(); break;
       case "ztab": zTab = b.getAttribute("data-m"); zArmed = false; vArmed = false; zLib = false; render(); window.scrollTo(0,0); break;
       case "vopen": vOpen = b.getAttribute("data-v"); vArmed = false; render(); window.scrollTo(0,0); break;
@@ -2203,6 +2382,7 @@ var PT = (function(){
       return false;
     }
     if(view==="kazaoturum"){ go("takip"); return true; }
+    if(view==="rehber" && nOpen){ nOpen = null; render(); return true; }
     if(view==="oturum" && zTab==="zikir" && zLib){ zLib = false; render(); return true; }
     if(view==="oturum" && zTab==="vird" && (vOpen || vForm)){ vOpen = null; vForm = null; render(); return true; }
     if(view!=="takip"){ go("takip"); return true; }

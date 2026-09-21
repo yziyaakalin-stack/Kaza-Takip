@@ -1,8 +1,10 @@
 # Kaza Takibi (Android)
 
+© 2026 Ziya
+
 Kaza namazı ve oruç takip uygulaması. İnternet izni istemez, kayıtlar telefonda saklanır.
 
-## Özellikler (2.3)
+## Özellikler (2.5)
 - İlk açılışta kurulum: cinsiyet, başlangıç ve bitiş tarihi, hayız/lohusalık (yalnızca kadınlarda), vitir, hedef, şehir, önceden kılınanlar, oruç borcu
 - Bugün kılınanlar dökümü (hangi vakitten kaç tane, oruç, zikir, vird)
 - Vakit vakit kaza sayaçları, "1 günlük kaza kıldım" butonu, oruç kazası sayacı
@@ -19,6 +21,7 @@ Kaza namazı ve oruç takip uygulaması. İnternet izni istemez, kayıtlar telef
 - İstatistik: seri, haftalık/aylık toplamlar, son 14 gün, son 12 ay, aşamalar
 - Günlük hatırlatma: hedef tamamlandıysa bildirim gelmez
 - Yedekleme: dosyaya kaydet, paylaş, dosyadan ya da metinden geri yükle
+- Nafile namazlar: teheccüd, işrak, kuşluk, evvâbîn, tahiyyetü'l-mescid, abdest, tesbih, hacet, istihare, tevbe, şükür; vakit, kılınış, dua ve fazilet; kıldım işareti
 - Rehber: kılınış, niyet, kerahat vakitleri, sıra, kolaylıklar, oruç kazası
 
 ## iPhone (web uygulaması)
