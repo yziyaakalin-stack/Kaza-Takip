@@ -596,6 +596,16 @@ var PT = (function(){
      bilgi:"Sabah namazından hemen sonra, kimseyle konuşmadan 100 kere okunur, ardından dilekte bulunulur. Cübbeli Ahmet Hocaefendi’nin sohbetlerinde anlatılmıştır.",
      fz:"Bu duanın belirli bir sonucunu bildiren sahih bir hadis yoktur; âlimlerin tavsiye ettiği bir virddir. İçindeki havkale «cennet hazinelerinden bir hazine»dir (Buhârî, Müslim). «En güzel isimler Allah’ındır; O’na onlarla dua edin.» (A’râf 180) Peygamber Efendimiz «Yâ Ze’l-celâli ve’l-ikrâm ile duaya devam edin» buyurmuştur. (Tirmizî)"},
 
+    {id:"verzuk", s:"Verzuk ehlehû", n:"Verzuk ehlehû mine’s-semerât", t:33, g:"Dua ve dilek",
+     ar:"وَارْزُقْ أَهْلَهُ مِنَ الثَّمَرَاتِ",
+     note:"Ve oranın halkını çeşitli ürünlerle rızıklandır.",
+     bilgi:"Teheccüd vaktinde kalkılıp 33 kere okunur, ardından aşağıdaki dua yapılır ve kalpten geçenler Allah’tan istenir. Abdullah Yuyucu Hoca’nın tavsiyesidir.",
+     dua:{baslik:"Ardından yapılacak dua (Bakara 126)",
+          ar:"رَبِّ اجْعَلْ هٰذَا بَلَدًا آمِنًا وَارْزُقْ أَهْلَهُ مِنَ الثَّمَرَاتِ مَنْ آمَنَ مِنْهُمْ بِاللّٰهِ وَالْيَوْمِ الْآخِرِ",
+          tr:"Rabbi’c’al hâzâ beleden âminen verzuk ehlehû mine’s-semerâti men âmene minhüm billâhi ve’l-yevmi’l-âhir.",
+          anlam:"Rabbim! Burayı güvenli bir belde kıl ve halkından Allah’a ve âhiret gününe iman edenleri çeşitli ürünlerle rızıklandır."},
+     fz:"Bu, Hz. İbrâhim’in Mekke ve halkı için yaptığı duadır; Allah bu duayı kabul etmiş, Mekke’ye her yerden ürünler gelir olmuştur: «Katımızdan bir rızık olarak her şeyin ürünlerinin oraya toplandığı güvenli bir yer vermedik mi?» (Kasas 57) Gecenin son üçte birinde dua edenin duasının kabul edileceği bildirilmiştir: «Rabbimiz her gece, gecenin son üçte biri kaldığında ‘Bana dua eden yok mu, duasını kabul edeyim; benden isteyen yok mu, ona vereyim’ buyurur.» (Buhârî, Müslim) 33 kere okunmasının belirli bir sonucunu bildiren bir hadis yoktur; bu, hocaların tavsiye ettiği bir virddir."},
+
     {id:"serbest", s:"Serbest", n:"Serbest sayaç", t:0, g:"Diğer"}
   ];
   var ZGRUPLAR = ["Günlük tesbihat","Salavâtlar","Tevbe ve istiğfar","Sıkıntı ve korunma","Dua ve dilek","Esmâ-i şerîfe","Diğer"];
@@ -1561,7 +1571,7 @@ var PT = (function(){
           if(z && (z.tr || (z.n && z.n!==z.s))) h += '<p class="zsub" style="line-height:1.5">'+esc(z.tr || z.n)+'</p>';
           if(z && z.sub) h += '<p class="zsub">'+esc(z.sub)+'</p>';
           if(!z && st.name) h += '<p class="zsub" style="line-height:1.5">'+esc(st.name)+'</p>';
-          if(z) h += zAnlamHtml(z, "v"+si);
+          if(z) h += zAnlamHtml(z, "v"+si) + zDuaHtml(z);
           if(simdi){
             var pct = c/st.count*100, asama = "";
             if(z && z.seq) asama = SEQ[Math.min(2, Math.floor(c/33))][0];
@@ -1900,6 +1910,14 @@ var PT = (function(){
     var r = (state.zikir.recent||[]).filter(function(x){ return x!==id; });
     r.unshift(id); state.zikir.recent = r.slice(0,8);
   }
+  function zDuaHtml(z){
+    if(!z.dua) return "";
+    var h = '<div class="step" style="margin-top:12px; text-align:left"><div class="sh" style="font-size:.92rem">'+esc(z.dua.baslik)+'</div>';
+    if(z.dua.ar) h += '<p class="arabic" style="font-size:1.25rem; line-height:1.9; margin-top:10px">'+z.dua.ar+'</p>';
+    if(z.dua.tr) h += '<p class="trans" style="color:var(--muted); font-size:.92rem">'+esc(z.dua.tr)+'</p>';
+    if(z.dua.anlam) h += '<p class="meal" style="margin-top:8px"><b>Anlamı:</b> '+esc(z.dua.anlam)+'</p>';
+    return h + '</div>';
+  }
   function zAnlamHtml(z, ek){
     if(!z.note && !z.fz && !z.bilgi) return "";
     var h = '<details id="zNot'+(ek||"")+'"><summary style="padding:8px 0 0; text-align:center; font-size:.85rem; color:var(--muted)">Anlamı ve fazileti</summary>';
@@ -1944,6 +1962,7 @@ var PT = (function(){
       h += '<p class="zname">'+name+'</p>';
       h += '<div class="stages">'+SEQ.map(function(x,i){ return '<span class="'+(i===stage?"on":(i<stage?"ok":""))+'">'+x[0]+'</span>'; }).join("")+'</div>';
       h += zAnlamHtml(z);
+      h += zDuaHtml(z);
     } else {
       var T = zTarget(z);
       if(T>0){ var rd = Math.floor(n/T); big = n - rd*T; of = "/ "+fmtInt(T); pct = big/T*100; if(rd) tur = rd + ". tur tamam"; }
@@ -1953,6 +1972,7 @@ var PT = (function(){
       if(z.ar) h += '<p class="arabic" style="text-align:center; font-size:1.3rem; line-height:1.9">'+z.ar+'</p>';
       if(z.tr) h += '<p class="zsub" style="line-height:1.5">'+esc(z.tr)+'</p>';
       h += zAnlamHtml(z);
+      h += zDuaHtml(z);
     }
     h += '<button class="zbtn" data-act="ztap" style="--p:'+pct.toFixed(1)+'%" aria-label="'+esc(name)+', '+big+' sayıldı. Saymak için dokun"><span class="in"><b class="num">'+fmtInt(big)+'</b><small>'+of+'</small><em>'+tur+'</em></span></button>';
     var t = todayIso(), today = Number(zk.log[t])||0;
