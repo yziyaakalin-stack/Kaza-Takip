@@ -37,10 +37,6 @@ jobs:
             --title "Kaza Takibi $VN" \
             --notes "$NOTES"
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: KazaTakibi-apk
-          path: KazaTakibi.apk
 
   # iPhone ve tarayıcı için aynı arayüz GitHub Pages'te yayınlanır
   web-hazirla:
