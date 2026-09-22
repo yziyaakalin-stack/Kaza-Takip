@@ -125,6 +125,8 @@ h2:first-child{margin-top:4px}
 .bars span.met{background:var(--accent)}
 .bars span.part{background:var(--line); background:color-mix(in srgb, var(--accent) 45%, var(--soft))}
 .bars em{font-style:normal; font-size:.62rem; color:var(--muted); white-space:nowrap}
+.bars b{font-size:.62rem; font-weight:700; color:var(--ink); line-height:1; white-space:nowrap; font-variant-numeric:tabular-nums}
+.bars.etiketli{height:94px}
 .eta{margin-top:12px; font-size:.9rem; color:var(--muted)}
 .eta b{color:var(--ink)}
 
@@ -476,7 +478,7 @@ var PT = (function(){
      fazilet:"\u201cSabah namazını cemaatle kılıp güneş doğuncaya kadar oturup Allah'ı zikreden, sonra iki rekât namaz kılan kimseye tam bir hac ve umre sevabı vardır.\u201d (Tirmizî)"},
 
     {id:"kusluk", rk:"2–12 rekât", ad:"Kuşluk namazı", kisa:"Duhâ", pencere:"kusluk",
-     vakit:"Güneş yükseldikten (doğuştan ~45 dk sonra) öğle vaktine yaklaşık 45 dakika kalana kadar kılınır. En faziletlisi günün dörtte biri geçtikten sonradır.",
+     vakit:"Güneş yükseldikten (doğuştan ~45 dk sonra) öğle vaktine yaklaşık 10 dakika kalana kadar kılınır. En faziletlisi günün dörtte biri geçtikten sonradır.",
      rekat:"En az 2, en çok 12 rekât. Genelde 4 ya da 8 rekât kılınır.",
      kilinis:["İkişer ya da dörder rekât olarak kılınabilir.","Niyet: \u201cNiyet ettim Allah rızası için kuşluk namazı kılmaya.\u201d","Öğleye yakın istiva (kerahat) vaktine girmeden bitirilmelidir."],
      fazilet:"\u201cSizden birinizin her bir eklemi için sadaka vermesi gerekir. Her tesbih, her hamd, her tehlil bir sadakadır. Bütün bunlara kuşluk vaktinde kılınan iki rekât namaz yeter.\u201d (Müslim)"},
@@ -631,7 +633,8 @@ var PT = (function(){
     {key:"serbest", name:"Kendi virdim", days:40, window:"serbest", dua:false, steps:[], note:""}
   ];
   var LS_KEY = "kaza-takip-v1", LS_SESS = "kaza-oturum-v1";
-  var KERAHAT_MIN = 45;
+  // Diyanet (Din İşleri Yüksek Kurulu): güneş doğduktan 40-50 dk, öğleye ~10 dk kala, akşama 40-50 dk kala
+  var KERAHAT_MIN = 45, KERAHAT_OGLE_MIN = 10;
 
   var app = document.getElementById("app");
   var tabs = document.getElementById("tabs");
@@ -953,7 +956,7 @@ var PT = (function(){
     var t = dayTimes(date), M = 60000;
     return [
       {from:t.sunrise, to:new Date(+t.sunrise + KERAHAT_MIN*M), why:"Güneş doğuyor"},
-      {from:new Date(+t.dhuhr - KERAHAT_MIN*M), to:t.dhuhr, why:"Güneş tepede (istiva)"},
+      {from:new Date(+t.dhuhr - KERAHAT_OGLE_MIN*M), to:t.dhuhr, why:"Güneş tepede (istiva)"},
       {from:new Date(+t.sunset - KERAHAT_MIN*M), to:t.sunset, why:"Güneş batıyor"}
     ];
   }
@@ -1846,13 +1849,13 @@ var PT = (function(){
     // son 14 gün
     var max = s.targetUnits || 1, days = [];
     for(var j=13;j>=0;j--){ var dd = shiftIso(t,-j); var vv = Number(state.log[dd])||0; days.push([dd,vv]); if(vv>max) max=vv; }
-    h += '<h2>Son 14 gün</h2><div class="panel"><div class="bars">';
+    h += '<h2>Son 14 gün</h2><div class="panel"><div class="bars etiketli">';
     days.forEach(function(p){
       var ht = p[1] ? Math.max(4, p[1]/max*58) : 2;
       var c = !p[1] ? "zero" : (metOn(p[0],s.targetUnits) ? "met" : "part");
-      h += '<div title="'+fmtDate(p[0])+': '+p[1]+' vakit"><span class="'+c+'" style="height:'+ht.toFixed(0)+'px"></span><em>'+(+p[0].slice(8))+'</em></div>';
+      h += '<div title="'+fmtDate(p[0])+': '+p[1]+' vakit"><b>'+(p[1] ? p[1] : '')+'</b><span class="'+c+'" style="height:'+ht.toFixed(0)+'px"></span><em>'+(+p[0].slice(8))+'</em></div>';
     });
-    h += '</div><p class="small">Koyu sütunlar hedefin tutulduğu günler.</p></div>';
+    h += '</div><p class="small">Sütunların üstündeki sayı o gün kılınan vakit. Koyu sütunlar hedefin tutulduğu günler.</p></div>';
 
     // aylık
     var months = [], mmax = 1, base = new Date(); base.setDate(1);
@@ -1862,10 +1865,10 @@ var PT = (function(){
       var sum = sumLog(state.log, function(d){ return d.slice(0,7)===key; });
       months.push([md.getMonth(), sum]); if(sum>mmax) mmax=sum;
     }
-    h += '<h2>Son 12 ay</h2><div class="panel"><div class="bars">';
+    h += '<h2>Son 12 ay</h2><div class="panel"><div class="bars etiketli">';
     months.forEach(function(p){
       var ht = p[1] ? Math.max(4, p[1]/mmax*58) : 2;
-      h += '<div title="'+MONTHS[p[0]]+': '+p[1]+' vakit"><span class="'+(p[1]?'met':'zero')+'" style="height:'+ht.toFixed(0)+'px"></span><em>'+MON3[p[0]]+'</em></div>';
+      h += '<div title="'+MONTHS[p[0]]+': '+p[1]+' vakit"><b>'+(p[1] ? (p[1] >= 1000 ? (p[1]/1000).toLocaleString("tr-TR",{maximumFractionDigits:1})+"b" : p[1]) : '')+'</b><span class="'+(p[1]?'met':'zero')+'" style="height:'+ht.toFixed(0)+'px"></span><em>'+MON3[p[0]]+'</em></div>';
     });
     h += '</div>';
     if(allSum) h += '<p class="small">En yüksek ay: '+fmtInt(mmax)+' vakit</p>';
@@ -2081,7 +2084,7 @@ var PT = (function(){
       if(now >= isha && now < from) return {simdi:false, metin:"En faziletli vakit "+hm(from)+"–"+hm(to)};
     }
     else if(key==="israk"){ from = new Date(+t.sunrise + 45*M); to = new Date(+t.sunrise + 90*M); }
-    else if(key==="kusluk"){ from = new Date(+t.sunrise + 45*M); to = new Date(+t.dhuhr - 45*M); }
+    else if(key==="kusluk"){ from = new Date(+t.sunrise + 45*M); to = new Date(+t.dhuhr - KERAHAT_OGLE_MIN*M); }
     else if(key==="evvabin"){ from = new Date(+t.sunset + 10*M); to = t.isha; }
     else return null;
     var simdi = now >= from && now < to;
@@ -2155,7 +2158,7 @@ var PT = (function(){
 
     h += '<details id="g3" class="prose"><summary>Ne zaman kılınır</summary><div class="set">';
     h += '<p>Kerahat vakitleri dışında her zaman kılınabilir. Kerahat vakitleri üçtür:</p><ul>';
-    h += '<li>Güneş doğarken, yaklaşık 45 dakika</li><li>Güneş tam tepedeyken, öğle ezanından önceki süre</li><li>Güneş batarken, akşam ezanından önceki yaklaşık 45 dakika</li></ul>';
+    h += '<li>Güneş doğduktan sonra yaklaşık 40-50 dakika</li><li>Güneş tam tepedeyken, öğle ezanından önceki yaklaşık 10 dakika</li><li>Güneş batarken, akşam ezanından önceki yaklaşık 40-50 dakika</li></ul><p class="small">Kaynak: Diyanet İşleri Başkanlığı Din İşleri Yüksek Kurulu.</p>';
     h += '<p>Sabah namazından sonra güneş doğana kadar ve ikindiden sonra güneş sararana kadar <b>kaza kılmak caizdir</b>; bu vakitlerde mekruh olan nafile namazdır.</p></div></details>';
 
     h += '<details id="g4" class="prose"><summary>Sıra gerekir mi</summary><div class="set">';
