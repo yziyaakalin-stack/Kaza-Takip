@@ -202,6 +202,30 @@ h2:first-child{margin-top:4px}
 .queue i.sk{background:var(--line)}
 .queue i.cur{background:transparent; outline:2px solid var(--accent); outline-offset:-2px}
 
+/* Özel günler */
+.gnext{background:linear-gradient(135deg,#1F2A5C,#1F6F78); color:#F3E6C8; border:0; border-radius:16px; padding:16px; margin-top:12px; width:100%; text-align:left; display:block}
+.gnext .gl{font-size:.78rem; opacity:.85; font-weight:700; letter-spacing:.02em}
+.gnext .ga{font-size:1.3rem; font-weight:800; margin:4px 0 2px; color:#fff}
+.gnext .gd{font-size:.86rem; opacity:.9}
+.gnext .gc{display:flex; align-items:baseline; gap:6px; margin-top:10px}
+.gnext .gc b{font-size:2.4rem; font-weight:800; line-height:1; color:#fff}
+.gnext .gc span{font-size:.95rem}
+.grow{display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-top:8px}
+.grow b{display:block; font-size:.98rem}
+.grow .gs{display:block; font-size:.8rem; color:var(--muted); margin-top:2px}
+.grow .gk{text-align:right; white-space:nowrap}
+.grow .gk strong{display:block; font-size:1.2rem; font-weight:800; line-height:1.1}
+.grow .gk span{font-size:.72rem; color:var(--muted)}
+.tchip{display:inline-block; font-size:.66rem; font-weight:700; border-radius:8px; padding:2px 7px; margin-right:6px; vertical-align:1px; background:var(--soft); color:var(--muted)}
+.tchip.Kandil{background:#efe3c8; color:#7a5a1a}
+.tchip.Bayram{background:var(--ok-soft); color:var(--accent)}
+.tchip.simdi{background:var(--accent); color:var(--accent-ink)}
+:root[data-theme="dark"] .tchip.Kandil{background:#3a3222; color:#e6c98a}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .tchip.Kandil{background:#3a3222; color:#e6c98a} }
+.gtakip{display:flex; align-items:center; gap:10px; width:100%; margin-top:10px; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--surface); text-align:left; font-size:.88rem}
+.gtakip b{font-weight:700}
+.gtakip .r{margin-left:auto; color:var(--muted); white-space:nowrap; font-size:.8rem}
+
 /* Nafile */
 .ncard{display:block; width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:13px 14px; margin-top:8px}
 .ncard .nh{display:flex; justify-content:space-between; align-items:center; gap:10px}
@@ -245,6 +269,7 @@ h2:first-child{margin-top:4px}
 
 /* Vird */
 .seg.three{grid-template-columns:1fr 1fr 1fr}
+.seg.three button{font-size:.86rem; padding:9px 4px; white-space:nowrap}
 .vcard{display:block; width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:10px}
 .vcard .vh{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
 .vcard b{font-size:1.02rem}
@@ -538,6 +563,108 @@ var PT = (function(){
   // Ziya monogramı: hilal içinde Z ve yıldız
   var LOGO = '<svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1F6F78"/><stop offset="1" stop-color="#1F2A5C"/></linearGradient></defs><circle cx="24" cy="24" r="23" fill="url(#lg)"/><path d="M31.5 10.5a14 14 0 1 0 0 27 11.2 11.2 0 1 1 0-27z" fill="#F3E6C8" opacity=".18"/><path d="M15.5 16h16l-15 16h16" fill="none" stroke="#F3E6C8" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M35.2 9.6l.9 2.4 2.5.1-2 1.5.7 2.4-2.1-1.4-2.1 1.4.7-2.4-2-1.5 2.5-.1z" fill="#FFD8A8"/></svg>';
   var BY_ZIYA = '<span class="by"><span class="c">c</span>by Ziya</span>';
+  // Kaynak: Diyanet İşleri Başkanlığı Vakit Hesaplama, 2026 ve 2027 dini günler listeleri.
+  // 2028 satırları Diyanet listesi okunamadığı için iki ayrı takvimden karşılaştırılarak eklendi (t:1 = tahmini).
+  // gece:1 → o günün akşamı başlar (kandil geceleri).
+  var OZEL_GUNLER = [
+    {d:"2026-12-10", k:"ucaylar", ad:"Üç Ayların Başlangıcı", h:"1 Receb 1448", tur:"Mübarek dönem"},
+    {d:"2026-12-10", k:"regaib", ad:"Regaib Kandili", h:"1 Receb 1448", tur:"Kandil", gece:1},
+    {d:"2027-01-04", k:"mirac", ad:"Miraç Kandili", h:"26 Receb 1448", tur:"Kandil", gece:1},
+    {d:"2027-01-22", k:"berat", ad:"Berat Kandili", h:"14 Şaban 1448", tur:"Kandil", gece:1},
+    {d:"2027-02-08", e:"2027-03-08", k:"ramazan", ad:"Ramazan-ı Şerif", h:"1 Ramazan 1448", tur:"Mübarek dönem"},
+    {d:"2027-02-27", e:"2027-03-08", k:"sonon", ad:"Ramazan’ın Son On Günü", h:"20 Ramazan 1448", tur:"Mübarek dönem"},
+    {d:"2027-03-05", k:"kadir", ad:"Kadir Gecesi", h:"26 Ramazan 1448", tur:"Kandil", gece:1},
+    {d:"2027-03-08", k:"arefe_r", ad:"Ramazan Bayramı Arefesi", h:"29 Ramazan 1448", tur:"Mübarek gün"},
+    {d:"2027-03-09", e:"2027-03-11", k:"rbayram", ad:"Ramazan Bayramı", h:"1 Şevval 1448", tur:"Bayram"},
+    {d:"2027-05-07", e:"2027-05-15", k:"zilhicce", ad:"Zilhicce’nin İlk On Günü", h:"1 Zilhicce 1448", tur:"Mübarek dönem"},
+    {d:"2027-05-15", k:"arefe_k", ad:"Kurban Bayramı Arefesi", h:"9 Zilhicce 1448", tur:"Mübarek gün"},
+    {d:"2027-05-16", e:"2027-05-19", k:"kbayram", ad:"Kurban Bayramı", h:"10 Zilhicce 1448", tur:"Bayram"},
+    {d:"2027-06-06", k:"hicri", ad:"Hicri Yılbaşı", h:"1 Muharrem 1449", tur:"Mübarek gün"},
+    {d:"2027-06-15", k:"asure", ad:"Aşure Günü", h:"10 Muharrem 1449", tur:"Mübarek gün"},
+    {d:"2027-08-13", k:"mevlid", ad:"Mevlid Kandili", h:"11 Rebîülevvel 1449", tur:"Kandil", gece:1},
+    {d:"2027-11-29", k:"ucaylar", ad:"Üç Ayların Başlangıcı", h:"1 Receb 1449", tur:"Mübarek dönem"},
+    {d:"2027-12-02", k:"regaib", ad:"Regaib Kandili", h:"4 Receb 1449", tur:"Kandil", gece:1},
+    {d:"2027-12-24", k:"mirac", ad:"Miraç Kandili", h:"26 Receb 1449", tur:"Kandil", gece:1},
+    {d:"2028-01-11", k:"berat", ad:"Berat Kandili", h:"14 Şaban 1449", tur:"Kandil", gece:1, t:1},
+    {d:"2028-01-28", e:"2028-02-25", k:"ramazan", ad:"Ramazan-ı Şerif", h:"1 Ramazan 1449", tur:"Mübarek dönem", t:1},
+    {d:"2028-02-16", e:"2028-02-25", k:"sonon", ad:"Ramazan’ın Son On Günü", h:"20 Ramazan 1449", tur:"Mübarek dönem", t:1},
+    {d:"2028-02-22", k:"kadir", ad:"Kadir Gecesi", h:"26 Ramazan 1449", tur:"Kandil", gece:1, t:1},
+    {d:"2028-02-25", k:"arefe_r", ad:"Ramazan Bayramı Arefesi", h:"29 Ramazan 1449", tur:"Mübarek gün", t:1},
+    {d:"2028-02-26", e:"2028-02-28", k:"rbayram", ad:"Ramazan Bayramı", h:"1 Şevval 1449", tur:"Bayram", t:1},
+    {d:"2028-04-26", e:"2028-05-04", k:"zilhicce", ad:"Zilhicce’nin İlk On Günü", h:"1 Zilhicce 1449", tur:"Mübarek dönem", t:1},
+    {d:"2028-05-04", k:"arefe_k", ad:"Kurban Bayramı Arefesi", h:"9 Zilhicce 1449", tur:"Mübarek gün", t:1},
+    {d:"2028-05-05", e:"2028-05-08", k:"kbayram", ad:"Kurban Bayramı", h:"10 Zilhicce 1449", tur:"Bayram", t:1},
+    {d:"2028-05-25", k:"hicri", ad:"Hicri Yılbaşı", h:"1 Muharrem 1450", tur:"Mübarek gün", t:1},
+    {d:"2028-06-03", k:"asure", ad:"Aşure Günü", h:"10 Muharrem 1450", tur:"Mübarek gün", t:1},
+    {d:"2028-08-02", k:"mevlid", ad:"Mevlid Kandili", h:"11 Rebîülevvel 1450", tur:"Kandil", gece:1, t:1}
+  ];
+
+  var GUN_ICERIK = {
+    ucaylar:{ozet:"Receb, Şaban ve Ramazan aylarından oluşan, Ramazan’a hazırlık dönemi.",
+      ibadet:["Tevbe ve istiğfarı artırmak, Ramazan’a manevi olarak hazırlanmak","Receb ve Şaban’da nafile oruç tutmak (Peygamber Efendimiz Şaban’da çokça oruç tutardı)","Kaza borcu olanlar için namaz ve oruç kazasını hızlandırmak","Kur’an okumayı ve sadakayı artırmak"],
+      dua:{baslik:"Üç aylar duası", ar:"اَللّٰهُمَّ بَارِكْ لَنَا فِي رَجَبَ وَشَعْبَانَ وَبَلِّغْنَا رَمَضَانَ", tr:"Allâhümme bârik lenâ fî Recebe ve Şa’bâne ve belliğnâ Ramazân.", anlam:"Allah’ım! Receb ve Şaban’ı bize mübarek kıl ve bizi Ramazan’a ulaştır."},
+      kaynak:"Peygamber Efendimizin Şaban ayında Ramazan dışındaki aylardan daha çok oruç tuttuğu bildirilmiştir. (Buhârî, Müslim) Üç aylar duası Ahmed b. Hanbel ve Beyhakî’de geçer; senedi zayıf kabul edilir, ancak anlamı güzel olduğu için okunagelmiştir.",
+      git:[["zikir","istigfar","İstiğfar zikrine git"],["kaza","","Toplu kaza oturumu"]]},
+    regaib:{ozet:"Receb ayının ilk cuma gecesi. Üç ayların ilk kandilidir.",
+      ibadet:["Geceyi tevbe, dua ve istiğfarla ihya etmek","Kaza namazı ya da nafile namaz kılmak","Kur’an okumak ve salavat getirmek","Ertesi günü oruçlu geçirmek"],
+      kaynak:"Bu geceye özgü belirli rekât sayısında bir «Regaib namazı» sahih bir rivayetle sabit değildir; bunun yerine kaza, nafile namaz ve dua tavsiye edilir. Gecenin değeri, üç aylara girişin ve Ramazan’a hazırlığın başlangıcı olmasından gelir.",
+      git:[["kaza","","Toplu kaza oturumu"],["nafile","tesbih","Tesbih namazı"],["zikir","salavat","Salavat zikrine git"]]},
+    mirac:{ozet:"Peygamber Efendimizin Mescid-i Aksâ’dan göklere yükseldiği gece. Beş vakit namaz bu gecede farz kılındı.",
+      ibadet:["Namazın değerini düşünüp namazları vaktinde kılmaya niyet etmek","Kaza namazı kılmak","Bakara sûresinin son iki âyetini (Âmenerrasûlü) okumak","Tevbe, dua ve salavatla geceyi ihya etmek"],
+      kaynak:"«Kulunu bir gece Mescid-i Harâm’dan Mescid-i Aksâ’ya götüren Allah’ın şanı yücedir.» (İsrâ 1) Miraç’ta Peygamber Efendimize beş vakit namaz, Bakara sûresinin son âyetleri ve ümmetinden şirk koşmayanların bağışlanacağı müjdesi verilmiştir. (Müslim)",
+      git:[["kaza","","Toplu kaza oturumu"],["nafile","teheccud","Teheccüd namazı"]]},
+    berat:{ozet:"Şaban ayının 15. gecesi. Bağışlanma ve arınma gecesi olarak bilinir.",
+      ibadet:["Samimi tevbe ve istiğfar","Dargınlarla barışmak, kalpteki kini temizlemek","Kaza ve nafile namaz, Kur’an ve dua","Ertesi günü oruçlu geçirmek"],
+      kaynak:"«Allah, Şaban’ın on beşinci gecesi kullarına tecelli eder; müşrik ve kin güden hariç bütün kullarını bağışlar.» (İbn Mâce, İbn Hibbân) Ertesi günün orucuna dair rivayet ise zayıftır; nafile oruç olarak tutulabilir.",
+      git:[["zikir","istigfar","İstiğfar zikrine git"],["nafile","tevbe","Tevbe namazı"],["kaza","","Toplu kaza oturumu"]]},
+    ramazan:{ozet:"Kur’an’ın indirildiği, orucun farz olduğu mübarek ay.",
+      ibadet:["Ramazan orucunu tutmak (farz)","Teravih namazı kılmak","Sahura kalkmak, iftarı vaktinde açmak","Mukabele okumak ya da dinlemek","Fitre ve zekâtı vermek","Oruç borcu olanlar için kazaya niyet etmek"],
+      kaynak:"«Ey iman edenler! Oruç sizden öncekilere farz kılındığı gibi size de farz kılındı.» (Bakara 183) «Kim inanarak ve sevabını umarak Ramazan orucunu tutarsa geçmiş günahları bağışlanır.» «Kim inanarak ve sevabını umarak Ramazan gecelerini ihya ederse geçmiş günahları bağışlanır.» (Buhârî, Müslim)",
+      git:[["kaza","","Toplu kaza oturumu"]]},
+    sonon:{ozet:"Ramazan’ın en faziletli günleri. Kadir gecesi bu günlerin içindedir.",
+      ibadet:["İtikâfa girmek (sünnet)","Tek gecelerde Kadir gecesini aramak","Geceleri ibadetle ihya etmek, aileyi de ibadete teşvik etmek","Fitreyi bayramdan önce vermek"],
+      kaynak:"Peygamber Efendimiz Ramazan’ın son on gününde itikâfa girerdi. (Buhârî, Müslim) «Kadir gecesini Ramazan’ın son on gününün tek gecelerinde arayın.» (Buhârî) Son on gün girince geceyi ihya eder, ailesini uyandırır ve ibadete daha çok yönelirdi. (Buhârî, Müslim)",
+      git:[["nafile","teheccud","Teheccüd namazı"],["nafile","tesbih","Tesbih namazı"]]},
+    kadir:{ozet:"Kur’an’ın indirildiği, bin aydan hayırlı gece.",
+      ibadet:["Geceyi namaz, Kur’an ve dua ile ihya etmek","Kadir sûresini okumak","Kaza namazı kılmak","Tesbih namazı kılmak","Aşağıdaki duayı çokça okumak"],
+      dua:{baslik:"Kadir gecesi duası", ar:"اَللّٰهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي", tr:"Allâhümme inneke afüvvün tuhibbü’l-afve fa’fu annî.", anlam:"Allah’ım! Sen affedicisin, affetmeyi seversin; beni affet."},
+      kaynak:"«Kadir gecesi bin aydan daha hayırlıdır.» (Kadir 3) «Kim faziletine inanarak ve sevabını umarak Kadir gecesini ihya ederse geçmiş günahları bağışlanır.» (Buhârî, Müslim) Hz. Âişe Kadir gecesinde ne diyeceğini sorunca Peygamber Efendimiz bu duayı öğretmiştir. (Tirmizî)",
+      git:[["nafile","tesbih","Tesbih namazı"],["kaza","","Toplu kaza oturumu"],["zikir","istigfar","İstiğfar zikrine git"]]},
+    arefe_r:{ozet:"Ramazan’ın son günü. Bayrama hazırlık günü.",
+      ibadet:["Fitreyi henüz vermediysen bayram namazından önce vermek","Kabir ziyareti yapmak","Ramazan’ın son orucunu tamamlamak ve kabulü için dua etmek"],
+      kaynak:"Peygamber Efendimiz fitrenin bayram namazına çıkmadan önce verilmesini emretmiştir. (Buhârî, Müslim)",
+      git:[]},
+    rbayram:{ozet:"Ramazan orucunun tamamlanmasının sevinci ve şükrü.",
+      ibadet:["Bayram namazını kılmak (Hanefî’ye göre vacip)","Fitre verilmediyse hemen vermek","Anne baba, akraba ve komşuları ziyaret etmek, küslükleri bitirmek","Bayram günlerinde oruç tutmamak (haramdır)","Bayramdan sonra Şevval’de altı gün oruç tutmak"],
+      kaynak:"«Kim Ramazan orucunu tutar, ardından Şevval’den altı gün oruç tutarsa bütün yılı oruçlu geçirmiş gibi olur.» (Müslim) Peygamber Efendimiz Ramazan ve Kurban bayramı günlerinde oruç tutmayı yasaklamıştır. (Buhârî, Müslim)",
+      git:[]},
+    zilhicce:{ozet:"Yılın en faziletli günleri. Kurban Bayramı’na hazırlık dönemi.",
+      ibadet:["İlk dokuz günde (özellikle arefe günü) oruç tutmak","Tekbir, tehlil ve hamdi çoğaltmak","Kurban kesecek olanların saç ve tırnaklarını kurban kesilene kadar kesmemesi (müstehap)","Sadaka ve iyiliği artırmak"],
+      kaynak:"«Allah katında hiçbir günde yapılan salih amel, bu on günde yapılandan daha sevimli değildir.» (Buhârî) «Zilhicce’nin on günü girdiğinde sizden kurban kesmek isteyen, saçından ve tırnağından bir şey kesmesin.» (Müslim)",
+      git:[["zikir","tehlil","Kelime-i tevhid zikrine git"]]},
+    arefe_k:{ozet:"Hacıların Arafat’ta vakfe yaptığı gün. Teşrik tekbirleri bu günün sabahı başlar.",
+      ibadet:["Arefe orucu tutmak","Arefe sabah namazından bayramın 4. günü ikindi namazına kadar 23 farz namazın ardından teşrik tekbiri getirmek (vacip)","Arefe duasını çokça okumak","Kabir ziyareti yapmak"],
+      dua:{baslik:"Teşrik tekbiri", ar:"اَللّٰهُ أَكْبَرُ اَللّٰهُ أَكْبَرُ لَا إِلٰهَ إِلَّا اللّٰهُ وَاللّٰهُ أَكْبَرُ اَللّٰهُ أَكْبَرُ وَلِلّٰهِ الْحَمْدُ", tr:"Allâhu ekber Allâhu ekber, lâ ilâhe illallâhu vallâhu ekber, Allâhu ekber ve lillâhi’l-hamd.", anlam:"Allah en büyüktür, Allah en büyüktür. Allah’tan başka ilah yoktur. Allah en büyüktür, Allah en büyüktür ve hamd Allah’a mahsustur."},
+      kaynak:"«Arefe günü orucunun, önceki ve sonraki bir yılın günahlarına kefaret olmasını Allah’tan umarım.» (Müslim) «Duaların en hayırlısı arefe günü yapılan duadır. Benim ve benden önceki peygamberlerin söylediği en hayırlı söz: Lâ ilâhe illallâhu vahdehû lâ şerîke leh, lehü’l-mülkü ve lehü’l-hamdü ve hüve alâ külli şey’in kadîr’dir.» (Tirmizî)",
+      git:[["zikir","tehlil","Kelime-i tevhid zikrine git"]]},
+    kbayram:{ozet:"Hz. İbrâhim’in teslimiyetinin hatırası, kurban ibadetinin günleri.",
+      ibadet:["Bayram namazını kılmak (Hanefî’ye göre vacip)","Gücü yetenlerin kurban kesmesi (Hanefî’ye göre nisap miktarı mala sahip olana vacip)","Farz namazların ardından teşrik tekbirlerine devam etmek","Akraba ve komşuları ziyaret etmek, kurban etinden paylaştırmak","Bayram günlerinde oruç tutmamak"],
+      dua:{baslik:"Teşrik tekbiri", ar:"اَللّٰهُ أَكْبَرُ اَللّٰهُ أَكْبَرُ لَا إِلٰهَ إِلَّا اللّٰهُ وَاللّٰهُ أَكْبَرُ اَللّٰهُ أَكْبَرُ وَلِلّٰهِ الْحَمْدُ", tr:"Allâhu ekber Allâhu ekber, lâ ilâhe illallâhu vallâhu ekber, Allâhu ekber ve lillâhi’l-hamd.", anlam:"Allah en büyüktür, Allah en büyüktür. Allah’tan başka ilah yoktur. Allah en büyüktür, Allah en büyüktür ve hamd Allah’a mahsustur."},
+      kaynak:"«Rabbin için namaz kıl ve kurban kes.» (Kevser 2) «Onların ne etleri ne de kanları Allah’a ulaşır; fakat O’na sizin takvanız ulaşır.» (Hac 37)",
+      git:[]},
+    hicri:{ozet:"Hicri takvimin ve Muharrem ayının başlangıcı; Hicret’in hatırası.",
+      ibadet:["Geçen yılın muhasebesini yapıp yeni yıl için niyet etmek","Muharrem ayında nafile oruç tutmak","Kaza borcu için yeni yıl hedefi koymak"],
+      kaynak:"«Ramazan’dan sonra en faziletli oruç, Allah’ın ayı Muharrem’de tutulan oruçtur.» (Müslim)",
+      git:[["kaza","","Toplu kaza oturumu"]]},
+    asure:{ozet:"Muharrem’in 10. günü. Peygamber Efendimizin oruç tuttuğu ve tavsiye ettiği gün.",
+      ibadet:["Aşure orucu tutmak; bir gün öncesi (9) ya da sonrası (11) ile birlikte tutmak","Aşure pişirip komşularla paylaşmak (güzel bir gelenek)","Sadaka vermek"],
+      kaynak:"«Aşure günü orucunun, önceki bir yılın günahlarına kefaret olmasını Allah’tan umarım.» (Müslim) Peygamber Efendimiz «Gelecek yıla kalırsam dokuzuncu gün de oruç tutacağım» buyurmuştur. (Müslim)",
+      git:[]},
+    mevlid:{ozet:"Peygamber Efendimizin dünyaya teşrif ettiği gece.",
+      ibadet:["Çokça salavat getirmek","Peygamber Efendimizin hayatını (siyer) okumak","Kaza ya da nafile namaz kılmak, Kur’an okumak","Ertesi gün oruç tutmak"],
+      kaynak:"«Şüphesiz Allah ve melekleri Peygamber’e salât ederler. Ey iman edenler! Siz de ona salât ve selam getirin.» (Ahzâb 56) Peygamber Efendimiz pazartesi orucunu sorulduğunda «O gün doğdum» buyurmuştur. (Müslim)",
+      git:[["zikir","salavat","Salavat zikrine git"],["zikir","fatih","Salât-ı Fâtih"]]}
+  };
   var MILES = [10,25,50,75,90,100];
   var ZIKIRS = [
     {id:"tesbihat", s:"Tesbihat", n:"Namaz tesbihatı", sub:"33 Sübhânallah · 33 Elhamdülillâh · 33 Allâhu ekber", seq:true, note:"Sübhânallah: Allah’ı her türlü eksiklikten tenzih ederim. Elhamdülillâh: Hamd Allah’a mahsustur. Allâhu ekber: Allah en büyüktür.", bilgi:"Otuz üçer kere okunduktan sonra «Lâ ilâhe illallâhü vahdehû lâ şerîke leh, lehü’l-mülkü ve lehü’l-hamdü ve hüve alâ külli şey’in kadîr» denerek yüze tamamlanır.", g:"Günlük tesbihat", fz:"Her namazın ardından otuz üçer kere Sübhânallah, Elhamdülillâh ve Allâhu ekber diyenin hataları, deniz köpüğü kadar bile olsa bağışlanacağı bildirilmiştir. (Müslim)"},
@@ -1758,6 +1885,7 @@ var PT = (function(){
     }
     h += updStrip();
     h += vakitStrip();
+    h += sonrakiOzelSatir();
 
     var dayLeft = s.keys.some(function(x){ return remaining(x.k)>0; });
     h += '<button class="dayBtn" data-act="day"'+(dayLeft?'':' disabled')+'>1 günlük kaza kıldım</button>';
@@ -2061,7 +2189,93 @@ var PT = (function(){
     return h;
   }
 
-  var rTab = "nafile", nOpen = null;
+  var rTab = "gunler", nOpen = null, gOpen = null;
+  var GUN_ADLARI = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+  function gunAdi(iso){ var p = iso.split("-"); return GUN_ADLARI[new Date(+p[0], +p[1]-1, +p[2]).getDay()]; }
+  function ozelDurum(g){
+    var t = todayIso(), bitis = g.e || g.d, now = new Date();
+    if(g.gece){
+      // kandil gecesi o günün akşamından ertesi sabah imsaka kadar sürer
+      var gd = new Date(+g.d.slice(0,4), +g.d.slice(5,7)-1, +g.d.slice(8,10));
+      var aksam = dayTimes(gd).sunset;
+      var ertesi = new Date(gd); ertesi.setDate(ertesi.getDate()+1);
+      var sabah = dayTimes(ertesi).fajr;
+      if(now >= aksam && now < sabah) return {simdi:true, metin:"Bu gece idrak ediliyor"};
+      if(now >= sabah) return {gecti:true};
+      var fark = aksam - now, gun = daysBetween(t, g.d);
+      if(gun===0) return {gun:0, metin:"Bu akşam "+hm(aksam)+"’de başlıyor", ms:fark};
+      return {gun:gun, metin:gun===1 ? "Yarın akşam" : gun+" gün sonra", ms:fark};
+    }
+    if(t > bitis) return {gecti:true};
+    if(t >= g.d) {
+      var kacinci = daysBetween(g.d, t) + 1, toplam = daysBetween(g.d, bitis) + 1;
+      return {simdi:true, metin: toplam > 1 ? "Bugün "+kacinci+". gün ("+toplam+" günün)" : "Bugün"};
+    }
+    var gn = daysBetween(t, g.d);
+    return {gun:gn, metin: gn===1 ? "Yarın" : gn+" gün sonra"};
+  }
+  function ozelListe(){
+    var out = [];
+    OZEL_GUNLER.forEach(function(g, i){ var st = ozelDurum(g); if(!st.gecti) out.push({g:g, i:i, st:st}); });
+    // şu an idrak edilen gece ya da gün en üstte; kandil gecesi aynı günkü dönemden önce gelir
+    out.sort(function(a, b){
+      var sa = a.st.simdi ? (a.g.gece ? 0 : 1) : 2, sb = b.st.simdi ? (b.g.gece ? 0 : 1) : 2;
+      return sa - sb || a.i - b.i;
+    });
+    return out;
+  }
+  function kalanMetin(st){
+    if(st.simdi) return {buyuk:"Şimdi", kucuk:st.metin};
+    if(st.ms !== undefined && st.ms < 48*3600000){
+      var sa = Math.floor(st.ms/3600000), dk = Math.floor((st.ms%3600000)/60000);
+      return {buyuk: sa ? sa+" sa "+dk+" dk" : dk+" dk", kucuk:"kaldı"};
+    }
+    return {buyuk:String(st.gun), kucuk: st.gun===1 ? "gün kaldı" : "gün kaldı"};
+  }
+  function viewGunler(){
+    if(gOpen !== null && OZEL_GUNLER[gOpen]) return viewGunDetay(OZEL_GUNLER[gOpen]);
+    var liste = ozelListe(), h = "";
+    if(!liste.length) return '<p class="small" style="margin-top:14px">Listede yaklaşan gün kalmadı. Uygulamanın yeni sürümüyle takvim güncellenecek.</p>';
+    var ilk = liste[0], km = kalanMetin(ilk.st);
+    h += '<button class="gnext" data-act="gopen" data-i="'+ilk.i+'"><span class="gl">'+(ilk.st.simdi ? "ŞU AN" : "SIRADAKİ ÖZEL GÜN")+'</span>';
+    h += '<span class="ga" style="display:block">'+ilk.g.ad+'</span>';
+    h += '<span class="gd">'+fmtDate(ilk.g.d)+' '+gunAdi(ilk.g.d)+(ilk.g.gece ? ' akşamı' : '')+' · '+ilk.g.h+'</span>';
+    h += '<span class="gc"><b class="num">'+km.buyuk+'</b><span>'+km.kucuk+'</span></span>';
+    h += '<span class="gd" style="display:block; margin-top:6px">Yapılacak ibadetler için dokun ›</span></button>';
+    h += '<h2 style="font-size:.92rem; color:var(--muted); margin:18px 0 2px">Yaklaşan günler</h2>';
+    liste.slice(1).forEach(function(x){
+      var k2 = kalanMetin(x.st);
+      h += '<button class="grow" data-act="gopen" data-i="'+x.i+'"><span><b><span class="tchip '+(x.st.simdi?'simdi':x.g.tur)+'">'+(x.st.simdi?'Şimdi':x.g.tur)+'</span>'+x.g.ad+'</b>';
+      h += '<span class="gs">'+fmtDate(x.g.d)+' '+gunAdi(x.g.d)+(x.g.gece ? ' akşamı' : '')+(x.g.e ? ' – '+fmtDate(x.g.e) : '')+' · '+x.g.h+(x.g.t ? ' · tahmini' : '')+'</span></span>';
+      h += '<span class="gk"><strong class="num">'+k2.buyuk+'</strong><span>'+k2.kucuk+'</span></span></button>';
+    });
+    h += '<p class="small" style="margin-top:14px">Tarihler Diyanet İşleri Başkanlığı’nın dini günler takvimine göredir. Kandiller yazan günün akşam ezanıyla başlar. «Tahmini» olanlar Diyanet’in ilanıyla bir gün değişebilir.</p>';
+    return h;
+  }
+  function viewGunDetay(g){
+    var c = GUN_ICERIK[g.k] || {}, st = ozelDurum(g), km = st.gecti ? null : kalanMetin(st), h = "";
+    h += '<button class="link" data-act="gback" style="border:0;background:none;padding:0;margin-top:12px;color:var(--muted);font-weight:600">‹ Özel günler</button>';
+    h += '<h2 style="margin:10px 0 2px"><span class="tchip '+g.tur+'">'+g.tur+'</span>'+g.ad+'</h2>';
+    h += '<p class="sub" style="margin:0">'+fmtDate(g.d)+' '+gunAdi(g.d)+(g.gece ? ' akşamı' : '')+(g.e ? ' – '+fmtDate(g.e)+' '+gunAdi(g.e) : '')+' · '+g.h+(g.t ? ' · tahmini' : '')+'</p>';
+    if(km) h += '<div class="vakit" style="width:100%"><i class="dot"></i><span><b>'+(st.simdi ? st.metin : km.buyuk+' '+km.kucuk)+'</b>'+(!st.simdi && st.gun===0 ? '<br>'+st.metin : '')+'</span></div>';
+    if(c.ozet) h += '<div class="nsec"><p>'+c.ozet+'</p></div>';
+    if(c.ibadet) h += '<div class="nsec"><h3>Yapılabilecek ibadetler</h3><ol>'+c.ibadet.map(function(x){ return '<li>'+x+'</li>'; }).join("")+'</ol></div>';
+    if(c.dua){
+      h += '<div class="nsec"><h3>'+c.dua.baslik+'</h3><div class="step" style="margin-top:0"><p class="arabic" style="font-size:1.3rem; line-height:1.9; margin:0">'+c.dua.ar+'</p><p class="trans" style="color:var(--muted)">'+c.dua.tr+'</p><p class="meal" style="margin-top:8px"><b>Anlamı:</b> '+c.dua.anlam+'</p></div></div>';
+    }
+    if(c.kaynak) h += '<div class="nsec"><h3>Fazileti ve kaynağı</h3><div class="fz">'+c.kaynak+'</div></div>';
+    if(c.git && c.git.length){
+      h += '<div class="nsec"><h3>Uygulamada</h3>';
+      c.git.forEach(function(x){ h += '<button class="act" data-act="ggit" data-t="'+x[0]+'" data-z="'+x[1]+'" style="margin-top:8px">'+x[2]+' ›</button>'; });
+      h += '</div>';
+    }
+    return h;
+  }
+  function sonrakiOzelSatir(){
+    var l = ozelListe(); if(!l.length) return "";
+    var x = l[0], km = kalanMetin(x.st);
+    return '<button class="gtakip" data-act="gtakip" data-i="'+x.i+'"><span>🌙</span><span><b>'+x.g.ad+'</b></span><span class="r">'+(x.st.simdi ? x.st.metin : km.buyuk+" "+km.kucuk)+' ›</span></button>';
+  }
   function nafileById(id){ for(var i=0;i<NAFILE.length;i++) if(NAFILE[i].id===id) return NAFILE[i]; return null; }
   function nCount(id){ var d = state.nlog[todayIso()] || {}; return Number(d[id])||0; }
   function nAdd(id, n){
@@ -2091,8 +2305,9 @@ var PT = (function(){
     return {simdi:simdi, metin:(simdi ? "Şu an vakti · " : "Vakti ")+hm(from)+"–"+hm(to)};
   }
   function viewRehber(){
-    var h = '<div class="seg" role="group" aria-label="Rehber" style="margin-bottom:6px"><button data-act="rtab" data-m="nafile" aria-pressed="'+(rTab==="nafile")+'">Nafile namazlar</button><button data-act="rtab" data-m="kaza" aria-pressed="'+(rTab==="kaza")+'">Vakitler ve kaza</button></div>';
+    var h = '<div class="seg three" role="group" aria-label="Rehber" style="margin-bottom:6px"><button data-act="rtab" data-m="gunler" aria-pressed="'+(rTab==="gunler")+'">Özel günler</button><button data-act="rtab" data-m="nafile" aria-pressed="'+(rTab==="nafile")+'">Nafile</button><button data-act="rtab" data-m="kaza" aria-pressed="'+(rTab==="kaza")+'">Vakitler</button></div>';
     if(rTab==="kaza") return h + viewGuide();
+    if(rTab==="gunler") return h + viewGunler();
     if(nOpen){ var n = nafileById(nOpen); if(n) return h + viewNafileDetay(n); nOpen = null; }
     return h + viewNafileListe();
   }
@@ -2374,7 +2589,16 @@ var PT = (function(){
       case "updgo": if(upd){ updState = {durum:"indiriliyor", pct:0, mesaj:""}; render(); nat("downloadUpdate", upd.apk); } break;
       case "updskip": if(upd){ state.update.skip = Number(upd.code)||0; upd = null; updState = null; persist(); render(); toast("Bu sürüm atlandı"); } break;
       case "updcheck": toast("Kontrol ediliyor…"); checkUpdate(true); break;
-      case "rtab": rTab = b.getAttribute("data-m"); nOpen = null; render(); window.scrollTo(0,0); break;
+      case "rtab": rTab = b.getAttribute("data-m"); nOpen = null; gOpen = null; render(); window.scrollTo(0,0); break;
+      case "gopen": gOpen = Number(b.getAttribute("data-i")); render(); window.scrollTo(0,0); break;
+      case "gback": gOpen = null; render(); window.scrollTo(0,0); break;
+      case "gtakip": rTab = "gunler"; gOpen = Number(b.getAttribute("data-i")); go("rehber"); break;
+      case "ggit":
+        var gt = b.getAttribute("data-t"), gz = b.getAttribute("data-z");
+        if(gt==="zikir"){ zUse(gz); persist(); zTab = "zikir"; zLib = false; go("oturum"); }
+        else if(gt==="nafile"){ rTab = "nafile"; nOpen = gz; gOpen = null; render(); window.scrollTo(0,0); }
+        else if(gt==="kaza"){ go("kazaoturum"); }
+        break;
       case "nopen": nOpen = b.getAttribute("data-n"); render(); window.scrollTo(0,0); break;
       case "nback": nOpen = null; render(); window.scrollTo(0,0); break;
       case "nplus": if(nOpen){ nAdd(nOpen, 1); buzz([40,40,40]); toast("Allah kabul etsin"); } break;
@@ -2553,6 +2777,7 @@ var PT = (function(){
     }
     if(view==="kazaoturum"){ go("takip"); return true; }
     if(view==="rehber" && nOpen){ nOpen = null; render(); return true; }
+    if(view==="rehber" && gOpen !== null){ gOpen = null; render(); return true; }
     if(view==="oturum" && zTab==="zikir" && zLib){ zLib = false; render(); return true; }
     if(view==="oturum" && zTab==="vird" && (vOpen || vForm)){ vOpen = null; vForm = null; render(); return true; }
     if(view!=="takip"){ go("takip"); return true; }

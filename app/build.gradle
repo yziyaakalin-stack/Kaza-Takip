@@ -10,8 +10,8 @@ android {
         applicationId 'com.ziya.kazatakip'
         minSdk 26
         targetSdk 34
-        versionCode 22
-        versionName '3.1'
+        versionCode 23
+        versionName '3.2'
     }
 
     // Sabit imza: her derleme aynı anahtarla imzalanır, böylece
