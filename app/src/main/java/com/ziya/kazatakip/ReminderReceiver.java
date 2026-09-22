@@ -14,6 +14,12 @@ public class ReminderReceiver extends BroadcastReceiver {
     public void onReceive(Context c, Intent intent) {
         if (intent == null || !Reminder.ACTION.equals(intent.getAction())) return;
         int slot = intent.getIntExtra(Reminder.EXTRA_SLOT, Reminder.SLOT_KAZA);
+        if (slot == Reminder.SLOT_GECE) {
+            // Yeni gün: bütün hatırlatmaları o günün vakitlerine göre yeniden kur
+            Reminder.schedule(c);
+            KazaWidget.refresh(c);
+            return;
+        }
         Reminder.scheduleSlot(c, slot);
 
         SharedPreferences p = Reminder.prefs(c);

@@ -932,10 +932,17 @@ var PT = (function(){
     });
     return out;
   }
+  var VAKIT_NO = {sabah:0, ogle:2, ikindi:3, aksam:4, yatsi:5};
   function syncVakitNative(){
     if(!hasNat("setVakitReminders") || !state) return;
-    var vr = state.vakitRemind;
-    nat("setVakitReminders", !!vr.on, JSON.stringify(vr.on ? vakitBildirimListesi() : []));
+    var vr = state.vakitRemind, list = [];
+    // Saatler telefonda her gün yeniden hesaplanır; burada yalnızca hangi vakit ve kaç dakika sonra bilgisi gider
+    KEYS.forEach(function(x){
+      if(VAKIT_NO[x.k] === undefined || !vr.keys[x.k]) return;
+      list.push({v:VAKIT_NO[x.k], t:x.n+" vakti girdi",
+                 x:"Bugünkü kazandan bir "+x.n.toLocaleLowerCase("tr")+" namazı kılmaya ne dersin?"});
+    });
+    nat("setVakitReminders", !!vr.on, JSON.stringify({offset:vr.offset, list: vr.on ? list : []}));
   }
   function zikirTicksAl(){
     if(!hasNat("takeZikirTicks")) return false;
@@ -959,6 +966,8 @@ var PT = (function(){
   }
   function syncNative(){
     if(!N || !state) return;
+    var cty = cityById(state.city);
+    if(cty) nat("setLocation", cty[2], cty[3]);
     syncWidget();
     syncVirdNative();
     syncVakitNative();
@@ -1577,7 +1586,9 @@ var PT = (function(){
     if(!on){ nat("setVirdReminder", false, 0, 0, "", ""); return; }
     var tm = virdReminderTime(on);
     var body = on.window==="fecr" ? "İmsak ile güneş doğuşu arasında oku." : "Bugünkü virdini unutma.";
-    nat("setVirdReminder", true, tm.h, tm.m, on.name, body);
+    // imsaka bağlı virdde saat telefonda her gün imsaka göre hesaplanır (-1 = imsak + 10 dk)
+    if(on.window==="fecr") nat("setVirdReminder", true, -1, 10, on.name, body);
+    else nat("setVirdReminder", true, tm.h, tm.m, on.name, body);
     var t = todayIso();
     nat("setVirdMet", (on.log[t] && on.log[t].done) ? t : "");
   }
@@ -2432,7 +2443,7 @@ var PT = (function(){
         });
         h += '</div>';
         var lst = vakitBildirimListesi();
-        if(lst.length) h += '<p class="small">Bugünün saatleri: '+lst.map(function(o){ return pad(o.h)+":"+pad(o.m); }).join(", ")+'. Saatler her gün vakitlere göre kendiliğinden kayar.</p>';
+        if(lst.length) h += '<p class="small">Bugünün saatleri: '+lst.map(function(o){ return pad(o.h)+":"+pad(o.m); }).join(", ")+'. Telefon her gece 00:05\'te o günün vakitlerini yeniden hesaplar; uygulamayı açmasan da bildirimler doğru saatte gelir.</p>';
       }
       if(rem.permission==="denied") h += '<p class="small warnTxt">Bildirim izni kapalı. Telefonun Ayarlar › Uygulamalar › Kaza Takibi › Bildirimler bölümünden açabilirsin.</p>';
       h += '<p class="small">Pil tasarrufu nedeniyle bildirim birkaç dakika gecikebilir.</p>';

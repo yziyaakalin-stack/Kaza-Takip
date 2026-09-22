@@ -47,6 +47,17 @@ final class Reminder {
     static final String K_N_ENABLED = "vakit_enabled";
     static final String K_N_JSON = "vakit_json";
 
+    /** Vird hatırlatması imsaka göre mi (dakika farkıyla) */
+    static final String K_V_FECR = "vird_fecr";
+    static final String K_V_FECR_DK = "vird_fecr_dk";
+
+    /** Seçili şehrin konumu */
+    static final String K_LAT = "konum_lat";
+    static final String K_LNG = "konum_lng";
+
+    /** Her gece vakitleri yeniden hesaplayan yuva */
+    static final int SLOT_GECE = 30;
+
     private Reminder() {}
 
     static SharedPreferences prefs(Context c) {
@@ -95,15 +106,26 @@ final class Reminder {
         scheduleSlot(c, SLOT_KAZA);
         scheduleSlot(c, SLOT_VIRD);
         for (int i = 0; i < MAX_VAKIT; i++) scheduleSlot(c, SLOT_VAKIT + i);
+        scheduleSlot(c, SLOT_GECE);
     }
 
-    /** Vakit bildirimlerinin listesi: [{"h":13,"m":35,"t":"Öğle","x":"metin"}, ...] */
-    static org.json.JSONArray vakitler(Context c) {
+    static double lat(Context c) { return Double.longBitsToDouble(prefs(c).getLong(K_LAT, Double.doubleToLongBits(41.0082))); }
+    static double lng(Context c) { return Double.longBitsToDouble(prefs(c).getLong(K_LNG, Double.doubleToLongBits(28.9784))); }
+
+    /** Vakit bildirimi ayarı: {"offset":30,"list":[{"v":2,"t":"Öğle vakti girdi","x":"metin"}]} */
+    static org.json.JSONObject vakitAyari(Context c) {
         try {
-            return new org.json.JSONArray(prefs(c).getString(K_N_JSON, "[]"));
+            String raw = prefs(c).getString(K_N_JSON, "{}").trim();
+            if (raw.startsWith("[")) return new org.json.JSONObject().put("list", new org.json.JSONArray(raw));
+            return new org.json.JSONObject(raw);
         } catch (Exception e) {
-            return new org.json.JSONArray();
+            return new org.json.JSONObject();
         }
+    }
+
+    static org.json.JSONArray vakitler(Context c) {
+        org.json.JSONArray a = vakitAyari(c).optJSONArray("list");
+        return a == null ? new org.json.JSONArray() : a;
     }
 
     static void scheduleSlot(Context c, int slot) {
@@ -115,13 +137,29 @@ final class Reminder {
         SharedPreferences p = prefs(c);
         int hour;
         int minute;
-        if (slot >= SLOT_VAKIT) {
+        long simdi = System.currentTimeMillis();
+        if (slot == SLOT_GECE) {
+            // Her gece 00:05: vakitleri yeniden hesaplayıp alarmları kur
+            if (!anyEnabled(c)) return;
+            hour = 0;
+            minute = 5;
+        } else if (slot >= SLOT_VAKIT) {
             if (!p.getBoolean(K_N_ENABLED, false)) return;
+            org.json.JSONObject ayar = vakitAyari(c);
             org.json.JSONObject o = vakitler(c).optJSONObject(slot - SLOT_VAKIT);
             if (o == null) return;
+            if (o.has("v")) {
+                long zaman = Vakit.sonraki(o.optInt("v"), ayar.optInt("offset", 30), lat(c), lng(c), simdi);
+                if (zaman > 0) am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, zaman, pi);
+                return;
+            }
             hour = o.optInt("h", -1);
             minute = o.optInt("m", 0);
             if (hour < 0) return;
+        } else if (slot == SLOT_VIRD && p.getBoolean(K_V_ENABLED, false) && p.getBoolean(K_V_FECR, false)) {
+            long zaman = Vakit.sonraki(Vakit.IMSAK, p.getInt(K_V_FECR_DK, 10), lat(c), lng(c), simdi);
+            if (zaman > 0) am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, zaman, pi);
+            return;
         } else {
             boolean on = p.getBoolean(slot == SLOT_VIRD ? K_V_ENABLED : K_ENABLED, false);
             if (!on) return;
@@ -134,7 +172,7 @@ final class Reminder {
         cal.set(Calendar.MINUTE, minute);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        if (cal.getTimeInMillis() <= System.currentTimeMillis() + 5000) {
+        if (cal.getTimeInMillis() <= simdi + 5000) {
             cal.add(Calendar.DAY_OF_YEAR, 1);
         }
         am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pi);

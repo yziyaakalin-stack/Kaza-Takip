@@ -234,11 +234,14 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void setVirdReminder(final boolean enabled, final int hour, final int minute,
                                     final String title, final String text) {
+            final boolean fecr = hour < 0;
             final int h = Math.max(0, Math.min(23, hour));
-            final int m = Math.max(0, Math.min(59, minute));
+            final int m = Math.max(0, Math.min(fecr ? 180 : 59, minute));
             runOnUiThread(new Runnable() {
                 @Override public void run() {
                     Reminder.prefs(MainActivity.this).edit()
+                            .putBoolean(Reminder.K_V_FECR, fecr)
+                            .putInt(Reminder.K_V_FECR_DK, fecr ? m : 10)
                             .putInt(Reminder.K_V_HOUR, h)
                             .putInt(Reminder.K_V_MINUTE, m)
                             .putString(Reminder.K_V_TITLE, title == null || title.isEmpty() ? "Vird vakti" : title)
@@ -250,8 +253,20 @@ public class MainActivity extends Activity {
                         return;
                     }
                     Reminder.scheduleSlot(MainActivity.this, Reminder.SLOT_VIRD);
+                    Reminder.scheduleSlot(MainActivity.this, Reminder.SLOT_GECE);
                 }
             });
+        }
+
+        /** Seçili şehrin konumu: vakitler telefonda her gün buna göre hesaplanır. */
+        @JavascriptInterface
+        public void setLocation(double lat, double lng) {
+            if (Double.isNaN(lat) || Double.isNaN(lng)) return;
+            android.content.SharedPreferences p = Reminder.prefs(MainActivity.this);
+            double eskiLat = Reminder.lat(MainActivity.this), eskiLng = Reminder.lng(MainActivity.this);
+            p.edit().putLong(Reminder.K_LAT, Double.doubleToLongBits(lat))
+                    .putLong(Reminder.K_LNG, Double.doubleToLongBits(lng)).apply();
+            if (Math.abs(eskiLat - lat) > 1e-6 || Math.abs(eskiLng - lng) > 1e-6) Reminder.schedule(MainActivity.this);
         }
 
         /** Ana ekran aracındaki sayılar. */
@@ -340,16 +355,21 @@ public class MainActivity extends Activity {
         public void setVakitReminders(final boolean enabled, final String liste) {
             runOnUiThread(new Runnable() {
                 @Override public void run() {
-                    String json = liste == null ? "[]" : liste;
+                    String json = liste == null ? "{}" : liste;
                     try {
-                        org.json.JSONArray a = new org.json.JSONArray(json);
-                        if (a.length() > Reminder.MAX_VAKIT) {
+                        String t = json.trim();
+                        org.json.JSONObject o = t.startsWith("[")
+                                ? new org.json.JSONObject().put("list", new org.json.JSONArray(t))
+                                : new org.json.JSONObject(t);
+                        org.json.JSONArray a = o.optJSONArray("list");
+                        if (a != null && a.length() > Reminder.MAX_VAKIT) {
                             org.json.JSONArray kisa = new org.json.JSONArray();
                             for (int i = 0; i < Reminder.MAX_VAKIT; i++) kisa.put(a.get(i));
-                            json = kisa.toString();
+                            o.put("list", kisa);
                         }
+                        json = o.toString();
                     } catch (Exception e) {
-                        json = "[]";
+                        json = "{}";
                     }
                     Reminder.prefs(MainActivity.this).edit()
                             .putString(Reminder.K_N_JSON, json)
@@ -362,6 +382,7 @@ public class MainActivity extends Activity {
                     for (int i = 0; i < Reminder.MAX_VAKIT; i++) {
                         Reminder.scheduleSlot(MainActivity.this, Reminder.SLOT_VAKIT + i);
                     }
+                    Reminder.scheduleSlot(MainActivity.this, Reminder.SLOT_GECE);
                 }
             });
         }
